@@ -82,6 +82,9 @@ p{margin:0 0 12px}
 .seg button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-size:15px;font-weight:600;padding:8px 4px;border-radius:10px;cursor:pointer;min-height:44px;line-height:1.2}
 .seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .seg-caption{font-size:14px;color:var(--muted);margin:-4px 0 14px 4px}
+.install-video{display:block;width:100%;max-width:320px;margin:4px auto 10px;border-radius:16px;background:#000;aspect-ratio:9/16}
+.install-banner{display:flex;align-items:center;gap:12px}
+.install-banner .grow{flex:1}
 .hint{font-size:14px;color:var(--muted);margin-top:10px;text-align:center}
 .section-head{margin:22px 0 10px}
 .section-head h3{flex:1;font-size:19px}
@@ -587,6 +590,10 @@ function boxesPanel(d) {
     <div class="legend">Fach 1 = neu oder nicht gewusst · Fach 5 = sitzt</div></div>`;
 }
 
+const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+const installPanel = () => `<div class="panel" id="install"><div class="panel-title">App auf den Home-Bildschirm</div>
+      <video class="install-video" src="install-video.mp4" poster="install-poster.jpg" controls playsinline preload="none"></video>
+      <p class="muted small" style="margin:0">iPhone: Safari → Teilen → „Zum Home-Bildschirm“. Android: Chrome → ⋮ → „Zum Startbildschirm hinzufügen“.</p></div>`;
 function viewHome() {
   const items = db.decks.map(d => {
     const st = stats(d);
@@ -595,6 +602,8 @@ function viewHome() {
       <div class="muted small" style="margin-top:2px">${st.total} Karten · ${st.boxes[5]} sitzen</div>${boxbar(st)}</button>`;
   }).join('');
   return `<div class="topbar"><h1>Karteikasten</h1><button class="icon-btn" data-act="settings" aria-label="Einstellungen und Daten">${ic('gear')}</button></div>
+    ${!isStandalone() && !db.settings.hideInstall ? `<div class="panel install-banner"><div class="grow"><b>Als App installieren</b><div class="muted small">Kurzes Video: so kommt die App auf deinen Home-Bildschirm.</div></div>
+      <button class="btn sm primary" data-act="show-install">Ansehen</button><button class="icon-btn" data-act="hide-install" aria-label="Hinweis ausblenden">${ic('close')}</button></div>` : ''}
     ${items || '<div class="empty">Noch keine Stapel.<br>Leg einen an oder importiere einen.</div>'}
     <button class="btn block" data-act="new-deck">${ic('plus')} Neuer Stapel</button>`;
 }
@@ -669,6 +678,7 @@ function viewSummary() {
 function viewSettings() {
   const seg = (v, label) => `<button class="${db.settings.theme === v ? 'on' : ''}" data-act="theme" data-v="${v}">${label}</button>`;
   return `<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Zurück">${ic('back')}</button><h2>Einstellungen &amp; Daten</h2></div>
+    ${installPanel()}
     <div class="panel"><div class="panel-title">Darstellung</div><div class="seg" style="margin:0">${seg('auto', 'Automatisch')}${seg('light', 'Hell')}${seg('dark', 'Dunkel')}</div></div>
     <div class="panel"><div class="panel-title">Sichern</div>
       <p class="muted small">Deine Karten liegen nur in diesem Browser auf diesem Gerät. Exportiere regelmäßig ein Backup – damit kannst du auch zwischen iPhone und Laptop wechseln.</p>
@@ -911,6 +921,8 @@ function finishSession() {
 const actions = {
   home() { ui.view = 'home'; render(); },
   settings() { ui.view = 'settings'; render(); },
+  'show-install'() { ui.view = 'settings'; render(); const v = document.querySelector('.install-video'); if (v) { v.scrollIntoView({ block: 'start' }); v.play().catch(() => {}); } },
+  'hide-install'() { db.settings.hideInstall = true; save(); render(); },
   open(el) { ui.deckId = el.dataset.id; ui.sel = null; ui.search = ''; ui.view = 'deck'; render(); },
   'new-deck'() { askText('Neuer Stapel', 'z. B. LF2 – Leistungserstellung', '', 'Anlegen', name => {
     const d = makeDeck(name, []); db.decks.push(d); save(); ui.deckId = d.id; ui.sel = null; ui.search = ''; ui.view = 'deck'; render(); }); },
