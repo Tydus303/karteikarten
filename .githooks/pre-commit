@@ -1,0 +1,3 @@
+#!/bin/sh
+# Datenschutz-Check vor jedem Commit
+exec python3 -I "$(git rev-parse --show-toplevel)/.githooks/privacy_check.py"

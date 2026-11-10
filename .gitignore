@@ -1,0 +1,6 @@
+# Backups und lokale Dateien
+index.backup-*.html
+.privacy-blocklist.txt
+.DS_Store
+.graph_token
+.env

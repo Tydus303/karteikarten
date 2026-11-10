@@ -1,0 +1,976 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Karteikasten</title>
+<meta name="description" content="Karteikarten mit Leitner-System für die Berufsschule">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Karteikasten">
+<meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121417" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>
+:root{
+  --bg:#f6f5f1;--surface:#ffffff;--surface2:#ecebe5;--text:#1d1f22;--muted:#6b6f76;--border:#e1ded6;
+  --accent:#2f5d7c;--accent-contrast:#ffffff;--good:#2e7d4f;--bad:#b4443a;
+  --b1:#c8574c;--b2:#d98e47;--b3:#c9ad45;--b4:#7fae5a;--b5:#3f8f5f;
+  --shadow:0 10px 30px rgba(20,25,30,.08),0 2px 6px rgba(20,25,30,.05);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121417;--surface:#1b1e22;--surface2:#262a30;--text:#ecebe6;--muted:#9aa0a8;--border:#2f343a;
+    --accent:#86b4d3;--accent-contrast:#0c1923;--good:#5fbf88;--bad:#e27b70;
+    --shadow:0 10px 30px rgba(0,0,0,.35);color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121417;--surface:#1b1e22;--surface2:#262a30;--text:#ecebe6;--muted:#9aa0a8;--border:#2f343a;
+  --accent:#86b4d3;--accent-contrast:#0c1923;--good:#5fbf88;--bad:#e27b70;
+  --shadow:0 10px 30px rgba(0,0,0,.35);color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font:17px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;touch-action:manipulation;-webkit-text-size-adjust:100%}
+body.learning{overflow:hidden;overscroll-behavior:none}
+#app{max-width:640px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 10px) 16px calc(env(safe-area-inset-bottom) + 28px)}
+h1,h2,h3{margin:0;line-height:1.2}
+p{margin:0 0 12px}
+.small{font-size:14px}
+.muted{color:var(--muted)}
+.topbar{display:flex;align-items:center;gap:6px;min-height:52px;margin:0 -6px 10px}
+.topbar h1{font-size:30px;flex:1;letter-spacing:-.02em;padding-left:6px}
+.topbar h2{font-size:20px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icon-btn{flex:none;width:44px;height:44px;border-radius:12px;border:0;background:transparent;color:var(--text);display:grid;place-items:center;cursor:pointer;padding:0}
+.icon-btn:hover{background:var(--surface2)}
+.icon-btn.on{background:var(--accent);color:var(--accent-contrast)}
+.icon-btn svg{width:24px;height:24px}
+.btn{appearance:none;-webkit-appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit;font-weight:600;padding:12px 18px;border-radius:14px;cursor:pointer;min-height:50px;text-decoration:none}
+.btn svg{width:20px;height:20px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-contrast)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.block{width:100%}
+.btn.sm{min-height:40px;padding:8px 14px;font-size:15px;border-radius:12px}
+.btn:disabled{opacity:.45;cursor:default;filter:none}
+.btn.danger{color:var(--bad)}
+.btn+.btn.block{margin-top:10px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:14px}
+.panel-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px}
+.row{display:flex;align-items:center;gap:10px}
+.deck-item{display:block;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.deck-item:hover{border-color:var(--muted)}
+.deck-name{flex:1;font-size:19px;font-weight:650}
+.pill{font-size:14px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.pill.due{background:var(--accent);color:var(--accent-contrast)}
+.boxbar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--surface2);margin-top:12px}
+.boxbar span{display:block;height:100%}
+.b1{background:var(--b1)}.b2{background:var(--b2)}.b3{background:var(--b3)}.b4{background:var(--b4)}.b5{background:var(--b5)}
+.boxes{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.boxcol{text-align:center}
+.boxcol .col{height:84px;background:var(--surface2);border-radius:10px;display:flex;align-items:flex-end;overflow:hidden}
+.boxcol .fill{width:100%;border-radius:10px 10px 0 0;transition:height .4s}
+.boxcol .num{font-size:20px;font-weight:700;margin-top:6px}
+.boxcol .lbl{font-size:12px;color:var(--muted)}
+.legend{margin-top:12px;font-size:13px;color:var(--muted)}
+.seg{display:flex;background:var(--surface2);border-radius:13px;padding:3px;gap:3px;margin-bottom:10px}
+.seg button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-size:15px;font-weight:600;padding:8px 4px;border-radius:10px;cursor:pointer;min-height:44px;line-height:1.2}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.seg-caption{font-size:14px;color:var(--muted);margin:-4px 0 14px 4px}
+.hint{font-size:14px;color:var(--muted);margin-top:10px;text-align:center}
+.section-head{margin:22px 0 10px}
+.section-head h3{flex:1;font-size:19px}
+.list{display:flex;flex-direction:column;gap:8px}
+.list-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:inherit;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;cursor:pointer}
+.list-item:hover{border-color:var(--muted)}
+.li-text{flex:1;min-width:0}
+.li-front{font-size:15px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.li-back{font-weight:650;margin-top:2px}
+.boxdot{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff}
+.empty{text-align:center;padding:40px 16px;color:var(--muted)}
+input:not([type=checkbox]),textarea{width:100%;font:inherit;font-size:17px;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);outline:none;resize:vertical}
+input:focus,textarea:focus{border-color:var(--accent)}
+label{display:block;font-size:14px;font-weight:600;color:var(--muted);margin:14px 0 6px}
+label.check{display:flex;align-items:center;gap:10px;font-weight:500;color:var(--text);font-size:15px;margin:12px 0}
+label.check input{width:20px;height:20px;accent-color:var(--accent)}
+.search{margin-bottom:10px}
+pre.prompt{white-space:pre-wrap;word-break:break-word;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--surface2);border-radius:12px;padding:12px;margin:0 0 12px}
+ul.info{margin:0;padding-left:20px}
+ul.info li{margin:4px 0}
+
+/* Lernen */
+.learn{display:flex;flex-direction:column;height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 38px);min-height:480px}
+.lp{flex:1;padding:0 8px}
+.lp-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.lp-bar span{display:block;height:100%;width:0;background:var(--accent);border-radius:3px;transition:width .35s}
+.lp-text{font-size:14px;color:var(--muted);margin-top:6px;display:flex;justify-content:space-between;gap:8px}
+.stage{flex:1;display:flex;align-items:center;justify-content:center;padding:8px 0 18px;min-height:0}
+.card{position:relative;width:100%;height:100%;max-height:480px;perspective:1600px;-webkit-perspective:1600px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:pointer;will-change:transform}
+.card-inner{position:absolute;inset:0;transition:transform .6s cubic-bezier(.2,.75,.25,1);transform-style:preserve-3d;-webkit-transform-style:preserve-3d}
+.card.flipped .card-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;background:var(--surface);border:1px solid var(--border);border-radius:26px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 26px 40px;text-align:center}
+.face.front{transform:rotateY(0deg)}
+.face.back{transform:rotateY(180deg)}
+.tag{position:absolute;top:16px;left:18px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+.tag .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.tap-hint{position:absolute;bottom:16px;left:0;right:0;font-size:13px;color:var(--muted)}
+.front-text{font-size:26px;line-height:1.38;font-weight:500;text-wrap:balance}
+.front-text.m{font-size:22px}.front-text.s{font-size:19px}
+.term{font-size:36px;font-weight:750;line-height:1.18;letter-spacing:-.015em;text-wrap:balance;overflow-wrap:anywhere;hyphens:auto;-webkit-hyphens:auto}
+.term.m{font-size:29px}.term.s{font-size:24px}
+.example{margin-top:22px;font-size:17px;line-height:1.45;color:var(--muted);max-width:30em}
+.example b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.swipe-hint{position:absolute;top:18px;z-index:3;font-weight:800;font-size:14px;letter-spacing:.06em;padding:6px 12px;border-radius:10px;border:2.5px solid currentColor;background:var(--surface);opacity:0;pointer-events:none}
+.hint-good{right:18px;color:var(--good);transform:rotate(8deg)}
+.hint-bad{left:18px;color:var(--bad);transform:rotate(-8deg)}
+.rate{display:grid;grid-template-columns:1fr 1fr;gap:12px;transition:opacity .25s}
+.rate.off{opacity:.3;pointer-events:none}
+.rate button{min-height:66px;border-radius:18px;font:inherit;font-size:18px;font-weight:700;border:2px solid;cursor:pointer;background:var(--surface)}
+.rate .r-bad{color:var(--bad);border-color:var(--bad);background:color-mix(in srgb,var(--bad) 9%,var(--surface))}
+.rate .r-good{color:var(--good);border-color:var(--good);background:color-mix(in srgb,var(--good) 11%,var(--surface))}
+.rate button:active{transform:scale(.98)}
+.kbd-hint{text-align:center;font-size:13px;color:var(--muted);margin-top:12px}
+@media (hover:none){.kbd-hint{display:none}}
+/* Schreib-Modus */
+.hidden{display:none!important}
+.learn.write .card{max-height:340px}
+.answer{display:flex;gap:10px}
+.answer input{flex:1;min-width:0;font-size:18px;min-height:56px;border-radius:16px}
+.answer .btn{min-height:56px;border-radius:16px;flex:none}
+.verdict{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-weight:700}
+.verdict:empty{display:none}
+.verdict .v-text{flex:1}
+.verdict .btn{min-height:38px;padding:6px 12px;font-size:14px;border-radius:10px}
+.your-answer{margin-top:18px;font-size:16px;color:var(--muted)}
+.your-answer b{color:var(--text)}
+.your-answer.ok b{color:var(--good)}
+.your-answer.no b{color:var(--bad);text-decoration:line-through}
+
+/* Auswertung */
+.score{text-align:center;padding:24px 16px}
+.score .big{font-size:56px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.score .msg{font-size:18px;font-weight:600;margin-top:8px}
+.score-row{display:grid;grid-template-columns:repeat(3,1fr);margin-top:20px;gap:8px}
+.score-row b{display:block;font-size:26px}
+.score-row span{font-size:13px;color:var(--muted)}
+.t-good{color:var(--good)}.t-bad{color:var(--bad)}
+
+/* Sheet */
+.sheet-bg{position:fixed;inset:0;z-index:50;background:rgba(10,12,15,.45);display:flex;align-items:flex-end;justify-content:center;animation:fade .2s}
+.sheet{width:100%;max-width:640px;background:var(--surface);border-radius:22px 22px 0 0;padding:22px 16px calc(env(safe-area-inset-bottom) + 18px);max-height:92dvh;overflow:auto;animation:up .28s cubic-bezier(.2,.8,.2,1)}
+.sheet h3{font-size:20px;margin-bottom:4px}
+.sheet-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.sheet-actions .btn{flex:1 1 40%}
+.menu{display:flex;flex-direction:column;margin:12px 0 14px;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.menu button{font:inherit;text-align:left;padding:15px 16px;border:0;border-bottom:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer}
+.menu button:last-child{border-bottom:0}
+.menu button:hover{background:var(--surface2)}
+.menu button.danger{color:var(--bad)}
+@media (min-width:700px){.sheet-bg{align-items:center}.sheet{border-radius:22px}}
+@keyframes fade{from{opacity:0}}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:12px 18px;border-radius:14px;font-size:15px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:calc(100% - 32px);text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){.card-inner{transition-duration:.01s}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+/* ---------- Grundlagen ---------- */
+const KEY = 'karteikasten.v1';
+const DAY = 86400000;
+const INTERVAL = [0, 1, 2, 4, 7, 14]; // Tage bis zur nächsten Abfrage je Fach
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const today0 = () => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); };
+const dateStr = () => new Date().toISOString().slice(0,10);
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+const SEED = { name: 'LF1 – Rechtsgrundlagen', cards: [
+ ['Jemand, der Rechte und Pflichten haben kann','Rechtssubjekt','Ein Mensch oder eine GmbH'],
+ ['Die Sache oder das Recht, um das es geht','Rechtsobjekt','Ein Schiff (Sache) oder eine Forderung (Recht)'],
+ ['Ein Mensch im rechtlichen Sinn','natürliche Person','Jeder Mensch, egal welchen Alters'],
+ ['„Künstliche Person“, z. B. GmbH oder AG','juristische Person','GmbH, AG, eingetragener Verein'],
+ ['Man kann Träger von Rechten und Pflichten sein','Rechtsfähigkeit','Beginnt mit Vollendung der Geburt (§ 1 BGB)'],
+ ['Man kann selbst wirksame Verträge abschließen','Geschäftsfähigkeit','Voll geschäftsfähig ab 18 Jahren'],
+ ['Geschäftsfähigkeit von 7 bis 17 Jahren','beschränkt geschäftsfähig','Kleine Käufe vom eigenen Taschengeld sind wirksam (§ 110 BGB)'],
+ ['Zeigen, dass man etwas rechtlich Verbindliches will','Willenserklärung','„Ich kaufe das Fahrrad für 200 €.“'],
+ ['Seinen Willen ohne Worte durch eine Handlung zeigen','schlüssiges (konkludentes) Handeln','Ware wortlos an der Kasse aufs Band legen'],
+ ['Es gibt keine Vorschrift, wie ein Vertrag aussehen muss','Formfreiheit','Brötchenkauf beim Bäcker – mündlich reicht'],
+ ['Der Notar bestätigt nur, dass die Unterschrift echt ist','notarielle Beglaubigung','Anmeldung zum Handelsregister'],
+ ['Der Notar liest den ganzen Vertrag vor und erklärt ihn','notarielle Beurkundung','Grundstückskauf, Gesellschaftsvertrag einer GmbH'],
+ ['Besonders sichere digitale Unterschrift mit Ausweisprüfung','qualifizierte elektronische Signatur (QES)','Kann die eigenhändige Unterschrift ersetzen'],
+ ['Die Eintragung bestätigt nur, was es schon gibt','deklaratorisch','Eintragung des Istkaufmanns ins Handelsregister'],
+ ['Erst durch die Eintragung entsteht etwas','konstitutiv','Eintragung einer GmbH oder eines Kannkaufmanns'],
+ ['Automatisch Kaufmann, weil das Gewerbe groß genug ist','Istkaufmann','Großhändler mit vielen Mitarbeitern (§ 1 HGB)'],
+ ['Darf sich freiwillig eintragen lassen und wird dann Kaufmann','Kannkaufmann','Kleingewerbetreibender oder Land- und Forstwirt (§§ 2, 3 HGB)'],
+ ['Kaufmann allein wegen der Rechtsform, z. B. GmbH','Formkaufmann','GmbH, UG, AG (§ 6 HGB)'],
+ ['Der Name, unter dem ein Kaufmann auftritt','Firma','§ 17 HGB'],
+ ['Der eigentliche Name eines Unternehmens','Firmenkern','„Hapag-Lloyd“ in Hapag-Lloyd AG'],
+ ['Angehängtes wie „GmbH“ oder „KG“','Firmenzusatz','„AG“ in Hapag-Lloyd AG'],
+ ['Der Name darf nicht täuschen','Firmenwahrheit','Ein Ein-Mann-Betrieb darf sich nicht „Großreederei“ nennen'],
+ ['Der Name muss sich am Ort von anderen unterscheiden','Firmenausschließlichkeit','Zwei Firmen in Hamburg dürfen nicht gleich heißen'],
+ ['Der Name darf beim Verkauf des Unternehmens bleiben','Firmenbeständigkeit','Der Käufer führt den alten Namen weiter (mit Zustimmung)'],
+ ['Abteilung für Einzelkaufleute, OHG und KG','Handelsregister Abteilung A','„Müller Schiffsmakler e. K.“'],
+ ['Abteilung für GmbH, UG und AG','Handelsregister Abteilung B','„Hapag-Lloyd AG“'],
+ ['Der voll haftende Gesellschafter einer KG','Komplementär','Haftet auch mit seinem Privatvermögen'],
+ ['KG-Gesellschafter, der nur mit seiner Einlage haftet','Kommanditist','Einlage 10.000 € → haftet höchstens mit 10.000 €'],
+ ['Man haftet auch mit dem Privatvermögen','unbeschränkt','OHG-Gesellschafter haften auch mit Haus und Auto'],
+ ['Der Gläubiger kann direkt zum Gesellschafter gehen','unmittelbar','Er muss nicht erst die Gesellschaft verklagen'],
+ ['Jeder haftet für die ganze Schuld','solidarisch','Der Gläubiger kann alles von einem einzigen Gesellschafter verlangen'],
+ ['Mindestens 25.000 € Startgeld der GmbH','Stammkapital','Bei Gründung muss mindestens die Hälfte eingezahlt sein'],
+ ['Mindestens 50.000 € Startgeld der AG','Grundkapital','Ist in Aktien aufgeteilt'],
+ ['Gewinnanteil, den die AG pro Aktie auszahlt','Dividende','1,50 € je Aktie'],
+ ['Leitet die AG und vertritt sie nach außen','Vorstand','Wird vom Aufsichtsrat bestellt'],
+ ['Kontrolliert den Vorstand der AG','Aufsichtsrat','Bestellt und überwacht den Vorstand'],
+ ["Versammlung aller Aktionäre einer AG", "Hauptversammlung", "Wählt den Aufsichtsrat und beschließt über die Dividende"],
+ ["Entscheidungsorgan der GmbH, das „Gehirn“", "Gesellschafterversammlung", "Bestellt den Geschäftsführer; abgestimmt wird nach Anteilen"],
+ ["Leitet die GmbH und vertritt sie nach außen", "Geschäftsführer", "Kann auch ein Fremder ohne Anteile sein, muss aber ein Mensch sein"],
+ ["Leitungs-, Entscheidungs- und Kontrollgremien einer Kapitalgesellschaft", "Organe", "AG: Vorstand, Aufsichtsrat, Hauptversammlung"],
+ ["Zusammenschluss von Menschen, die persönlich haften, z. B. OHG oder KG", "Personengesellschaft", "Keine juristische Person, aber rechtsfähig"],
+ ["Gesellschaft, bei der das Geld im Mittelpunkt steht, z. B. GmbH oder AG", "Kapitalgesellschaft", "Juristische Person, steht in Abteilung B"],
+ ["Jemand, dem man Geld schuldet", "Gläubiger", "Der Fleischhändler, der noch auf sein Geld wartet"],
+ ["So haftet ein Kommanditist, bevor die KG eingetragen ist", "unbeschränkt (wie ein Komplementär)", "Erst ab der Eintragung nur mit der Einlage"],
+ ["Geld, das ein Gesellschafter in die Firma steckt", "Einlage", "Danach richtet sich laut Gesetz der Gewinnanteil"],
+ ["Entscheidungen nach innen, im eigenen Unternehmen", "Geschäftsführung", "Beschließen, dass der Laden sonntags öffnet"],
+ ["Handeln nach außen, gegenüber Fremden", "Vertretung", "Den Kaufvertrag beim Händler unterschreiben"],
+ ["Bei der GmbH müssen alle Geschäftsführer gemeinsam unterschreiben", "Gesamtvertretung", "Gilt, wenn im Gesellschaftsvertrag nichts anderes steht"],
+ ["Bei der OHG darf jeder Gesellschafter allein unterschreiben", "Einzelvertretung", "Der Vertrag gilt, auch wenn die anderen dagegen waren"],
+ ["Mehr als 50 % der Stimmen", "einfache Mehrheit", "Reicht bei der GmbH für normale Beschlüsse"],
+ ["Mindestens 75 % der Stimmen", "Dreiviertelmehrheit", "Nötig, um den Gesellschaftsvertrag der GmbH zu ändern"],
+ ["Alle Gesellschafter müssen zustimmen", "einstimmig", "Beschlüsse in der OHG – Geld spielt keine Rolle"],
+ ["Ein Gewerbe, das eine richtige kaufmännische Organisation braucht", "Handelsgewerbe", "Wer es betreibt, ist Kaufmann (§ 1 HGB)"],
+ ["Gesetzbuch mit Sonderregeln für Kaufleute", "Handelsgesetzbuch (HGB)", ""],
+ ["Öffentliches Verzeichnis aller Kaufleute beim Amtsgericht", "Handelsregister", "Kostenlos online einsehbar"],
+ ["Pflicht jedes Kaufmanns, Einnahmen und Ausgaben aufzuschreiben", "Buchführungspflicht", "Inklusive Jahresabschluss"],
+ ["Besonders weite Vollmacht für einen Angestellten", "Prokura", "Wird ins Handelsregister eingetragen"],
+ ["Schreiben, auf das Kaufleute widersprechen müssen, sonst gilt es", "kaufmännisches Bestätigungsschreiben", "Schweigen = Zustimmung, wenn beide Kaufleute sind und schon zusammenarbeiten"],
+ ["Firmenname nur aus Personennamen", "Personenfirma", "„Müller & Schmidt OHG“"],
+ ["Firmenname, der beschreibt, was das Unternehmen macht", "Sachfirma", "„Nordsee Fischhandel GmbH“"],
+ ["Ausgedachter Firmenname, der nichts verrät", "Fantasiefirma", "„Zalando SE“"],
+ ["Firmenname aus Person oder Fantasie plus Tätigkeit", "gemischte Firma", "„Bäckerei Krause e. K.“, „Sonnenschein Reisen GmbH“"],
+ ["Papier plus eigenhändige Unterschrift", "Schriftform", "Bürgschaft, Ausbildungsvertrag, Kündigung des Arbeitsvertrags"],
+ ["Eine Form soll im Streit zeigen, was vereinbart war", "Beweisfunktion", ""],
+ ["Eine Form soll vor leichtfertigem Unterschreiben schützen", "Warnfunktion", "Wichtig bei der Bürgschaft"],
+ ["Kleiner Anteil am Grundkapital einer AG", "Aktie", "Kann an der Börse gekauft und verkauft werden"],
+ ["Inhaber von Aktien", "Aktionär", "Darf in der Hauptversammlung mitstimmen"],
+ ["Geschäftsfähigkeit unter 7 Jahren", "geschäftsunfähig", "Verträge sind unwirksam"],
+ ["Geschäftsfähigkeit ab 18 Jahren", "voll geschäftsfähig", ""],
+]};
+
+const SEED_EN = { name: 'Englisch – 1.1.0 Lexis', cards: [
+ ['einen internationalen Kaufvertrag schließen','to fix an international sales contract',''],
+ ['sich auf Lieferbedingungen einigen','to agree on delivery terms',''],
+ ['Vertragsinhalte verhandeln','to negotiate the terms of a contract',''],
+ ['Handel treiben','to trade',''],
+ ['Importeur und Exporteur','importer and exporter',''],
+ ['verantwortlich für den Seefrachtvertrag sein','to be responsible for the contract of affreightment',''],
+ ['den Vor- und Nachlauf organisieren','to organise the pre- and on-carriage',''],
+ ['ein Schiff einchartern','to charter a vessel (from so.)','von jemandem chartern'],
+ ['ein Schiff auschartern','to charter a vessel (to so.)','an jemanden verchartern'],
+ ['ein Schiff in einem Dienst einsetzen','to employ a ship in a service',''],
+ ['Stückgutfrachtvertrag zwischen Verfrachter und Befrachter','contract of carriage between carrier and shipper',''],
+ ['Reisecharter und Zeitcharter','voyage charter and time charter',''],
+ ['Ich mache eine duale Ausbildung in der Trampfahrt.','I do a dual apprenticeship in tramp shipping.',''],
+ ['Ich mache eine duale Ausbildung in der Linienfahrt.','I do a dual apprenticeship in liner shipping.',''],
+ ['Ein Drittel der Ausbildungszeit findet in einer Berufsschule statt.','One third of the program takes place in a vocational college.',''],
+ ['Wir durchlaufen während der Ausbildung alle wichtigen Abteilungen.','During the training period we go through all major departments.',''],
+ ['Vor der Ausbildung habe ich Abitur gemacht.','Before the apprenticeship I did my A-levels.','UK; US: I graduated from high school.'],
+ ['Nach dem mittleren Schulabschluss habe ich direkt die Ausbildung angefangen.','After year 11 at secondary school I started the apprenticeship straight away.',''],
+]};
+const SEED_EN2 = { name: 'Englisch – Class Test 17.11.', cards: [
+ ["Unterschied zwischen Reederei- und Agenturgeschäft", "the difference between owner and agency business", ""],
+ ["Befrachtungsmakler", "chartering broker", "brings shipowners and charterers together (mediates)"],
+ ["Der Befrachtungsmakler vermittelt.", "The chartering broker mediates.", ""],
+ ["Hafenagent / Klarierungsagent", "clearing agent", "organises the port call for the vessel"],
+ ["Der Hafenagent organisiert den Hafenanlauf.", "The clearing agent organises the port call.", ""],
+ ["Linienreederei", "liner shipping company", "operates vessels on fixed routes with a fixed schedule"],
+ ["Linienagentur", "liner agency / liner agent", "represents a liner shipping company, sells its services"],
+ ["Trampreederei", "tramp shipping company", "employs vessels without fixed routes, wherever cargo is"],
+ ["Schiffsmanagement-Gesellschaft", "ship management company", "manages vessels (crew, technics) on behalf of the owner"],
+ ["An- und Verkaufsmakler", "Sale & Purchase broker (S&P broker)", "brokers the sale and purchase of ships"],
+ ["Schiffsmakler", "ship broker", ""],
+ ["Kundenservice (Linienagentur)", "customer service", "the employees advise the customer"],
+ ["Die Mitarbeiter im Kundenservice beraten den Kunden.", "The employees in the customer service advise the customer.", ""],
+ ["Befrachtungsabteilung", "chartering department", ""],
+ ["Die Befrachtungsabteilung mietet ein Schiff an.", "The chartering department charters a vessel from so.", ""],
+ ["Die Befrachtungsabteilung vermietet ein Schiff.", "The chartering department charters a vessel to so.", ""],
+ ["Operating-Abteilung (Trampreederei)", "operating department", "plans and monitors the voyages of the vessels"],
+ ["Linienschifffahrt / Trampschifffahrt", "liner shipping / tramp shipping", ""],
+ ["Ich lerne Schifffahrtskaufmann.", "I train as shipping agent.", ""],
+ ["Ich mache eine duale Ausbildung.", "I am in a dual apprenticeship program.", ""],
+ ["Berufsschule", "vocational school", ""],
+ ["Verfrachter (Linie)", "(liner) carrier", "transports the cargo"],
+ ["Befrachter (Linie)", "shipper", "hands over the cargo for transport"],
+ ["Empfänger (Linie)", "consignee", "receives the cargo at the destination"],
+ ["Verfrachter (Tramp)", "(ship) owner", "owns the vessel and charters it out"],
+ ["Befrachter (Tramp)", "charterer", "hires a vessel from the shipowner"],
+ ["Verkäufer / Exporteur", "seller / exporter", ""],
+ ["Käufer / Importeur", "buyer / importer", ""],
+ ["Großhändler", "wholesaler", ""],
+ ["Seefrachtvertrag (Oberbegriff)", "contract of affreightment", ""],
+ ["Stückgutfrachtvertrag", "contract of carriage (by sea) – CoC", "liner shipping: carrier and shipper; freight per container/unit"],
+ ["Chartervertrag", "charter contract / charter party", ""],
+ ["Reisecharter", "voyage charter – V/C", "ship hired for one voyage; freight rate per ton of cargo"],
+ ["Zeitcharter", "time charter – T/C", "ship hired for a period; charterer pays hire per day"],
+ ["Vertragsparteien", "contractual parties", ""],
+ ["Kern des Vertrags", "core of the contract", ""],
+ ["Frachtrate", "freight rate", ""],
+ ["Charterrate / Miete (Zeitcharter)", "hire", ""],
+ ["Konnossement", "bill of lading – B/L", "document of title for the cargo"],
+ ["Lieferbedingungen (international standardisiert)", "Incoterms", ""],
+ ["Außenhandel", "foreign trade", ""],
+ ["Überkapazitäten", "overcapacities", ""],
+ ["ein Schiff ins Trockendock bringen / im Trockendock", "to dry-dock a vessel / dry-docked", ""],
+ ["Containerschiff", "container vessel", ""],
+ ["Vollcontainerschiff", "full container vessel", ""],
+ ["Mehrzweckschiff", "multi-purpose vessel", ""],
+ ["Schwergutschiff", "heavy-lift ship", ""],
+ ["Massengutfrachter", "bulk carrier", ""],
+ ["Rohöltanker", "crude oil tanker", ""],
+ ["Flüssiggastanker", "LNG carrier", ""],
+ ["Chemietanker", "chemical tanker", ""],
+ ["RoRo-Schiff", "RoRo vessel", "Roll-on/Roll-off"],
+ ["Ein Containerschiff durchquert einen Kanal.", "A container vessel passes through a canal.", ""],
+ ["Ein Schwergutschiff läuft einen Hafen an.", "A heavy-lift ship calls at a port.", ""],
+ ["Ein Massengutfrachter wird beladen.", "A bulk carrier gets loaded.", ""],
+ ["Ein Rohöltanker wird gelöscht.", "A crude oil tanker gets discharged.", ""],
+ ["Ein Flüssiggastanker legt am Liegeplatz an.", "An LNG carrier moors at a berth.", ""],
+ ["Ein Chemietanker nutzt eine Schleuse.", "A chemical tanker uses a lock.", ""],
+ ["ein RoRo-Schiff im Hafen manövrieren", "to maneuver a RoRo vessel in the port", ""],
+ ["Tiefgang", "draught", ""],
+ ["Breite (eines Schiffs)", "beam", ""],
+ ["Bug / Heck", "bow / stern", ""],
+ ["Propeller / Schiffsschraube", "propeller", ""],
+ ["Ruder", "rudder", ""],
+ ["Hauptmaschine", "main engine", ""],
+ ["Hilfsdiesel / Hilfsmaschine", "auxiliary engine", "generates power during port stays"],
+ ["Laderaum", "cargo hold", ""],
+ ["Zellgerüst / Führungsschienen für Container", "cell guides", "fix the containers in the hold, no lashing needed"],
+ ["Zwischendeck", "tween deck", "horizontal separation of a cargo hold"],
+ ["Schott", "bulkhead", ""],
+ ["Lukendeckel", "hatch cover", ""],
+ ["Laschstangen und Twistlocks", "lashing bars and twistlocks", "secure containers on deck"],
+ ["Brücke", "bridge", ""],
+ ["Brückennock", "bridge wing", "the master looks down the hull when mooring"],
+ ["Wohnbereich der Besatzung", "accommodation", ""],
+ ["Doppelboden", "double bottom", ""],
+ ["Ballasttanks", "ballast tanks", "balance the ship"],
+ ["Anker", "anchor", ""],
+ ["Bugstrahlruder", "bow thruster", "helps manoeuvring in port"],
+ ["Aufbauten", "superstructure", ""],
+ ["ohne eigenes Ladegeschirr", "gearless", ""],
+ ["Freifall-Rettungsboot", "free-fall lifeboat", ""],
+ ["Kai", "quay", ""],
+ ["Im Vergleich zu …", "In comparison to … / Compared to …", ""],
+ ["Anders als …", "Unlike …", ""],
+ ["Im Gegensatz zu …", "In contrast to …", ""],
+ ["Während … (Gegensatz)", "whereas … / while …", ""],
+ ["Ähnlich wie …", "Similar to …", ""],
+ ["Genauso wie …", "Just like …", ""],
+ ["… ist vergleichbar mit …", "… is comparable to …", ""],
+ ["Eine Gemeinsamkeit von X und Y ist …", "One thing X and Y have in common is …", ""],
+ ["Beim Vergleich von X mit Y fällt auf, dass …", "When comparing X with Y, it becomes clear that …", ""]
+]};
+const seedDeck = sd => ({ name: sd.name, cards: sd.cards.map(([front, back, example]) => ({ front, back, example })) });
+
+const PROMPT = `Erstelle Karteikarten für meine Ausbildung zum Schifffahrtskaufmann (Berufsschule).
+Thema: [THEMA / LERNFELD HIER EINTRAGEN]
+
+Regeln:
+- "front": einfache Umschreibung in Alltagssprache, ohne den Fachbegriff zu verraten
+- "back": nur der Fachbegriff
+- "example": optional, ein sehr kurzes Beispiel
+- 20 bis 40 Karten, fachlich korrekt
+
+Antworte ausschließlich mit JSON in genau diesem Format:
+{"name": "LF2 – Thema", "cards": [{"front": "…", "back": "…", "example": "…"}]}`;
+
+/* ---------- Daten ---------- */
+function makeCard(o) {
+  return { id: uid(), front: String(o.front).trim(), back: String(o.back).trim(), example: String(o.example || '').trim(),
+    box: Math.min(5, Math.max(1, parseInt(o.box) || 1)), due: Number(o.due) || 0, wrong: Number(o.wrong) || 0 };
+}
+function makeDeck(name, cards) { return { id: uid(), name: name.trim(), cards: cards.map(makeCard) }; }
+function freshDb() {
+  return { decks: [SEED, SEED_EN, SEED_EN2].map(sd => { const x = seedDeck(sd); return makeDeck(x.name, x.cards); }), settings: { theme: 'auto', dir: 'normal' } };
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d && Array.isArray(d.decks)) {
+        d.settings = Object.assign({ theme: 'auto', dir: 'normal' }, d.settings);
+        d.decks.forEach(dk => { dk.id ||= uid(); dk.cards = (dk.cards || []).map(c => Object.assign(makeCard(c), c.id ? { id: c.id } : {})); });
+        return d;
+      }
+    }
+  } catch (e) { console.warn(e); }
+  return freshDb();
+}
+let db = load();
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(db)); }
+  catch (e) { toast('Speichern fehlgeschlagen – bitte exportieren!'); }
+}
+if (!localStorage.getItem(KEY)) save();
+// Neue Startkarten in bestehende Daten übernehmen (Duplikate werden übersprungen)
+const SEED_VERSION = 4;
+if ((db.settings.seedVersion || 1) < SEED_VERSION) {
+  importDecks([seedDeck(SEED), seedDeck(SEED_EN), seedDeck(SEED_EN2)]);
+  db.settings.seedVersion = SEED_VERSION; save();
+}
+try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
+
+const deck = (id = ui.deckId) => db.decks.find(d => d.id === id);
+const isHard = c => c.wrong > 0 && c.box <= 2;
+function stats(d) {
+  const now = Date.now(), boxes = [0,0,0,0,0,0];
+  let due = 0, hard = 0;
+  d.cards.forEach(c => { boxes[c.box]++; if (c.due <= now) due++; if (isHard(c)) hard++; });
+  return { boxes, due, hard, total: d.cards.length };
+}
+function selectCards(d, sel) {
+  const now = Date.now();
+  if (sel === 'due') return d.cards.filter(c => c.due <= now);
+  if (sel === 'hard') return d.cards.filter(isHard);
+  return d.cards.slice();
+}
+
+/* ---------- Import / Export ---------- */
+const pick = (o, keys) => { for (const k of keys) if (o[k] != null && String(o[k]).trim() !== '') return String(o[k]); return ''; };
+function normCard(c) {
+  if (Array.isArray(c)) c = { front: c[0], back: c[1], example: c[2] };
+  if (!c || typeof c !== 'object') return null;
+  return {
+    front: pick(c, ['front','vorderseite','umschreibung','frage','question','definition']),
+    back: pick(c, ['back','rueckseite','rückseite','begriff','fachbegriff','antwort','answer','term']),
+    example: pick(c, ['example','beispiel']),
+    box: c.box, due: c.due, wrong: c.wrong
+  };
+}
+function parseImport(text) {
+  text = String(text || '').trim();
+  const s = text.search(/[\[{]/), e = Math.max(text.lastIndexOf('}'), text.lastIndexOf(']'));
+  if (s < 0 || e < s) throw new Error('Kein JSON gefunden');
+  const data = JSON.parse(text.slice(s, e + 1));
+  let decks;
+  if (Array.isArray(data)) decks = (data.length && (data[0].cards || data[0].karten)) ? data : [{ name: '', cards: data }];
+  else if (data.decks || data.stapel) decks = data.decks || data.stapel;
+  else if (data.cards || data.karten) decks = [data];
+  else throw new Error('Unbekanntes Format');
+  return decks.map(d => ({
+    name: String(d.name || d.titel || d.title || '').trim(),
+    cards: (d.cards || d.karten || []).map(normCard).filter(c => c && c.front && c.back)
+  }));
+}
+function importDecks(list) {
+  const key = c => (c.front + '|' + c.back).toLowerCase().replace(/\s+/g, ' ').trim();
+  let added = 0, skipped = 0, newDecks = 0;
+  list.forEach(src => {
+    const name = src.name || ('Import ' + new Date().toLocaleDateString('de-DE'));
+    let d = db.decks.find(x => x.name.toLowerCase() === name.toLowerCase());
+    if (!d) { d = makeDeck(name, []); db.decks.push(d); newDecks++; }
+    const seen = new Set(d.cards.map(key));
+    src.cards.forEach(c => {
+      if (seen.has(key(c))) { skipped++; return; }
+      seen.add(key(c)); d.cards.push(makeCard(c)); added++;
+    });
+  });
+  save();
+  return { added, skipped, newDecks };
+}
+async function doImport(text, replace) {
+  let parsed;
+  try { parsed = parseImport(text); } catch (e) { toast('Import fehlgeschlagen: ' + e.message); return; }
+  const n = parsed.reduce((s, d) => s + d.cards.length, 0);
+  if (!n) { toast('Keine Karten gefunden'); return; }
+  if (replace) {
+    if (!await askConfirm('Alles ersetzen?', 'Alle vorhandenen Stapel und dein Lernfortschritt auf diesem Gerät werden durch den Import ersetzt.', 'Ersetzen', true)) return;
+    db.decks = [];
+  }
+  const r = importDecks(parsed);
+  toast(`${r.added} Karten importiert` + (r.skipped ? ` · ${r.skipped} doppelte übersprungen` : ''));
+  const ta = $('#import-text'); if (ta) ta.value = '';
+  ui.view = 'home'; render();
+}
+async function exportData(decks, filename) {
+  const data = { app: 'karteikasten', version: 1, exported: new Date().toISOString(),
+    decks: decks.map(d => ({ name: d.name, cards: d.cards.map(c => ({ front: c.front, back: c.back, example: c.example || undefined, box: c.box, due: c.due, wrong: c.wrong })) })) };
+  const json = JSON.stringify(data, null, 2);
+  const file = new File([json], filename, { type: 'application/json' });
+  if (matchMedia('(hover: none)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: filename }); return; }
+    catch (e) { if (e.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(file); a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  toast('Export gespeichert');
+}
+const fileName = name => 'karteikasten-' + name.toLowerCase().replace(/[^a-z0-9äöüß]+/gi, '-').replace(/^-|-$/g, '') + '-' + dateStr() + '.json';
+
+/* ---------- UI-Helfer ---------- */
+const ICONS = {
+  back: '<path d="M15 5l-7 7 7 7"/>',
+  gear: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  kbd: '<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M8 14h8"/>',
+  more: '<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/>',
+};
+const ic = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
+function applyTheme() {
+  const t = db.settings.theme;
+  if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = t;
+}
+
+let sheetEl = null;
+function openSheet(html, onAction, onMount) {
+  closeSheet();
+  const bg = document.createElement('div');
+  bg.className = 'sheet-bg';
+  bg.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+  bg.addEventListener('click', e => {
+    if (e.target === bg) { closeSheet(); onAction && onAction('cancel', bg); return; }
+    const b = e.target.closest('[data-s]');
+    if (!b) return;
+    if (b.dataset.s === 'cancel') closeSheet();
+    onAction && onAction(b.dataset.s, bg);
+  });
+  document.body.appendChild(bg);
+  sheetEl = bg;
+  onMount && onMount(bg);
+}
+function closeSheet() { if (sheetEl) { sheetEl.remove(); sheetEl = null; } }
+function askConfirm(title, text, okLabel, danger) {
+  return new Promise(res => {
+    openSheet(`<h3>${esc(title)}</h3><p class="muted">${esc(text)}</p>
+      <div class="sheet-actions"><button class="btn" data-s="cancel">Abbrechen</button><button class="btn ${danger ? 'danger' : 'primary'}" data-s="ok">${esc(okLabel)}</button></div>`,
+      a => { if (a === 'ok') { closeSheet(); res(true); } else if (a === 'cancel') res(false); });
+  });
+}
+function askText(title, placeholder, value, okLabel, cb) {
+  const submit = bg => { const v = bg.querySelector('#ask').value.trim(); if (!v) { toast('Bitte einen Namen eingeben'); return; } closeSheet(); cb(v); };
+  openSheet(`<h3>${esc(title)}</h3><input id="ask" placeholder="${esc(placeholder)}" value="${esc(value)}" autocomplete="off">
+    <div class="sheet-actions"><button class="btn" data-s="cancel">Abbrechen</button><button class="btn primary" data-s="ok">${esc(okLabel)}</button></div>`,
+    (a, bg) => { if (a === 'ok') submit(bg); },
+    bg => { const i = bg.querySelector('#ask'); i.focus(); i.select(); i.addEventListener('keydown', e => { if (e.key === 'Enter') submit(bg); }); });
+}
+
+/* ---------- Views ---------- */
+let ui = { view: 'home', deckId: null, sel: null, dir: db.settings.dir || 'normal', write: !!db.settings.write, search: '', summary: null };
+let lastView = null;
+
+function boxbar(st) {
+  if (!st.total) return '<div class="boxbar"></div>';
+  return `<div class="boxbar">${[1,2,3,4,5].map(b => st.boxes[b] ? `<span class="b${b}" style="width:${st.boxes[b] / st.total * 100}%"></span>` : '').join('')}</div>`;
+}
+function boxesPanel(d) {
+  const st = stats(d), max = Math.max(1, ...st.boxes.slice(1));
+  return `<div class="panel"><div class="panel-title">Fortschritt</div><div class="boxes">${[1,2,3,4,5].map(b =>
+    `<div class="boxcol"><div class="col"><div class="fill b${b}" style="height:${st.boxes[b] ? Math.max(6, st.boxes[b] / max * 100) : 0}%"></div></div>
+     <div class="num">${st.boxes[b]}</div><div class="lbl">Fach ${b}</div></div>`).join('')}</div>
+    <div class="legend">Fach 1 = neu oder nicht gewusst · Fach 5 = sitzt</div></div>`;
+}
+
+function viewHome() {
+  const items = db.decks.map(d => {
+    const st = stats(d);
+    return `<button class="panel deck-item" data-act="open" data-id="${d.id}">
+      <div class="row"><span class="deck-name">${esc(d.name)}</span><span class="pill ${st.due ? 'due' : ''}">${st.due ? st.due + ' fällig' : 'erledigt'}</span></div>
+      <div class="muted small" style="margin-top:2px">${st.total} Karten · ${st.boxes[5]} sitzen</div>${boxbar(st)}</button>`;
+  }).join('');
+  return `<div class="topbar"><h1>Karteikasten</h1><button class="icon-btn" data-act="settings" aria-label="Einstellungen und Daten">${ic('gear')}</button></div>
+    ${items || '<div class="empty">Noch keine Stapel.<br>Leg einen an oder importiere einen.</div>'}
+    <button class="btn block" data-act="new-deck">${ic('plus')} Neuer Stapel</button>`;
+}
+
+function cardListHtml(d) {
+  const q = ui.search.toLowerCase();
+  const cards = q ? d.cards.filter(c => (c.front + ' ' + c.back + ' ' + c.example).toLowerCase().includes(q)) : d.cards;
+  if (!cards.length) return `<div class="empty">${d.cards.length ? 'Keine Treffer.' : 'Noch keine Karten.'}</div>`;
+  return cards.map(c => `<button class="list-item" data-act="edit-card" data-id="${c.id}">
+    <div class="li-text"><div class="li-front">${esc(c.front)}</div><div class="li-back">${esc(c.back)}</div></div>
+    <span class="boxdot b${c.box}" title="Fach ${c.box}">${c.box}</span></button>`).join('');
+}
+
+function viewDeck() {
+  const d = deck();
+  if (!d) { ui.view = 'home'; return viewHome(); }
+  const st = stats(d);
+  if (!ui.sel) ui.sel = st.due ? 'due' : 'all';
+  const n = selectCards(d, ui.sel).length;
+  const seg = (group, v, label) => `<button class="${ui[group] === v ? 'on' : ''}" data-act="${group}" data-v="${v}">${label}</button>`;
+  let hint = '';
+  if (!st.total) hint = 'Füge zuerst Karten hinzu.';
+  else if (ui.sel === 'due' && !n) hint = 'Heute ist nichts fällig. Lerne alle Karten oder komm morgen wieder.';
+  else if (ui.sel === 'hard' && !n) hint = 'Keine schwierigen Karten – stark!';
+  return `<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Zurück">${ic('back')}</button>
+      <h2>${esc(d.name)}</h2><button class="icon-btn" data-act="deck-menu" aria-label="Stapel-Optionen">${ic('more')}</button></div>
+    ${boxesPanel(d)}
+    <div class="panel"><div class="panel-title">Lernen</div>
+      <div class="seg">${seg('dir', 'normal', 'Normal')}${seg('dir', 'reverse', 'Umgekehrt')}</div>
+      <div class="seg-caption">${ui.dir === 'normal' ? 'Umschreibung → Fachbegriff' : 'Fachbegriff → Erklärung'}</div>
+      <div class="seg">${seg('sel', 'due', `Fällig (${st.due})`)}${seg('sel', 'all', `Alle (${st.total})`)}${seg('sel', 'hard', `Schwierig (${st.hard})`)}</div>
+      <label class="check" style="margin:4px 0 14px 4px"><input type="checkbox" id="write-toggle" ${ui.write ? 'checked' : ''}> Antwort eintippen</label>
+      <button class="btn primary block" data-act="start" ${n ? '' : 'disabled'}>Los geht’s · ${n} ${n === 1 ? 'Karte' : 'Karten'}</button>
+      ${hint ? `<div class="hint">${hint}</div>` : ''}
+    </div>
+    <div class="row section-head"><h3>Karten (${st.total})</h3><button class="btn sm" data-act="add-card">${ic('plus')} Karte</button></div>
+    ${st.total > 6 ? `<input class="search" id="search" type="search" placeholder="Karten durchsuchen …" value="${esc(ui.search)}" autocomplete="off">` : ''}
+    <div class="list" id="card-list">${cardListHtml(d)}</div>`;
+}
+
+function viewLearn() {
+  const w = S && S.write;
+  return `<div class="learn ${w ? 'write' : ''}">
+    <div class="topbar"><button class="icon-btn" data-act="quit" aria-label="Runde beenden">${ic('close')}</button>
+      <div class="lp"><div class="lp-bar"><span id="lp-fill"></span></div><div class="lp-text"><span id="lp-a"></span><span id="lp-b"></span></div></div>
+      <button class="icon-btn ${w ? 'on' : ''}" data-act="toggle-write" aria-pressed="${w}" aria-label="Antwort eintippen ${w ? 'ausschalten' : 'einschalten'}" title="Antwort eintippen an/aus">${ic('kbd')}</button></div>
+    <div class="stage"><div class="card" id="card">
+      <div class="swipe-hint hint-bad" id="h-bad">NICHT GEWUSST</div><div class="swipe-hint hint-good" id="h-good">GEWUSST</div>
+      <div class="card-inner">
+        <div class="face front"><span class="tag" id="tag-f"></span><div id="cf"></div><div class="tap-hint">${w ? 'Antwort unten eintippen' : 'Tippen zum Umdrehen'}</div></div>
+        <div class="face back"><span class="tag" id="tag-b"></span><div id="cb"></div></div>
+      </div></div></div>
+    ${w ? `<div class="verdict" id="verdict"></div>
+    <form class="answer" id="answer" autocomplete="off"><input id="ans" type="text" placeholder="${S.dir === 'normal' ? 'Fachbegriff eintippen …' : 'Erklärung eintippen …'}" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="btn primary" id="ans-btn">Prüfen</button></form>` : ''}
+    <div class="rate off ${w ? 'hidden' : ''}" id="rate"><button class="r-bad" data-act="rate" data-v="0">Nicht gewusst</button><button class="r-good" data-act="rate" data-v="1">Gewusst</button></div>
+    <div class="kbd-hint">${w ? 'Enter: prüfen, dann weiter' : 'Leertaste: umdrehen · ← nicht gewusst · → gewusst'}</div>
+  </div>`;
+}
+
+function viewSummary() {
+  const s = ui.summary, d = deck(s.deckId);
+  const pct = s.total ? Math.round(s.right / s.total * 100) : 0;
+  const msg = pct >= 90 ? 'Sehr stark!' : pct >= 70 ? 'Gut gemacht!' : pct >= 40 ? 'Dranbleiben – wird schon.' : 'Übung macht den Meister.';
+  return `<div class="topbar"><button class="icon-btn" data-act="back-deck" aria-label="Zurück">${ic('back')}</button><h2>${s.complete ? 'Runde geschafft' : 'Runde beendet'}</h2></div>
+    <div class="panel score"><div class="big">${pct}%</div><div class="muted small">beim ersten Versuch gewusst</div><div class="msg">${msg}</div>
+      <div class="score-row"><div><b class="t-good">${s.right}</b><span>Gewusst</span></div><div><b class="t-bad">${s.wrong}</b><span>Nicht gewusst</span></div><div><b>${s.total}</b><span>Karten</span></div></div></div>
+    ${d ? boxesPanel(d) : ''}
+    ${s.wrongIds.length ? `<button class="btn primary block" data-act="retry-wrong">Nicht gewusste nochmal (${s.wrongIds.length})</button>` : ''}
+    <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
+}
+
+function viewSettings() {
+  const seg = (v, label) => `<button class="${db.settings.theme === v ? 'on' : ''}" data-act="theme" data-v="${v}">${label}</button>`;
+  return `<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Zurück">${ic('back')}</button><h2>Einstellungen &amp; Daten</h2></div>
+    <div class="panel"><div class="panel-title">Darstellung</div><div class="seg" style="margin:0">${seg('auto', 'Automatisch')}${seg('light', 'Hell')}${seg('dark', 'Dunkel')}</div></div>
+    <div class="panel"><div class="panel-title">Sichern</div>
+      <p class="muted small">Deine Karten liegen nur in diesem Browser auf diesem Gerät. Exportiere regelmäßig ein Backup – damit kannst du auch zwischen iPhone und Laptop wechseln.</p>
+      <button class="btn block" data-act="export-all">Alles exportieren (JSON)</button></div>
+    <div class="panel"><div class="panel-title">Importieren</div>
+      <p class="muted small">Datei wählen oder JSON (z. B. von einer KI) einfügen. Stapel mit gleichem Namen werden ergänzt, doppelte Karten übersprungen.</p>
+      <button class="btn block" data-act="import-file">Datei auswählen …</button>
+      <input type="file" id="file" accept=".json,application/json,text/plain" hidden>
+      <label for="import-text">JSON einfügen</label>
+      <textarea id="import-text" rows="5" placeholder='{"name": "LF2 – …", "cards": [{"front": "…", "back": "…"}]}'></textarea>
+      <label class="check"><input type="checkbox" id="replace"> Alles ersetzen (Backup wiederherstellen)</label>
+      <button class="btn primary block" data-act="import-text">Importieren</button></div>
+    <div class="panel"><div class="panel-title">Stapel per KI erstellen</div>
+      <p class="muted small">Prompt kopieren, Thema eintragen, Antwort der KI oben bei „JSON einfügen“ einfügen.</p>
+      <pre class="prompt">${esc(PROMPT)}</pre><button class="btn block" data-act="copy-prompt">Prompt kopieren</button></div>
+    <div class="panel"><div class="panel-title">So funktioniert der Karteikasten</div>
+      <ul class="info small"><li><b>Gewusst</b> → Karte wandert ein Fach weiter.</li><li><b>Nicht gewusst</b> → zurück in Fach 1 und kommt in derselben Runde noch mal.</li>
+      <li>Wieder fällig: Fach 1 täglich · Fach 2 nach 2 Tagen · Fach 3 nach 4 Tagen · Fach 4 nach 1 Woche · Fach 5 nach 2 Wochen.</li>
+      <li><b>Schwierig</b> = schon mal falsch und aktuell in Fach 1 oder 2.</li></ul></div>`;
+}
+
+function render() {
+  const views = { home: viewHome, deck: viewDeck, learn: viewLearn, summary: viewSummary, settings: viewSettings };
+  $('#app').innerHTML = views[ui.view]();
+  document.body.classList.toggle('learning', ui.view === 'learn');
+  if (ui.view !== lastView) { window.scrollTo(0, 0); lastView = ui.view; }
+  if (ui.view === 'learn') bindCard();
+}
+
+/* ---------- Karten bearbeiten ---------- */
+function editCard(d, card) {
+  const isNew = !card;
+  openSheet(`<h3>${isNew ? 'Neue Karte' : 'Karte bearbeiten'}</h3>
+    <label for="f-front">Vorderseite – Umschreibung</label><textarea id="f-front" rows="3" placeholder="z. B. Jemand, der Rechte und Pflichten haben kann">${esc(card?.front)}</textarea>
+    <label for="f-back">Rückseite – Fachbegriff</label><input id="f-back" value="${esc(card?.back)}" placeholder="z. B. Rechtssubjekt" autocomplete="off">
+    <label for="f-ex">Beispiel (optional)</label><textarea id="f-ex" rows="2">${esc(card?.example)}</textarea>
+    ${card ? `<p class="muted small" style="margin-top:10px">Liegt in Fach ${card.box}${card.wrong ? ` · ${card.wrong}× nicht gewusst` : ''}</p>` : ''}
+    <div class="sheet-actions">
+      ${card ? '<button class="btn danger" data-s="del">Löschen</button>' : '<button class="btn" data-s="cancel">Abbrechen</button>'}
+      ${isNew ? '<button class="btn" data-s="next">Speichern + nächste</button>' : '<button class="btn" data-s="cancel">Abbrechen</button>'}
+      <button class="btn primary" data-s="save" style="flex-basis:100%">Speichern</button>
+    </div>`,
+    async (a, bg) => {
+      if (a === 'del') {
+        if (await askConfirm('Karte löschen?', `„${card.back}“ wird endgültig gelöscht.`, 'Löschen', true)) {
+          d.cards = d.cards.filter(c => c !== card); save(); render(); toast('Karte gelöscht');
+        }
+        return;
+      }
+      if (a !== 'save' && a !== 'next') return;
+      const front = bg.querySelector('#f-front').value.trim(), back = bg.querySelector('#f-back').value.trim(), example = bg.querySelector('#f-ex').value.trim();
+      if (!front || !back) { toast('Vorder- und Rückseite ausfüllen'); return; }
+      if (card) Object.assign(card, { front, back, example });
+      else d.cards.push(makeCard({ front, back, example }));
+      save(); render();
+      if (a === 'next') { editCard(d, null); toast('Gespeichert'); }
+    },
+    bg => { if (isNew) bg.querySelector('#f-front').focus(); });
+}
+
+function deckMenu() {
+  const d = deck();
+  openSheet(`<h3>${esc(d.name)}</h3><div class="menu">
+    <button data-s="rename">Umbenennen</button><button data-s="export">Stapel exportieren</button>
+    <button data-s="reset">Fortschritt zurücksetzen</button><button class="danger" data-s="delete">Stapel löschen</button></div>
+    <button class="btn block" data-s="cancel">Abbrechen</button>`,
+    async a => {
+      if (a === 'rename') askText('Stapel umbenennen', 'Name', d.name, 'Speichern', v => { d.name = v; save(); render(); });
+      else if (a === 'export') { closeSheet(); exportData([d], fileName(d.name)); }
+      else if (a === 'reset') {
+        if (await askConfirm('Fortschritt zurücksetzen?', 'Alle Karten dieses Stapels kommen zurück in Fach 1.', 'Zurücksetzen', true)) {
+          d.cards.forEach(c => { c.box = 1; c.due = 0; c.wrong = 0; }); save(); ui.sel = null; render(); toast('Fortschritt zurückgesetzt');
+        }
+      } else if (a === 'delete') {
+        if (await askConfirm('Stapel löschen?', `„${d.name}“ mit ${d.cards.length} Karten wird endgültig gelöscht. Tipp: vorher exportieren.`, 'Löschen', true)) {
+          db.decks = db.decks.filter(x => x !== d); save(); ui.view = 'home'; render(); toast('Stapel gelöscht');
+        }
+      }
+    });
+}
+
+/* ---------- Lernrunde ---------- */
+let S = null;
+function startSession(d, ids, dir, write) {
+  if (document.activeElement) document.activeElement.blur();
+  S = { deckId: d.id, dir, write: !!write, checked: false, verdict: false, queue: shuffle(ids.slice()), total: ids.length, first: new Map(), done: 0, current: null, flipped: false, revealed: false, busy: true };
+  ui.view = 'learn'; render(); showNext();
+}
+const sizeCls = (t, m, s) => t.length > s ? 's' : t.length > m ? 'm' : '';
+function showNext() {
+  if (!S) return;
+  const d = deck(S.deckId);
+  while (S.queue.length && !d.cards.some(c => c.id === S.queue[0])) S.queue.shift();
+  if (!S.queue.length) { finishSession(); return; }
+  const c = d.cards.find(x => x.id === S.queue[0]);
+  S.current = c; S.flipped = false; S.revealed = false;
+  const card = $('#card'), inner = card.querySelector('.card-inner');
+  inner.style.transition = 'none'; card.classList.remove('flipped');
+  const ex = c.example ? `<div class="example"><b>Beispiel</b>${esc(c.example)}</div>` : '';
+  const term = `<div class="term ${sizeCls(c.back, 18, 30)}">${esc(c.back)}</div>`;
+  const desc = `<div class="front-text ${sizeCls(c.front, 70, 130)}">${esc(c.front)}</div>`;
+  $('#cf').innerHTML = S.dir === 'normal' ? desc : term;
+  $('#cb').innerHTML = (S.dir === 'normal' ? term : desc) + ex;
+  const again = S.first.has(c.id);
+  const tag = `<span class="dot b${c.box}"></span>Fach ${c.box}${again ? ' · Wiederholung' : ''}`;
+  $('#tag-f').innerHTML = tag; $('#tag-b').innerHTML = tag;
+  setHints(0);
+  card.style.transition = 'none'; card.style.transform = 'translateY(18px) scale(.96)'; card.style.opacity = '0';
+  void card.offsetWidth;
+  inner.style.transition = '';
+  card.style.transition = 'transform .32s cubic-bezier(.2,.8,.2,1), opacity .25s';
+  card.style.transform = ''; card.style.opacity = '';
+  $('#rate').classList.add('off');
+  if (S.write) {
+    S.checked = false; S.verdict = false;
+    const ans = $('#ans');
+    ans.value = ''; $('#ans-btn').textContent = 'Prüfen'; $('#verdict').innerHTML = '';
+    $('#answer').classList.remove('hidden'); $('#rate').classList.add('hidden');
+    ans.focus({ preventScroll: true });
+  }
+  updateProgress();
+  S.busy = false;
+}
+
+/* Antwort prüfen (Schreib-Modus) */
+const normA = s => String(s || '').toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+  .replace(/[^a-z0-9& ]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/^(der|die|das|ein|eine) /, '');
+function variants(term) {
+  const v = new Set([term]), m = term.match(/^(.*?)(\S+)\s*\(([^)]+)\)(.*)$/);
+  if (m) { v.add(m[1] + m[2] + m[4]); v.add(m[1] + m[3] + m[4]); v.add(m[3]); }
+  return [...v].map(normA).filter(Boolean);
+}
+function lev(a, b) {
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[b.length];
+}
+function judge(input, term) {
+  const a = normA(input); if (!a) return 'wrong';
+  const vs = variants(term);
+  if (vs.includes(a)) return 'right';
+  if (vs.some(v => lev(a, v) <= (v.length <= 5 ? 0 : v.length <= 10 ? 1 : 2))) return 'typo';
+  return 'wrong';
+}
+function checkAnswer() {
+  if (!S || S.busy || !S.write) return;
+  if (S.checked) { if (S.dir === 'normal') rate(S.verdict); return; }
+  const input = $('#ans').value.trim(), c = S.current;
+  S.checked = true;
+  const shown = input ? esc(input) : '<i>keine Antwort</i>';
+  if (S.dir === 'normal') {
+    const r = judge(input, c.back);
+    S.verdict = r !== 'wrong';
+    const txt = r === 'right' ? '✓ Richtig' : r === 'typo' ? '✓ Fast richtig – Schreibweise prüfen' : '✗ Leider falsch';
+    $('#verdict').innerHTML = `<span class="v-text ${S.verdict ? 't-good' : 't-bad'}">${txt}</span><button type="button" class="btn" data-act="override">${S.verdict ? 'Doch falsch' : 'Doch gewusst'}</button>`;
+    $('#cb').insertAdjacentHTML('beforeend', `<div class="your-answer ${r === 'right' ? 'ok' : r === 'wrong' ? 'no' : ''}">Deine Antwort: <b>${shown}</b></div>`);
+    $('#ans-btn').textContent = 'Weiter';
+  } else {
+    $('#verdict').innerHTML = '<span class="v-text muted">Vergleiche selbst und bewerte dich.</span>';
+    $('#cb').insertAdjacentHTML('beforeend', `<div class="your-answer">Deine Antwort: <b>${shown}</b></div>`);
+    $('#ans').blur(); $('#answer').classList.add('hidden'); $('#rate').classList.remove('hidden');
+  }
+  S.flipped = true; S.revealed = true;
+  $('#card').classList.add('flipped'); $('#rate').classList.remove('off');
+}
+function updateProgress() {
+  $('#lp-fill').style.width = (S.done / S.total * 100) + '%';
+  $('#lp-a').textContent = `${S.done} / ${S.total} geschafft`;
+  const open = S.queue.filter(id => S.first.has(id)).length;
+  $('#lp-b').textContent = open ? `${open} zur Wiederholung` : '';
+}
+function flip() {
+  if (!S || S.busy) return;
+  if (S.write && !S.checked) { $('#ans').focus(); return; }
+  S.flipped = !S.flipped;
+  $('#card').classList.toggle('flipped', S.flipped);
+  if (S.flipped && !S.revealed) { S.revealed = true; $('#rate').classList.remove('off'); }
+}
+function setHints(dx) {
+  const g = $('#h-good'), b = $('#h-bad'); if (!g) return;
+  g.style.opacity = dx > 0 ? Math.min(1, dx / 90) : 0;
+  b.style.opacity = dx < 0 ? Math.min(1, -dx / 90) : 0;
+}
+function rate(known) {
+  if (!S || S.busy || !S.revealed) return;
+  S.busy = true;
+  const c = S.current, first = !S.first.has(c.id);
+  if (first) S.first.set(c.id, known);
+  S.queue.shift();
+  if (known) {
+    if (first) c.box = Math.min(5, c.box + 1);
+    c.due = today0() + INTERVAL[c.box] * DAY;
+    S.done++;
+  } else {
+    c.box = 1; c.due = 0; c.wrong = (c.wrong || 0) + 1;
+    const pos = Math.min(S.queue.length, 3 + Math.floor(Math.random() * 3));
+    S.queue.splice(pos, 0, c.id);
+  }
+  save();
+  const dir = known ? 1 : -1, card = $('#card');
+  setHints(dir * 200);
+  card.style.transition = 'transform .32s ease-in, opacity .3s ease-in';
+  card.style.transform = `translateX(${dir * 130}%) rotate(${dir * 16}deg)`;
+  card.style.opacity = '0';
+  setTimeout(showNext, 300);
+}
+function bindCard() {
+  const card = $('#card'); let st = null;
+  card.addEventListener('pointerdown', e => {
+    if (!S || S.busy || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    st = { x: e.clientX, y: e.clientY, dx: 0, moved: false };
+    try { card.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  card.addEventListener('pointermove', e => {
+    if (!st) return;
+    const dx = e.clientX - st.x, dy = e.clientY - st.y;
+    if (!st.moved && Math.hypot(dx, dy) > 10) { st.moved = true; card.style.transition = 'none'; }
+    if (st.moved && S.revealed) { st.dx = dx; card.style.transform = `translateX(${dx}px) rotate(${dx / 20}deg)`; setHints(dx); }
+  });
+  const snap = () => { card.style.transition = 'transform .25s cubic-bezier(.2,.8,.2,1)'; card.style.transform = ''; setHints(0); };
+  card.addEventListener('pointerup', () => {
+    if (!st) return; const s = st; st = null;
+    if (!s.moved) { flip(); return; }
+    if (S.revealed && Math.abs(s.dx) > 90) rate(s.dx > 0); else snap();
+  });
+  card.addEventListener('pointercancel', () => { st = null; snap(); });
+}
+function finishSession() {
+  const res = [...S.first.entries()], right = res.filter(([, k]) => k).length;
+  ui.summary = { deckId: S.deckId, dir: S.dir, write: S.write, total: res.length, right, wrong: res.length - right,
+    wrongIds: res.filter(([, k]) => !k).map(([id]) => id), complete: !S.queue.length };
+  S = null; ui.sel = null; ui.view = 'summary'; render();
+}
+
+/* ---------- Events ---------- */
+const actions = {
+  home() { ui.view = 'home'; render(); },
+  settings() { ui.view = 'settings'; render(); },
+  open(el) { ui.deckId = el.dataset.id; ui.sel = null; ui.search = ''; ui.view = 'deck'; render(); },
+  'new-deck'() { askText('Neuer Stapel', 'z. B. LF2 – Leistungserstellung', '', 'Anlegen', name => {
+    const d = makeDeck(name, []); db.decks.push(d); save(); ui.deckId = d.id; ui.sel = null; ui.search = ''; ui.view = 'deck'; render(); }); },
+  'deck-menu'() { deckMenu(); },
+  dir(el) { ui.dir = db.settings.dir = el.dataset.v; save(); render(); },
+  sel(el) { ui.sel = el.dataset.v; render(); },
+  start() { const d = deck(), ids = selectCards(d, ui.sel).map(c => c.id); if (ids.length) startSession(d, ids, ui.dir, ui.write); },
+  override() { if (S && S.checked) rate(!S.verdict); },
+  'toggle-write'() {
+    if (!S || S.busy) return;
+    S.write = ui.write = db.settings.write = !S.write; save();
+    render(); showNext(); // aktuelle Karte im neuen Modus neu anzeigen
+    toast(S.write ? 'Antwort eintippen: an' : 'Antwort eintippen: aus');
+  },
+  'add-card'() { editCard(deck(), null); },
+  'edit-card'(el) { const d = deck(); editCard(d, d.cards.find(c => c.id === el.dataset.id)); },
+  rate(el) { el.blur(); rate(el.dataset.v === '1'); },
+  quit() { if (S && S.first.size) finishSession(); else { S = null; ui.view = 'deck'; render(); } },
+  'retry-wrong'() { const s = ui.summary, d = deck(s.deckId); if (d) startSession(d, s.wrongIds, s.dir, s.write); },
+  'back-deck'() { ui.deckId = ui.summary ? ui.summary.deckId : ui.deckId; ui.view = deck() ? 'deck' : 'home'; render(); },
+  theme(el) { db.settings.theme = el.dataset.v; save(); applyTheme(); render(); },
+  'export-all'() { exportData(db.decks, 'karteikasten-backup-' + dateStr() + '.json'); },
+  'import-file'() { $('#file').click(); },
+  'import-text'() { doImport($('#import-text').value, $('#replace').checked); },
+  async 'copy-prompt'() {
+    try { await navigator.clipboard.writeText(PROMPT); toast('Prompt kopiert'); }
+    catch (e) { toast('Kopieren nicht möglich – bitte manuell markieren'); }
+  },
+};
+$('#app').addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (el && !el.disabled && actions[el.dataset.act]) actions[el.dataset.act](el, e);
+});
+$('#app').addEventListener('input', e => {
+  if (e.target.id === 'search') { ui.search = e.target.value; const d = deck(); if (d) $('#card-list').innerHTML = cardListHtml(d); }
+});
+$('#app').addEventListener('submit', e => { e.preventDefault(); checkAnswer(); });
+$('#app').addEventListener('change', async e => {
+  if (e.target.id === 'write-toggle') { ui.write = db.settings.write = e.target.checked; save(); return; }
+  if (e.target.id === 'file' && e.target.files[0]) {
+    const text = await e.target.files[0].text(); e.target.value = '';
+    doImport(text, $('#replace').checked);
+  }
+});
+document.addEventListener('keydown', e => {
+  if (sheetEl) { if (e.key === 'Escape') closeSheet(); return; }
+  if (ui.view !== 'learn' || !S || e.target.matches('input, textarea')) return;
+  if (S.write && e.key === 'Enter') { e.preventDefault(); if (!S.checked || S.dir === 'normal') checkAnswer(); return; }
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); S.revealed ? rate(true) : flip(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); S.revealed ? rate(false) : flip(); }
+  else if (e.key === 'Escape') actions.quit();
+});
+window.addEventListener('storage', e => { if (e.key === KEY && ui.view !== 'learn') { db = load(); render(); } });
+
+applyTheme();
+render();
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW', err));
+}
+</script>
+</body>
+</html>

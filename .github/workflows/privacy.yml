@@ -1,0 +1,8 @@
+name: Datenschutz-Check
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 .githooks/privacy_check.py --all
