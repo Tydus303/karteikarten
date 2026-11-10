@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.2.1** – Jedes Fach hat im Kalender seine eigene Farbe, wählbar beim Bearbeiten
 - **1.2.0** – Klausurkalender als eigene Seite im Stil des Apple-Kalenders (Monatsansicht, Wischen, Heute)
 - **1.1.9** – Klausurkalender auf der Startseite mit Countdown
 - **1.1.8** – Neue Stapel für die Arbeiten: Geo (16.11.), WUG (23.11.), LF2 (01.12.), LF4 (04.12.)

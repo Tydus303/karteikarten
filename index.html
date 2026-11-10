@@ -121,6 +121,9 @@ p{margin:0 0 12px}
 .cal-ev .t b{display:block;font-size:17px}
 .cal-ev .t span{font-size:14px;color:var(--muted)}
 .cal-ev .when{align-self:center}
+.swatches{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 4px}
+.swatch{width:34px;height:34px;border-radius:50%;border:3px solid transparent;cursor:pointer;padding:0}
+.swatch.on{border-color:var(--text)}
 .cal-none{color:var(--muted);font-size:15px;padding:6px 4px 10px}
 .list{display:flex;flex-direction:column;gap:8px}
 .list-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:inherit;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;cursor:pointer}
@@ -919,19 +922,26 @@ if (!db.settings.examsSeeded) {
 const examDays = e => Math.round((new Date(e.date + 'T00:00:00') - new Date(new Date().toDateString())) / DAY);
 const examWhen = n => n === 0 ? 'heute' : n === 1 ? 'morgen' : n < 0 ? 'vorbei' : `in ${n} Tagen`;
 const examDate = e => { const d = new Date(e.date + 'T00:00:00'); return `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}<small>${d.toLocaleDateString('de-DE', { weekday: 'short' })}</small>`; };
+document.addEventListener('click', ev => {
+  const sw = ev.target.closest('.swatch'); if (!sw) return;
+  sw.parentElement.querySelectorAll('.swatch').forEach(x => x.classList.toggle('on', x === sw));
+});
 function editExam(e) {
   const isNew = !e || e._new;
   const deckOpts = ['<option value="">– kein Stapel –</option>', ...db.decks.map(d => `<option ${e && e.deckName === d.name ? 'selected' : ''}>${esc(d.name)}</option>`)].join('');
   openSheet(`<h3>${isNew ? 'Neue Klausur' : 'Klausur bearbeiten'}</h3>
     <label for="ex-name">Fach</label><input id="ex-name" placeholder="z. B. LF3" value="${esc(e ? e.name : '')}" autocomplete="off">
     <label for="ex-date">Datum</label><input id="ex-date" type="date" value="${e ? e.date : ''}">
+    <label>Farbe des Fachs</label><div class="swatches" id="ex-colors">${EXAM_COLORS.map(c => `<button type="button" class="swatch${c === (e && e.name ? examColor(e.name) : '') ? ' on' : ''}" data-c="${c}" style="background:${c}" aria-label="Farbe ${c}"></button>`).join('')}</div>
     <label for="ex-deck">Passender Stapel</label><select id="ex-deck" style="width:100%;font:inherit;font-size:17px;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text)">${deckOpts}</select>
     <div class="sheet-actions">${isNew ? '' : '<button class="btn danger" data-s="del">Löschen</button>'}<button class="btn" data-s="cancel">Abbrechen</button><button class="btn primary" data-s="ok">Speichern</button></div>`,
     (a, bg) => {
       if (a === 'del') { db.exams = db.exams.filter(x => x !== e); save(); closeSheet(); render(); toast('Klausur gelöscht'); return; }
       if (a !== 'ok') return;
       const name = bg.querySelector('#ex-name').value.trim(), date = bg.querySelector('#ex-date').value, deckName = bg.querySelector('#ex-deck').value;
+      const pick = bg.querySelector('.swatch.on');
       if (!name || !date) { toast('Bitte Fach und Datum eingeben'); return; }
+      if (pick) (db.settings.examColors ||= {})[subjKey(name)] = pick.dataset.c;
       if (isNew) db.exams.push({ id: uid(), name, date, deckName }); else Object.assign(e, { name, date, deckName });
       if (ui.view === 'calendar') { ui.calSel = date; const dd = new Date(date + 'T00:00:00'); ui.calMonth = new Date(dd.getFullYear(), dd.getMonth(), 1); }
       save(); closeSheet(); render(); toast('Gespeichert');
@@ -947,8 +957,18 @@ function openExam(e) {
       else if (a === 'edit') { closeSheet(); editExam(e); }
     });
 }
-const EXAM_COLORS = ['#ff3b30', '#ff9500', '#34c759', '#007aff', '#af52de', '#ff2d55', '#5ac8fa', '#ffcc00'];
-const examColor = name => { let h = 0; for (const c of name) h = (h * 31 + c.charCodeAt(0)) | 0; return EXAM_COLORS[Math.abs(h) % EXAM_COLORS.length]; };
+// Jedes Fach bekommt eine feste, eigene Farbe (gespeichert, änderbar beim Bearbeiten)
+const EXAM_COLORS = ['#34c759', '#007aff', '#ff9500', '#af52de', '#ff3b30', '#5ac8fa', '#ffcc00', '#ff2d55', '#a2845e', '#30b0c7', '#5856d6', '#8e8e93'];
+const subjKey = name => name.trim().toLowerCase();
+function examColor(name) {
+  const map = db.settings.examColors ||= {}, k = subjKey(name);
+  if (!map[k]) {
+    const used = new Set(Object.values(map));
+    map[k] = EXAM_COLORS.find(c => !used.has(c)) || EXAM_COLORS[Object.keys(map).length % EXAM_COLORS.length];
+    save();
+  }
+  return map[k];
+}
 const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 function viewCalendar() {
   const today = ymd(new Date());
@@ -1060,8 +1080,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.2.1';
 const CHANGELOG = [
+  ['1.2.1', 'Jedes Fach hat im Kalender seine eigene Farbe, wählbar beim Bearbeiten'],
   ['1.2.0', 'Klausurkalender als eigene Seite im Stil des Apple-Kalenders (Monatsansicht, Wischen, Heute)'],
   ['1.1.9', 'Klausurkalender auf der Startseite mit Countdown'],
   ['1.1.8', 'Neue Stapel für die Arbeiten: Geo (16.11.), WUG (23.11.), LF2 (01.12.), LF4 (04.12.)'],
