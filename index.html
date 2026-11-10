@@ -477,7 +477,7 @@ function parseImport(text) {
   else if (data.cards || data.karten) decks = [data];
   else throw new Error('Unbekanntes Format');
   return decks.map(d => ({
-    name: String(d.name || d.titel || d.title || '').trim(),
+    name: String(d.name || d.titel || d.title || '').trim(), archived: !!d.archived,
     cards: (d.cards || d.karten || []).map(normCard).filter(c => c && c.front && c.back)
   }));
 }
@@ -487,7 +487,7 @@ function importDecks(list) {
   list.forEach(src => {
     const name = src.name || ('Import ' + new Date().toLocaleDateString('de-DE'));
     let d = db.decks.find(x => x.name.toLowerCase() === name.toLowerCase());
-    if (!d) { d = makeDeck(name, []); db.decks.push(d); newDecks++; }
+    if (!d) { d = makeDeck(name, []); if (src.archived) d.archived = true; db.decks.push(d); newDecks++; }
     const seen = new Set(d.cards.map(key));
     src.cards.forEach(c => {
       if (seen.has(key(c))) { skipped++; return; }
@@ -513,7 +513,7 @@ async function doImport(text, replace) {
 }
 async function exportData(decks, filename) {
   const data = { app: 'karteikasten', version: 1, exported: new Date().toISOString(),
-    decks: decks.map(d => ({ name: d.name, cards: d.cards.map(c => ({ front: c.front, back: c.back, example: c.example || undefined, box: c.box, due: c.due, wrong: c.wrong })) })) };
+    decks: decks.map(d => ({ name: d.name, archived: d.archived || undefined, cards: d.cards.map(c => ({ front: c.front, back: c.back, example: c.example || undefined, box: c.box, due: c.due, wrong: c.wrong })) })) };
   const json = JSON.stringify(data, null, 2);
   const file = new File([json], filename, { type: 'application/json' });
   if (matchMedia('(hover: none)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -530,6 +530,7 @@ const fileName = name => 'karteikasten-' + name.toLowerCase().replace(/[^a-z0-9�
 
 /* ---------- UI-Helfer ---------- */
 const ICONS = {
+  archive: '<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 001 1h12a1 1 0 001-1V8M10 12h4"/>',
   back: '<path d="M15 5l-7 7 7 7"/>',
   gear: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -605,18 +606,27 @@ const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: stan
 const installPanel = () => `<div class="panel" id="install"><div class="panel-title">App auf den Home-Bildschirm</div>
       <video class="install-video" src="install-video.mp4?v=2" poster="install-poster.jpg" controls playsinline preload="none"></video>
       <p class="muted small" style="margin:0">iPhone: Safari → Teilen → „Zum Home-Bildschirm“. Android: Chrome → ⋮ → „Zum Startbildschirm hinzufügen“.</p></div>`;
-function viewHome() {
-  const items = db.decks.map(d => {
+function deckItem(d) {
     const st = stats(d);
     return `<button class="panel deck-item" data-act="open" data-id="${d.id}">
       <div class="row"><span class="deck-name">${esc(d.name)}</span><span class="pill ${st.due ? 'due' : ''}">${st.due ? st.due + ' fällig' : 'erledigt'}</span></div>
       <div class="muted small" style="margin-top:2px">${st.total} Karten · ${st.boxes[5]} sitzen</div>${boxbar(st)}</button>`;
-  }).join('');
+}
+function viewArchive() {
+  const list = db.decks.filter(d => d.archived);
+  return `<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Zurück">${ic('back')}</button><h2>Archiv</h2></div>
+    <p class="muted small" style="margin:0 4px 12px">Archivierte Stapel tauchen auf der Startseite nicht mehr auf. Du kannst sie hier öffnen, lernen oder über ⋯ zurückholen.</p>
+    ${list.map(deckItem).join('') || '<div class="empty">Das Archiv ist leer.<br>Stapel archivierst du über ⋯ im Stapel.</div>'}`;
+}
+function viewHome() {
+  const nArch = db.decks.filter(d => d.archived).length;
+  const items = db.decks.filter(d => !d.archived).map(deckItem).join('');
   return `<div class="topbar"><h1>Karteikasten</h1><button class="icon-btn" data-act="settings" aria-label="Einstellungen und Daten">${ic('gear')}</button></div>
     ${!isStandalone() && !db.settings.hideInstall ? `<div class="panel install-banner"><div class="grow"><b>Als App installieren</b><div class="muted small">Kurzes Video: so kommt die App auf deinen Home-Bildschirm.</div></div>
       <button class="btn sm primary" data-act="show-install">Ansehen</button><button class="icon-btn" data-act="hide-install" aria-label="Hinweis ausblenden">${ic('close')}</button></div>` : ''}
     ${items || '<div class="empty">Noch keine Stapel.<br>Leg einen an oder importiere einen.</div>'}
-    <button class="btn block" data-act="new-deck">${ic('plus')} Neuer Stapel</button>`;
+    <button class="btn block" data-act="new-deck">${ic('plus')} Neuer Stapel</button>
+    ${nArch ? `<button class="btn block" data-act="archive" style="margin-top:10px">${ic('archive')} Archiv (${nArch})</button>` : ''}`;
 }
 
 function cardListHtml(d) {
@@ -639,8 +649,8 @@ function viewDeck() {
   if (!st.total) hint = 'Füge zuerst Karten hinzu.';
   else if (ui.sel === 'due' && !n) hint = 'Heute ist nichts fällig. Lerne alle Karten oder komm morgen wieder.';
   else if (ui.sel === 'hard' && !n) hint = 'Keine schwierigen Karten – stark!';
-  return `<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Zurück">${ic('back')}</button>
-      <h2>${esc(d.name)}</h2><button class="icon-btn" data-act="deck-menu" aria-label="Stapel-Optionen">${ic('more')}</button></div>
+  return `<div class="topbar"><button class="icon-btn" data-act="${d.archived ? 'archive' : 'home'}" aria-label="Zurück">${ic('back')}</button>
+      <h2>${esc(d.name)}${d.archived ? ' <span class="pill">Archiv</span>' : ''}</h2><button class="icon-btn" data-act="deck-menu" aria-label="Stapel-Optionen">${ic('more')}</button></div>
     ${boxesPanel(d)}
     <div class="panel"><div class="panel-title">Lernen</div>
       <div class="seg">${seg('dir', 'normal', 'Normal')}${seg('dir', 'reverse', 'Umgekehrt')}</div>
@@ -686,8 +696,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.1.6';
+const APP_VERSION = '1.1.7';
 const CHANGELOG = [
+  ['1.1.7', 'Archiv: alte Stapel ausblenden und bei Bedarf wieder öffnen · Fehler behoben: App blieb seit 1.1.5 leer'],
   ['1.1.6', 'Versionsnummer und „Was ist neu“ in den Einstellungen'],
   ['1.1.5', 'Automatische Updates in der installierten App, neue Startkarten kommen von selbst'],
   ['1.1.4', 'Willkommens-Fenster mit Installations-Video beim ersten Öffnen'],
@@ -724,7 +735,7 @@ function viewSettings() {
 
 function render() {
   if (typeof updatePending !== 'undefined' && updatePending && ui.view !== 'learn' && !sheetEl) { setTimeout(applyUpdate, 0); }
-  const views = { home: viewHome, deck: viewDeck, learn: viewLearn, summary: viewSummary, settings: viewSettings };
+  const views = { archive: viewArchive, home: viewHome, deck: viewDeck, learn: viewLearn, summary: viewSummary, settings: viewSettings };
   $('#app').innerHTML = views[ui.view]();
   document.body.classList.toggle('learning', ui.view === 'learn');
   if (ui.view !== lastView) { window.scrollTo(0, 0); lastView = ui.view; }
@@ -765,11 +776,16 @@ function editCard(d, card) {
 function deckMenu() {
   const d = deck();
   openSheet(`<h3>${esc(d.name)}</h3><div class="menu">
-    <button data-s="rename">Umbenennen</button><button data-s="export">Stapel exportieren</button>
+    <button data-s="rename">Umbenennen</button><button data-s="archive">${d.archived ? 'Aus dem Archiv holen' : 'Archivieren'}</button><button data-s="export">Stapel exportieren</button>
     <button data-s="reset">Fortschritt zurücksetzen</button><button class="danger" data-s="delete">Stapel löschen</button></div>
     <button class="btn block" data-s="cancel">Abbrechen</button>`,
     async a => {
       if (a === 'rename') askText('Stapel umbenennen', 'Name', d.name, 'Speichern', v => { d.name = v; save(); render(); });
+      else if (a === 'archive') {
+        closeSheet(); d.archived = !d.archived; save();
+        ui.view = d.archived ? 'home' : 'deck'; render();
+        toast(d.archived ? 'Stapel archiviert – zu finden unter „Archiv“' : 'Stapel ist wieder auf der Startseite');
+      }
       else if (a === 'export') { closeSheet(); exportData([d], fileName(d.name)); }
       else if (a === 'reset') {
         if (await askConfirm('Fortschritt zurücksetzen?', 'Alle Karten dieses Stapels kommen zurück in Fach 1.', 'Zurücksetzen', true)) {
@@ -943,6 +959,7 @@ function finishSession() {
 /* ---------- Events ---------- */
 const actions = {
   home() { ui.view = 'home'; render(); },
+  archive() { ui.view = 'archive'; render(); },
   settings() { ui.view = 'settings'; render(); },
   'show-install'() { ui.view = 'settings'; render(); const v = document.querySelector('.install-video'); if (v) { v.scrollIntoView({ block: 'start' }); v.play().catch(() => {}); } },
   'hide-install'() { db.settings.hideInstall = true; save(); render(); },
@@ -1008,7 +1025,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW', err));
 }
 // ---------- Updates: beim Zurückkehren in die App nach neuer Version suchen ----------
-let pageHash = null, updatePending = false, lastCheck = 0;
+var pageHash = null, updatePending = false, lastCheck = 0; // var: wird schon in render() abgefragt, bevor diese Zeile läuft
 async function checkForUpdate() {
   if (!navigator.onLine || !location.protocol.startsWith('http')) return;
   lastCheck = Date.now();
