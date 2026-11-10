@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.3.1** – Hinweis auf der Startseite: Karten können Fehler enthalten
 - **1.3.0** – Lerncode-Sync: Fortschritt zusätzlich auf dem Server sichern und zwischen Geräten wechseln – ohne Konto
 - **1.2.2** – Backup-Erinnerung alle 7 Tage, Klausuren im Backup, Warnhinweis im iPhone-Safari-Tab, dauerhafter Speicher
 - **1.2.1** – Jedes Fach hat im Kalender seine eigene Farbe, wählbar beim Bearbeiten
