@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.2.0** – Klausurkalender als eigene Seite im Stil des Apple-Kalenders (Monatsansicht, Wischen, Heute)
 - **1.1.9** – Klausurkalender auf der Startseite mit Countdown
 - **1.1.8** – Neue Stapel für die Arbeiten: Geo (16.11.), WUG (23.11.), LF2 (01.12.), LF4 (04.12.)
 - **1.1.7** – Archiv: alte Stapel ausblenden und bei Bedarf wieder öffnen · Fehler behoben: App blieb seit 1.1.5 leer

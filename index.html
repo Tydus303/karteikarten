@@ -97,6 +97,31 @@ p{margin:0 0 12px}
 .pill.soon{background:var(--bad);color:#fff}
 .exams-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .exams-head .panel-title{margin:0}
+:root{--cal-red:#ff3b30}
+.cal-year{color:var(--cal-red);font-size:15px;font-weight:600;margin:2px 4px 0}
+.cal-head{display:flex;align-items:center;gap:6px;margin:0 0 10px}
+.cal-month{flex:1;font-size:32px;font-weight:800;letter-spacing:-.02em;margin:0 4px}
+.cal-nav{width:40px;height:40px;border-radius:50%;border:0;background:none;color:var(--cal-red);font-size:26px;line-height:1;cursor:pointer}
+.cal-nav:hover{background:var(--surface2)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal-wd{font-size:12px;font-weight:600;color:var(--muted);text-align:center;padding:4px 0 8px}
+.cal-day{background:none;border:0;border-top:1px solid var(--border);font:inherit;color:var(--text);display:flex;flex-direction:column;align-items:center;padding:6px 0 4px;min-height:58px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cal-day.empty{cursor:default}
+.cal-day .n{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;font-size:18px;font-variant-numeric:tabular-nums}
+.cal-day.we .n{color:var(--muted)}
+.cal-day.today .n{color:var(--cal-red);font-weight:700}
+.cal-day.sel .n{background:var(--text);color:var(--bg);font-weight:700}
+.cal-day.sel.today .n{background:var(--cal-red);color:#fff}
+.cal-dots{display:flex;gap:3px;height:6px;margin-top:4px}
+.cal-dots i{width:6px;height:6px;border-radius:50%}
+.cal-daytitle{font-size:15px;font-weight:700;margin:18px 4px 6px;color:var(--muted)}
+.cal-ev{display:flex;align-items:stretch;gap:12px;width:100%;text-align:left;font:inherit;color:inherit;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.cal-ev .bar{width:4px;border-radius:2px;flex:none}
+.cal-ev .t{flex:1}
+.cal-ev .t b{display:block;font-size:17px}
+.cal-ev .t span{font-size:14px;color:var(--muted)}
+.cal-ev .when{align-self:center}
+.cal-none{color:var(--muted);font-size:15px;padding:6px 4px 10px}
 .list{display:flex;flex-direction:column;gap:8px}
 .list-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:inherit;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;cursor:pointer}
 .list-item:hover{border-color:var(--muted)}
@@ -789,6 +814,7 @@ const fileName = name => 'karteikasten-' + name.toLowerCase().replace(/[^a-z0-9�
 
 /* ---------- UI-Helfer ---------- */
 const ICONS = {
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   archive: '<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 001 1h12a1 1 0 001-1V8M10 12h4"/>',
   back: '<path d="M15 5l-7 7 7 7"/>',
   gear: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/>',
@@ -893,14 +919,8 @@ if (!db.settings.examsSeeded) {
 const examDays = e => Math.round((new Date(e.date + 'T00:00:00') - new Date(new Date().toDateString())) / DAY);
 const examWhen = n => n === 0 ? 'heute' : n === 1 ? 'morgen' : n < 0 ? 'vorbei' : `in ${n} Tagen`;
 const examDate = e => { const d = new Date(e.date + 'T00:00:00'); return `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}<small>${d.toLocaleDateString('de-DE', { weekday: 'short' })}</small>`; };
-function examsPanel() {
-  const list = db.exams.filter(e => examDays(e) >= 0).sort((a, b) => a.date.localeCompare(b.date));
-  return `<div class="panel"><div class="exams-head"><div class="panel-title">Klausuren</div><button class="btn sm" data-act="add-exam">${ic('plus')} Klausur</button></div>
-    ${list.length ? list.map(e => { const n = examDays(e); return `<button class="exam" data-act="exam" data-id="${e.id}"><span class="exam-date">${examDate(e)}</span><span class="exam-name">${esc(e.name)}</span><span class="pill ${n <= 3 ? 'soon' : n <= 7 ? 'due' : ''}">${examWhen(n)}</span></button>`; }).join('')
-      : '<div class="muted small" style="padding:8px 2px">Keine anstehenden Klausuren.</div>'}</div>`;
-}
 function editExam(e) {
-  const isNew = !e;
+  const isNew = !e || e._new;
   const deckOpts = ['<option value="">– kein Stapel –</option>', ...db.decks.map(d => `<option ${e && e.deckName === d.name ? 'selected' : ''}>${esc(d.name)}</option>`)].join('');
   openSheet(`<h3>${isNew ? 'Neue Klausur' : 'Klausur bearbeiten'}</h3>
     <label for="ex-name">Fach</label><input id="ex-name" placeholder="z. B. LF3" value="${esc(e ? e.name : '')}" autocomplete="off">
@@ -913,6 +933,7 @@ function editExam(e) {
       const name = bg.querySelector('#ex-name').value.trim(), date = bg.querySelector('#ex-date').value, deckName = bg.querySelector('#ex-deck').value;
       if (!name || !date) { toast('Bitte Fach und Datum eingeben'); return; }
       if (isNew) db.exams.push({ id: uid(), name, date, deckName }); else Object.assign(e, { name, date, deckName });
+      if (ui.view === 'calendar') { ui.calSel = date; const dd = new Date(date + 'T00:00:00'); ui.calMonth = new Date(dd.getFullYear(), dd.getMonth(), 1); }
       save(); closeSheet(); render(); toast('Gespeichert');
     });
 }
@@ -926,13 +947,47 @@ function openExam(e) {
       else if (a === 'edit') { closeSheet(); editExam(e); }
     });
 }
+const EXAM_COLORS = ['#ff3b30', '#ff9500', '#34c759', '#007aff', '#af52de', '#ff2d55', '#5ac8fa', '#ffcc00'];
+const examColor = name => { let h = 0; for (const c of name) h = (h * 31 + c.charCodeAt(0)) | 0; return EXAM_COLORS[Math.abs(h) % EXAM_COLORS.length]; };
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+function viewCalendar() {
+  const today = ymd(new Date());
+  if (!ui.calSel) ui.calSel = today;
+  if (!ui.calMonth) { const t = new Date(); ui.calMonth = new Date(t.getFullYear(), t.getMonth(), 1); }
+  const m = ui.calMonth, y = m.getFullYear(), mo = m.getMonth();
+  const first = (new Date(y, mo, 1).getDay() + 6) % 7, days = new Date(y, mo + 1, 0).getDate();
+  const byDate = {}; db.exams.forEach(e => (byDate[e.date] ||= []).push(e));
+  let cells = '';
+  for (let i = 0; i < first; i++) cells += '<div class="cal-day empty"></div>';
+  for (let d = 1; d <= days; d++) {
+    const key = ymd(new Date(y, mo, d)), wd = (first + d - 1) % 7, ev = byDate[key] || [];
+    cells += `<button class="cal-day${wd > 4 ? ' we' : ''}${key === today ? ' today' : ''}${key === ui.calSel ? ' sel' : ''}" data-act="cal-day" data-d="${key}">
+      <span class="n">${d}</span><span class="cal-dots">${ev.slice(0, 3).map(e => `<i style="background:${examColor(e.name)}"></i>`).join('')}</span></button>`;
+  }
+  const evRow = e => { const n = examDays(e); return `<button class="cal-ev" data-act="exam" data-id="${e.id}"><span class="bar" style="background:${examColor(e.name)}"></span>
+      <span class="t"><b>${esc(e.name)}</b><span>${new Date(e.date + 'T00:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' })} · ganztägig${e.deckName ? ' · ' + esc(e.deckName) : ''}</span></span>
+      <span class="pill when ${n >= 0 && n <= 3 ? 'soon' : n >= 0 && n <= 7 ? 'due' : ''}">${examWhen(n)}</span></button>`; };
+  const selEv = byDate[ui.calSel] || [];
+  const upcoming = db.exams.filter(e => examDays(e) >= 0).sort((a, b) => a.date.localeCompare(b.date));
+  const selLabel = new Date(ui.calSel + 'T00:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+  return `<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Zurück">${ic('back')}</button><h2></h2>
+      <button class="btn sm" data-act="cal-today">Heute</button><button class="icon-btn" data-act="add-exam" aria-label="Klausur hinzufügen">${ic('plus')}</button></div>
+    <div class="cal-year">${y}</div>
+    <div class="cal-head"><div class="cal-month">${m.toLocaleDateString('de-DE', { month: 'long' })}</div>
+      <button class="cal-nav" data-act="cal-prev" aria-label="Voriger Monat">‹</button><button class="cal-nav" data-act="cal-next" aria-label="Nächster Monat">›</button></div>
+    <div class="cal-grid" id="cal-grid">${['M', 'D', 'M', 'D', 'F', 'S', 'S'].map(w => `<div class="cal-wd">${w}</div>`).join('')}${cells}</div>
+    <div class="cal-daytitle">${selLabel}</div>
+    ${selEv.length ? selEv.map(evRow).join('') : '<div class="cal-none">Keine Klausur an diesem Tag.</div>'}
+    <div class="cal-daytitle">Anstehende Klausuren</div>
+    ${upcoming.length ? upcoming.map(evRow).join('') : '<div class="cal-none">Keine anstehenden Klausuren.</div>'}`;
+}
+function calShift(n) { ui.calMonth = new Date(ui.calMonth.getFullYear(), ui.calMonth.getMonth() + n, 1); render(); }
 function viewHome() {
   const nArch = db.decks.filter(d => d.archived).length;
   const items = db.decks.filter(d => !d.archived).map(deckItem).join('');
-  return `<div class="topbar"><h1>Karteikasten</h1><button class="icon-btn" data-act="settings" aria-label="Einstellungen und Daten">${ic('gear')}</button></div>
+  return `<div class="topbar"><h1>Karteikasten</h1><button class="icon-btn" data-act="calendar" aria-label="Klausurkalender">${ic('calendar')}</button><button class="icon-btn" data-act="settings" aria-label="Einstellungen und Daten">${ic('gear')}</button></div>
     ${!isStandalone() && !db.settings.hideInstall ? `<div class="panel install-banner"><div class="grow"><b>Als App installieren</b><div class="muted small">Kurzes Video: so kommt die App auf deinen Home-Bildschirm.</div></div>
       <button class="btn sm primary" data-act="show-install">Ansehen</button><button class="icon-btn" data-act="hide-install" aria-label="Hinweis ausblenden">${ic('close')}</button></div>` : ''}
-    ${examsPanel()}
     ${items || '<div class="empty">Noch keine Stapel.<br>Leg einen an oder importiere einen.</div>'}
     <button class="btn block" data-act="new-deck">${ic('plus')} Neuer Stapel</button>
     ${nArch ? `<button class="btn block" data-act="archive" style="margin-top:10px">${ic('archive')} Archiv (${nArch})</button>` : ''}`;
@@ -1005,8 +1060,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.1.9';
+const APP_VERSION = '1.2.0';
 const CHANGELOG = [
+  ['1.2.0', 'Klausurkalender als eigene Seite im Stil des Apple-Kalenders (Monatsansicht, Wischen, Heute)'],
   ['1.1.9', 'Klausurkalender auf der Startseite mit Countdown'],
   ['1.1.8', 'Neue Stapel für die Arbeiten: Geo (16.11.), WUG (23.11.), LF2 (01.12.), LF4 (04.12.)'],
   ['1.1.7', 'Archiv: alte Stapel ausblenden und bei Bedarf wieder öffnen · Fehler behoben: App blieb seit 1.1.5 leer'],
@@ -1044,9 +1100,15 @@ function viewSettings() {
       <details><summary class="small">Was ist neu?</summary><ul class="info small">${CHANGELOG.map(([v, t]) => `<li><b>${v}</b> – ${esc(t)}</li>`).join('')}</ul></details></div>`;
 }
 
+let calTouch = null;
+document.addEventListener('touchstart', e => { if (ui.view === 'calendar' && e.target.closest('#cal-grid')) calTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }, { passive: true });
+document.addEventListener('touchend', e => {
+  if (!calTouch) return; const dx = e.changedTouches[0].clientX - calTouch.x, dy = e.changedTouches[0].clientY - calTouch.y; calTouch = null;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) calShift(dx < 0 ? 1 : -1);
+});
 function render() {
   if (typeof updatePending !== 'undefined' && updatePending && ui.view !== 'learn' && !sheetEl) { setTimeout(applyUpdate, 0); }
-  const views = { archive: viewArchive, home: viewHome, deck: viewDeck, learn: viewLearn, summary: viewSummary, settings: viewSettings };
+  const views = { calendar: viewCalendar, archive: viewArchive, home: viewHome, deck: viewDeck, learn: viewLearn, summary: viewSummary, settings: viewSettings };
   $('#app').innerHTML = views[ui.view]();
   document.body.classList.toggle('learning', ui.view === 'learn');
   if (ui.view !== lastView) { window.scrollTo(0, 0); lastView = ui.view; }
@@ -1271,7 +1333,12 @@ function finishSession() {
 const actions = {
   home() { ui.view = 'home'; render(); },
   archive() { ui.view = 'archive'; render(); },
-  'add-exam'() { editExam(null); },
+  'add-exam'() { editExam(ui.view === 'calendar' && ui.calSel ? { _new: true, name: '', date: ui.calSel, deckName: '' } : null); },
+  calendar() { ui.view = 'calendar'; render(); },
+  'cal-prev'() { calShift(-1); },
+  'cal-next'() { calShift(1); },
+  'cal-today'() { const t = new Date(); ui.calMonth = new Date(t.getFullYear(), t.getMonth(), 1); ui.calSel = ymd(t); render(); },
+  'cal-day'(el) { ui.calSel = el.dataset.d; render(); },
   exam(el) { const e = db.exams.find(x => x.id === el.dataset.id); if (e) openExam(e); },
   settings() { ui.view = 'settings'; render(); },
   'show-install'() { ui.view = 'settings'; render(); const v = document.querySelector('.install-video'); if (v) { v.scrollIntoView({ block: 'start' }); v.play().catch(() => {}); } },
