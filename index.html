@@ -83,6 +83,7 @@ p{margin:0 0 12px}
 .seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .seg-caption{font-size:14px;color:var(--muted);margin:-4px 0 14px 4px}
 .install-video{display:block;width:100%;max-width:320px;margin:4px auto 10px;border-radius:16px;background:#000;aspect-ratio:9/16}
+.intro .install-video{max-height:58dvh;width:auto;max-width:100%}
 .install-banner{display:flex;align-items:center;gap:12px}
 .install-banner .grow{flex:1}
 .hint{font-size:14px;color:var(--muted);margin-top:10px;text-align:center}
@@ -558,6 +559,13 @@ function openSheet(html, onAction, onMount) {
   sheetEl = bg;
   onMount && onMount(bg);
 }
+function showIntro() {
+  db.settings.introSeen = true; save();
+  openSheet(`<div class="intro"><h3>Willkommen im Karteikasten!</h3>
+    <p class="muted small" style="margin:4px 0 10px">So legst du die App auf deinen Home-Bildschirm – das Video findest du später auch in den Einstellungen.</p>
+    <video class="install-video" src="install-video.mp4?v=2" poster="install-poster.jpg" controls playsinline preload="metadata"></video>
+    <div class="sheet-actions"><button class="btn primary" data-s="cancel">Verstanden</button></div></div>`);
+}
 function closeSheet() { if (sheetEl) { sheetEl.remove(); sheetEl = null; } }
 function askConfirm(title, text, okLabel, danger) {
   return new Promise(res => {
@@ -980,6 +988,7 @@ window.addEventListener('storage', e => { if (e.key === KEY && ui.view !== 'lear
 
 applyTheme();
 render();
+if (!db.settings.introSeen) showIntro();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW', err));
 }
