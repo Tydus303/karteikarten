@@ -724,7 +724,9 @@ if (db.settings.seedHash !== SEED_HASH) {
   importDecks(SEEDS.map(seedDeck));
   db.settings.seedHash = SEED_HASH; save();
 }
-try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
+let persisted = null;
+(async () => { try { if (navigator.storage && navigator.storage.persist) persisted = (await navigator.storage.persisted()) || (await navigator.storage.persist()); } catch (e) {} })();
+function showPersist() { const el = document.getElementById('persist-state'); if (el) el.textContent = isStandalone() ? 'App (geschützt)' : persisted ? 'dauerhaft' : 'kann vom Browser gelöscht werden'; }
 
 const deck = (id = ui.deckId) => db.decks.find(d => d.id === id);
 const isHard = c => c.wrong > 0 && c.box <= 2;
@@ -784,7 +786,15 @@ function importDecks(list) {
   save();
   return { added, skipped, newDecks };
 }
+function importExams(text) {
+  try {
+    const raw = JSON.parse(text); if (!Array.isArray(raw.exams)) return;
+    raw.exams.forEach(e => { if (e && e.name && e.date && !db.exams.some(x => x.name === e.name && x.date === e.date)) db.exams.push({ id: uid(), name: e.name, date: e.date, deckName: e.deckName || '' }); });
+    save();
+  } catch (e) {}
+}
 async function doImport(text, replace) {
+  importExams(text);
   let parsed;
   try { parsed = parseImport(text); } catch (e) { toast('Import fehlgeschlagen: ' + e.message); return; }
   const n = parsed.reduce((s, d) => s + d.cards.length, 0);
@@ -798,20 +808,26 @@ async function doImport(text, replace) {
   const ta = $('#import-text'); if (ta) ta.value = '';
   ui.view = 'home'; render();
 }
-async function exportData(decks, filename) {
-  const data = { app: 'karteikasten', version: 1, exported: new Date().toISOString(),
+async function exportData(decks, filename, full) {
+  const ok = await exportFile(decks, filename, full);
+  if (ok && full) { db.settings.lastBackup = Date.now(); delete db.settings.backupSnooze; save(); if (ui.view === 'home' || ui.view === 'settings') render(); }
+  return ok;
+}
+async function exportFile(decks, filename, full) {
+  const data = { app: 'karteikasten', version: 1, exported: new Date().toISOString(), exams: full ? db.exams : undefined,
     decks: decks.map(d => ({ name: d.name, archived: d.archived || undefined, cards: d.cards.map(c => ({ front: c.front, back: c.back, example: c.example || undefined, box: c.box, due: c.due, wrong: c.wrong })) })) };
   const json = JSON.stringify(data, null, 2);
   const file = new File([json], filename, { type: 'application/json' });
   if (matchMedia('(hover: none)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: filename }); return; }
-    catch (e) { if (e.name === 'AbortError') return; }
+    try { await navigator.share({ files: [file], title: filename }); return true; }
+    catch (e) { if (e.name === 'AbortError') return false; }
   }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(file); a.download = filename;
   document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
   toast('Export gespeichert');
+  return true;
 }
 const fileName = name => 'karteikasten-' + name.toLowerCase().replace(/[^a-z0-9äöüß]+/gi, '-').replace(/^-|-$/g, '') + '-' + dateStr() + '.json';
 
@@ -1002,11 +1018,28 @@ function viewCalendar() {
     ${upcoming.length ? upcoming.map(evRow).join('') : '<div class="cal-none">Keine anstehenden Klausuren.</div>'}`;
 }
 function calShift(n) { ui.calMonth = new Date(ui.calMonth.getFullYear(), ui.calMonth.getMonth() + n, 1); render(); }
+const BACKUP_EVERY = 7 * DAY;
+if (!db.settings.firstUse) { db.settings.firstUse = Date.now(); save(); }
+function backupDue() {
+  const learned = db.decks.some(d => d.cards.some(c => c.box > 1 || c.wrong));
+  if (!learned) return false;
+  const last = db.settings.lastBackup || db.settings.firstUse;
+  if (db.settings.backupSnooze && Date.now() - db.settings.backupSnooze < 2 * DAY) return false;
+  return Date.now() - last > BACKUP_EVERY;
+}
+function backupBanner() {
+  if (!backupDue()) return '';
+  const last = db.settings.lastBackup;
+  return `<div class="panel install-banner"><div class="grow"><b>Zeit für ein Backup</b><div class="muted small">${last ? 'Letztes Backup vor ' + Math.floor((Date.now() - last) / DAY) + ' Tagen.' : 'Du hast noch nie ein Backup gemacht.'} Sichere deinen Fortschritt als Datei.</div></div>
+    <button class="btn sm primary" data-act="export-all">Sichern</button><button class="icon-btn" data-act="backup-later" aria-label="Später erinnern">${ic('close')}</button></div>`;
+}
+const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 function viewHome() {
   const nArch = db.decks.filter(d => d.archived).length;
   const items = db.decks.filter(d => !d.archived).map(deckItem).join('');
   return `<div class="topbar"><h1>Karteikasten</h1><button class="icon-btn" data-act="calendar" aria-label="Klausurkalender">${ic('calendar')}</button><button class="icon-btn" data-act="settings" aria-label="Einstellungen und Daten">${ic('gear')}</button></div>
-    ${!isStandalone() && !db.settings.hideInstall ? `<div class="panel install-banner"><div class="grow"><b>Als App installieren</b><div class="muted small">Kurzes Video: so kommt die App auf deinen Home-Bildschirm.</div></div>
+    ${backupBanner()}
+    ${!isStandalone() && (!db.settings.hideInstall || (isIOS() && Date.now() - (db.settings.hideInstallAt || 0) > 3 * DAY)) ? `<div class="panel install-banner"><div class="grow"><b>Als App installieren</b><div class="muted small">${isIOS() ? '<b style="color:var(--bad)">Wichtig:</b> Im Safari-Tab kann dein iPhone deinen Fortschritt nach 7 Tagen ohne Nutzung löschen. Als App auf dem Home-Bildschirm passiert das nicht.' : 'Kurzes Video: so kommt die App auf deinen Home-Bildschirm.'}</div></div>
       <button class="btn sm primary" data-act="show-install">Ansehen</button><button class="icon-btn" data-act="hide-install" aria-label="Hinweis ausblenden">${ic('close')}</button></div>` : ''}
     ${items || '<div class="empty">Noch keine Stapel.<br>Leg einen an oder importiere einen.</div>'}
     <button class="btn block" data-act="new-deck">${ic('plus')} Neuer Stapel</button>
@@ -1080,8 +1113,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.2.1';
+const APP_VERSION = '1.2.2';
 const CHANGELOG = [
+  ['1.2.2', 'Backup-Erinnerung alle 7 Tage, Klausuren im Backup, Warnhinweis im iPhone-Safari-Tab, dauerhafter Speicher'],
   ['1.2.1', 'Jedes Fach hat im Kalender seine eigene Farbe, wählbar beim Bearbeiten'],
   ['1.2.0', 'Klausurkalender als eigene Seite im Stil des Apple-Kalenders (Monatsansicht, Wischen, Heute)'],
   ['1.1.9', 'Klausurkalender auf der Startseite mit Countdown'],
@@ -1100,7 +1134,8 @@ function viewSettings() {
     ${installPanel()}
     <div class="panel"><div class="panel-title">Darstellung</div><div class="seg" style="margin:0">${seg('auto', 'Automatisch')}${seg('light', 'Hell')}${seg('dark', 'Dunkel')}</div></div>
     <div class="panel"><div class="panel-title">Sichern</div>
-      <p class="muted small">Deine Karten liegen nur in diesem Browser auf diesem Gerät. Exportiere regelmäßig ein Backup – damit kannst du auch zwischen iPhone und Laptop wechseln.</p>
+      <p class="muted small">Deine Karten liegen nur in diesem Browser auf diesem Gerät. Exportiere regelmäßig ein Backup – damit kannst du auch zwischen iPhone und Laptop wechseln. Die Klausuren werden mitgesichert.</p>
+      <p class="small" style="margin:0 0 10px">Letztes Backup: <b>${db.settings.lastBackup ? new Date(db.settings.lastBackup).toLocaleDateString('de-DE') : 'noch keins'}</b> · Speicher: <b id="persist-state">…</b></p>
       <button class="btn block" data-act="export-all">Alles exportieren (JSON)</button></div>
     <div class="panel"><div class="panel-title">Importieren</div>
       <p class="muted small">Datei wählen oder JSON (z. B. von einer KI) einfügen. Stapel mit gleichem Namen werden ergänzt, doppelte Karten übersprungen.</p>
@@ -1134,6 +1169,7 @@ function render() {
   document.body.classList.toggle('learning', ui.view === 'learn');
   if (ui.view !== lastView) { window.scrollTo(0, 0); lastView = ui.view; }
   if (ui.view === 'learn') bindCard();
+  if (ui.view === 'settings') showPersist();
 }
 
 /* ---------- Karten bearbeiten ---------- */
@@ -1363,7 +1399,7 @@ const actions = {
   exam(el) { const e = db.exams.find(x => x.id === el.dataset.id); if (e) openExam(e); },
   settings() { ui.view = 'settings'; render(); },
   'show-install'() { ui.view = 'settings'; render(); const v = document.querySelector('.install-video'); if (v) { v.scrollIntoView({ block: 'start' }); v.play().catch(() => {}); } },
-  'hide-install'() { db.settings.hideInstall = true; save(); render(); },
+  'hide-install'() { db.settings.hideInstall = true; db.settings.hideInstallAt = Date.now(); save(); render(); },
   open(el) { ui.deckId = el.dataset.id; ui.sel = null; ui.search = ''; ui.view = 'deck'; render(); },
   'new-deck'() { askText('Neuer Stapel', 'z. B. LF2 – Leistungserstellung', '', 'Anlegen', name => {
     const d = makeDeck(name, []); db.decks.push(d); save(); ui.deckId = d.id; ui.sel = null; ui.search = ''; ui.view = 'deck'; render(); }); },
@@ -1385,7 +1421,8 @@ const actions = {
   'retry-wrong'() { const s = ui.summary, d = deck(s.deckId); if (d) startSession(d, s.wrongIds, s.dir, s.write); },
   'back-deck'() { ui.deckId = ui.summary ? ui.summary.deckId : ui.deckId; ui.view = deck() ? 'deck' : 'home'; render(); },
   theme(el) { db.settings.theme = el.dataset.v; save(); applyTheme(); render(); },
-  'export-all'() { exportData(db.decks, 'karteikasten-backup-' + dateStr() + '.json'); },
+  'export-all'() { exportData(db.decks, 'karteikasten-backup-' + dateStr() + '.json', true); },
+  'backup-later'() { db.settings.backupSnooze = Date.now(); save(); render(); },
   'import-file'() { $('#file').click(); },
   'import-text'() { doImport($('#import-text').value, $('#replace').checked); },
   async 'copy-prompt'() {
