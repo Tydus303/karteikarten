@@ -429,10 +429,13 @@ function save() {
 }
 if (!localStorage.getItem(KEY)) save();
 // Neue Startkarten in bestehende Daten übernehmen (Duplikate werden übersprungen)
-const SEED_VERSION = 4;
-if ((db.settings.seedVersion || 1) < SEED_VERSION) {
-  importDecks([seedDeck(SEED), seedDeck(SEED_EN), seedDeck(SEED_EN2)]);
-  db.settings.seedVersion = SEED_VERSION; save();
+// Automatisch: sobald sich die Startkarten im Code ändern, werden neue Karten übernommen.
+const hashStr = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = (h * 33 + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+const SEEDS = [SEED, SEED_EN, SEED_EN2];
+const SEED_HASH = hashStr(JSON.stringify(SEEDS));
+if (db.settings.seedHash !== SEED_HASH) {
+  importDecks(SEEDS.map(seedDeck));
+  db.settings.seedHash = SEED_HASH; save();
 }
 try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
 
@@ -566,7 +569,7 @@ function showIntro() {
     <video class="install-video" src="install-video.mp4?v=2" poster="install-poster.jpg" controls playsinline preload="metadata"></video>
     <div class="sheet-actions"><button class="btn primary" data-s="cancel">Verstanden</button></div></div>`);
 }
-function closeSheet() { if (sheetEl) { sheetEl.remove(); sheetEl = null; } }
+function closeSheet() { if (sheetEl) { sheetEl.remove(); sheetEl = null; } if (typeof updatePending !== 'undefined' && updatePending) setTimeout(applyUpdate, 300); }
 function askConfirm(title, text, okLabel, danger) {
   return new Promise(res => {
     openSheet(`<h3>${esc(title)}</h3><p class="muted">${esc(text)}</p>
@@ -709,6 +712,7 @@ function viewSettings() {
 }
 
 function render() {
+  if (typeof updatePending !== 'undefined' && updatePending && ui.view !== 'learn' && !sheetEl) { setTimeout(applyUpdate, 0); }
   const views = { home: viewHome, deck: viewDeck, learn: viewLearn, summary: viewSummary, settings: viewSettings };
   $('#app').innerHTML = views[ui.view]();
   document.body.classList.toggle('learning', ui.view === 'learn');
@@ -991,6 +995,32 @@ render();
 if (!db.settings.introSeen) showIntro();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW', err));
+}
+// ---------- Updates: beim Zurückkehren in die App nach neuer Version suchen ----------
+let pageHash = null, updatePending = false, lastCheck = 0;
+async function checkForUpdate() {
+  if (!navigator.onLine || !location.protocol.startsWith('http')) return;
+  lastCheck = Date.now();
+  try {
+    const res = await fetch('./index.html?check=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const h = hashStr(await res.text());
+    if (pageHash === null) { pageHash = h; return; }
+    if (h !== pageHash) { updatePending = true; applyUpdate(); }
+  } catch (e) {}
+  try { const reg = await navigator.serviceWorker?.getRegistration(); reg && reg.update(); } catch (e) {}
+}
+function applyUpdate() {
+  if (!updatePending) return;
+  if (ui.view === 'learn' || sheetEl) return; // nicht mitten in einer Lernrunde neu laden
+  location.reload();
+}
+checkForUpdate();
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && Date.now() - lastCheck > 15000) checkForUpdate();
+});
+setInterval(() => { if (document.visibilityState === 'visible') checkForUpdate(); }, 10 * 60 * 1000);
+{
 }
 </script>
 </body>

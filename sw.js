@@ -1,5 +1,5 @@
 // Version erhöhen, wenn du index.html änderst – dann lädt die App die neue Fassung.
-const CACHE = 'karteikasten-v8';
+const CACHE = 'karteikasten-v9';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -14,7 +14,7 @@ self.addEventListener('fetch', e => {
   if (new URL(req.url).pathname.endsWith('.mp4')) return; // Video direkt vom Netz (Safari braucht Range-Requests)
   if (req.mode === 'navigate') {
     // Online: neueste Version holen; offline: aus dem Cache
-    e.respondWith(fetch(req).then(res => {
+    e.respondWith(fetch(req, { cache: 'no-store' }).then(res => {
       const copy = res.clone(); caches.open(CACHE).then(c => c.put('./index.html', copy)); return res;
     }).catch(() => caches.match('./index.html')));
     return;
