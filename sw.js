@@ -1,5 +1,5 @@
 // Version erhöhen, wenn du index.html änderst – dann lädt die App die neue Fassung.
-const CACHE = 'karteikasten-v6';
+const CACHE = 'karteikasten-v7';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

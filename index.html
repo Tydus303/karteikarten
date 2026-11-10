@@ -592,7 +592,7 @@ function boxesPanel(d) {
 
 const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
 const installPanel = () => `<div class="panel" id="install"><div class="panel-title">App auf den Home-Bildschirm</div>
-      <video class="install-video" src="install-video.mp4" poster="install-poster.jpg" controls playsinline preload="none"></video>
+      <video class="install-video" src="install-video.mp4?v=2" poster="install-poster.jpg" controls playsinline preload="none"></video>
       <p class="muted small" style="margin:0">iPhone: Safari → Teilen → „Zum Home-Bildschirm“. Android: Chrome → ⋮ → „Zum Startbildschirm hinzufügen“.</p></div>`;
 function viewHome() {
   const items = db.decks.map(d => {
