@@ -45,6 +45,7 @@ p{margin:0 0 12px}
 .muted{color:var(--muted)}
 .topbar{display:flex;align-items:center;gap:6px;min-height:52px;margin:0 -6px 10px}
 .topbar h1{font-size:30px;flex:1;letter-spacing:-.02em;padding-left:6px}
+@media (max-width:380px){.topbar h1{font-size:25px}}
 .topbar h2{font-size:20px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .icon-btn{flex:none;width:44px;height:44px;border-radius:12px;border:0;background:transparent;color:var(--text);display:grid;place-items:center;cursor:pointer;padding:0}
 .icon-btn:hover{background:var(--surface2)}
@@ -191,6 +192,35 @@ ul.info li{margin:4px 0}
 .your-answer b{color:var(--text)}
 .your-answer.ok b{color:var(--good)}
 .your-answer.no b{color:var(--bad);text-decoration:line-through}
+/* Auswahl-Modus */
+.learn.mc .card{max-height:320px}
+.mc{display:flex;flex-direction:column;gap:8px}
+.mc button{font:inherit;font-size:16px;line-height:1.3;text-align:left;padding:12px 14px;min-height:52px;border-radius:14px;border:2px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;display:flex;gap:10px;align-items:center}
+.mc button .k{flex:none;width:24px;height:24px;border-radius:7px;background:var(--surface2);color:var(--muted);font-size:13px;font-weight:700;display:grid;place-items:center}
+.mc button:disabled{cursor:default;opacity:.55}
+.mc button.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--surface));opacity:1}
+.mc button.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--surface));opacity:1}
+.mc .mc-next{justify-content:center;font-weight:700;background:var(--accent);color:var(--accent-contrast);border-color:var(--accent)}
+/* Serie & Statistik */
+.streak{display:flex;align-items:center;gap:14px;width:100%;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.streak .flame{font-size:30px;line-height:1}
+.streak .sn{font-size:22px;font-weight:800;line-height:1.1}
+.streak .grow{flex:1;min-width:0}
+.goalbar{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;margin-top:6px}
+.goalbar span{display:block;height:100%;background:var(--accent);border-radius:4px}
+.goalbar.done span{background:var(--good)}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stat-grid b{display:block;font-size:26px;font-weight:800;line-height:1.15}
+.stat-grid span{font-size:13px;color:var(--muted)}
+.chart{display:flex;align-items:flex-end;gap:4px;height:120px;position:relative;margin-top:6px}
+.chart .bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.chart .bar i{display:block;background:var(--surface2);border-radius:4px 4px 0 0;min-height:2px}
+.chart .bar.hit i{background:var(--good)}
+.chart .bar.part i{background:var(--accent)}
+.chart .goal-line{position:absolute;left:0;right:0;border-top:1.5px dashed var(--muted);opacity:.6}
+.chart-lbl{display:flex;gap:4px;font-size:11px;color:var(--muted);margin-top:4px}
+.chart-lbl span{flex:1;text-align:center}
+.deck-stat{margin:12px 0 0}.deck-stat:first-of-type{margin-top:0}
 
 /* Auswertung */
 .score{text-align:center;padding:24px 16px}
@@ -694,7 +724,7 @@ function makeCard(o) {
 function makeDeck(name, cards) { return { id: uid(), name: name.trim(), cards: cards.map(makeCard) }; }
 const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_X1, SEED_X2, SEED_X3, SEED_X4];
 function freshDb() {
-  return { decks: SEEDS_ALL().map(sd => { const x = seedDeck(sd); return makeDeck(x.name, x.cards); }), settings: { theme: 'auto', dir: 'normal' } };
+  return { decks: SEEDS_ALL().map(sd => { const x = seedDeck(sd); return makeDeck(x.name, x.cards); }), settings: { theme: 'auto', dir: 'normal' }, log: {} };
 }
 function load() {
   try {
@@ -703,6 +733,7 @@ function load() {
       const d = JSON.parse(raw);
       if (d && Array.isArray(d.decks)) {
         d.settings = Object.assign({ theme: 'auto', dir: 'normal' }, d.settings);
+        if (!d.log || typeof d.log !== 'object') d.log = {};
         d.decks.forEach(dk => { dk.id ||= uid(); dk.cards = (dk.cards || []).map(c => Object.assign(makeCard(c), c.id ? { id: c.id } : {})); });
         return d;
       }
@@ -792,7 +823,9 @@ function importDecks(list) {
 }
 function importExams(text) {
   try {
-    const raw = JSON.parse(text); if (!Array.isArray(raw.exams)) return;
+    const raw = JSON.parse(text);
+    if (raw.log && typeof raw.log === 'object') { db.log = mergeLog(db.log, raw.log); save(); }
+    if (!Array.isArray(raw.exams)) return;
     raw.exams.forEach(e => { if (e && e.name && e.date && !db.exams.some(x => x.name === e.name && x.date === e.date)) db.exams.push({ id: uid(), name: e.name, date: e.date, deckName: e.deckName || '' }); });
     save();
   } catch (e) {}
@@ -818,7 +851,7 @@ async function exportData(decks, filename, full) {
   return ok;
 }
 async function exportFile(decks, filename, full) {
-  const data = { app: 'karteikasten', version: 1, exported: new Date().toISOString(), exams: full ? db.exams : undefined,
+  const data = { app: 'karteikasten', version: 1, exported: new Date().toISOString(), exams: full ? db.exams : undefined, log: full ? db.log : undefined,
     decks: decks.map(d => ({ name: d.name, archived: d.archived || undefined, cards: d.cards.map(c => ({ front: c.front, back: c.back, example: c.example || undefined, box: c.box, due: c.due, wrong: c.wrong })) })) };
   const json = JSON.stringify(data, null, 2);
   const file = new File([json], filename, { type: 'application/json' });
@@ -844,6 +877,7 @@ const ICONS = {
   plus: '<path d="M12 5v14M5 12h14"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   kbd: '<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M8 14h8"/>',
+  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   more: '<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/>',
 };
 const ic = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
@@ -907,13 +941,15 @@ async function rpc(fn, body, keepalive) {
   if (!res.ok) throw new Error('Server ' + res.status);
   return res.json();
 }
-const syncPayload = () => ({ v: 1, savedAt: db.settings.localSavedAt || Date.now(), decks: db.decks, exams: db.exams, examColors: db.settings.examColors || {} });
+const syncPayload = () => ({ v: 1, savedAt: db.settings.localSavedAt || Date.now(), decks: db.decks, exams: db.exams, examColors: db.settings.examColors || {}, log: db.log, dailyGoal: db.settings.dailyGoal });
 function applyRemote(r) {
   syncApplying = true;
   try {
     db.decks = (r.decks || []).map(dk => ({ ...dk, id: dk.id || uid(), cards: (dk.cards || []).map(c => Object.assign(makeCard(c), c.id ? { id: c.id } : {})) }));
     db.exams = Array.isArray(r.exams) ? r.exams : [];
     db.settings.examColors = r.examColors || {};
+    db.log = mergeLog(db.log, r.log);
+    if (r.dailyGoal) db.settings.dailyGoal = r.dailyGoal;
     db.settings.localSavedAt = r.savedAt; db.settings.syncDirty = false; db.settings.lastSync = Date.now();
     save();
   } finally { syncApplying = false; }
@@ -987,7 +1023,7 @@ function syncPanel() {
 }
 
 /* ---------- Views ---------- */
-let ui = { view: 'home', deckId: null, sel: null, dir: db.settings.dir || 'normal', write: !!db.settings.write, search: '', summary: null };
+let ui = { view: 'home', deckId: null, sel: null, dir: db.settings.dir || 'normal', mode: db.settings.mode || (db.settings.write ? 'write' : 'flip'), search: '', summary: null };
 let lastView = null;
 
 function boxbar(st) {
@@ -1130,10 +1166,86 @@ function backupBanner() {
     <button class="btn sm primary" data-act="export-all">Sichern</button><button class="icon-btn" data-act="backup-later" aria-label="Später erinnern">${ic('close')}</button></div>`;
 }
 const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+/* ---------- Tagesziel, Serie, Statistik ---------- */
+const GOALS = [10, 20, 30, 50];
+const goal = () => db.settings.dailyGoal || 20;
+const dayKey = (t = new Date()) => ymd(t);
+const dayEntry = k => db.log[k] || { n: 0, r: 0 };
+const hit = k => { const e = db.log[k]; return !!e && e.n >= (e.g || goal()); };
+function mergeLog(a, b) {
+  const out = Object.assign({}, a || {});
+  if (b && typeof b === 'object') for (const [k, v] of Object.entries(b)) {
+    if (!v || typeof v.n !== 'number') continue;
+    const x = out[k]; out[k] = !x || v.n > x.n ? v : x;
+  }
+  return out;
+}
+function logAnswer(known) {
+  const k = dayKey(), e = db.log[k] || (db.log[k] = { n: 0, r: 0 });
+  const before = hit(k);
+  e.n++; if (known) e.r++;
+  if (!e.g) e.g = goal();
+  return !before && hit(k);
+}
+function streakNow() {
+  const d = new Date(); d.setHours(12, 0, 0, 0);
+  if (!hit(dayKey(d))) d.setDate(d.getDate() - 1);
+  let n = 0;
+  while (hit(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function streakBest() {
+  const keys = Object.keys(db.log).filter(hit).sort();
+  let best = 0, run = 0, prev = null;
+  for (const k of keys) {
+    const t = new Date(k + 'T12:00:00').getTime();
+    run = prev && Math.round((t - prev) / DAY) === 1 ? run + 1 : 1;
+    best = Math.max(best, run); prev = t;
+  }
+  return best;
+}
+function streakPanel() {
+  const t = dayEntry(dayKey()), g = goal(), sn = streakNow(), done = t.n >= g;
+  const sub = done ? 'Tagesziel geschafft ✓' : sn ? `Noch ${g - t.n} Karten, dann geht die Serie weiter` : `Lerne ${g} Karten, um eine Serie zu starten`;
+  return `<button class="panel streak" data-act="stats" aria-label="Statistik öffnen">
+    <span class="flame" aria-hidden="true">${sn ? '🔥' : '💤'}</span>
+    <div class="grow"><div class="sn">${sn} ${sn === 1 ? 'Tag' : 'Tage'} am Stück</div>
+      <div class="muted small">${sub}</div>
+      <div class="goalbar ${done ? 'done' : ''}"><span style="width:${Math.min(100, t.n / g * 100)}%"></span></div></div>
+    <span class="pill">${Math.min(t.n, 999)}/${g}</span></button>`;
+}
+function viewStats() {
+  const g = goal(), days = [];
+  for (let i = 13; i >= 0; i--) { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - i); days.push(d); }
+  const vals = days.map(d => dayEntry(dayKey(d)).n), max = Math.max(g, ...vals);
+  const all = Object.values(db.log), total = all.reduce((s, e) => s + e.n, 0), right = all.reduce((s, e) => s + e.r, 0);
+  const t = dayEntry(dayKey());
+  const segG = v => `<button class="${g === v ? 'on' : ''}" data-act="goal" data-v="${v}">${v}</button>`;
+  const decks = db.decks.filter(d => !d.archived && d.cards.length);
+  return `<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Zurück">${ic('back')}</button><h2>Statistik</h2></div>
+    <div class="panel"><div class="stat-grid">
+      <div><b>${streakNow()} 🔥</b><span>Serie</span></div><div><b>${streakBest()}</b><span>Beste Serie</span></div><div><b>${Object.keys(db.log).filter(hit).length}</b><span>Ziel-Tage</span></div></div></div>
+    <div class="panel"><div class="panel-title">Heute</div>
+      <div class="stat-grid"><div><b>${t.n}</b><span>Karten</span></div><div><b class="t-good">${t.r}</b><span>Gewusst</span></div><div><b>${t.n ? Math.round(t.r / t.n * 100) : 0}%</b><span>Quote</span></div></div>
+      <div class="goalbar ${t.n >= g ? 'done' : ''}" style="margin-top:14px"><span style="width:${Math.min(100, t.n / g * 100)}%"></span></div>
+      <label style="margin-top:16px">Tagesziel (Karten pro Tag)</label><div class="seg" style="margin:0">${GOALS.map(segG).join('')}</div></div>
+    <div class="panel"><div class="panel-title">Letzte 14 Tage</div>
+      <div class="chart">${vals.map((v, i) => `<div class="bar ${hit(dayKey(days[i])) ? 'hit' : v ? 'part' : ''}" title="${days[i].toLocaleDateString('de-DE')}: ${v} Karten"><i style="height:${v / max * 100}%"></i></div>`).join('')}
+        <div class="goal-line" style="bottom:${g / max * 100}%"></div></div>
+      <div class="chart-lbl">${days.map(d => `<span>${'SMDMDFS'[d.getDay()]}</span>`).join('')}</div>
+      <div class="legend">Grün = Tagesziel geschafft · gestrichelt = Ziel (${g})</div></div>
+    <div class="panel"><div class="panel-title">Insgesamt</div>
+      <div class="stat-grid"><div><b>${total}</b><span>Abfragen</span></div><div><b>${total ? Math.round(right / total * 100) : 0}%</b><span>Trefferquote</span></div><div><b>${Object.keys(db.log).filter(k => db.log[k].n).length}</b><span>Lerntage</span></div></div></div>
+    <div class="panel"><div class="panel-title">Stapel</div>
+      ${decks.map(d => { const st = stats(d), pct = Math.round(st.boxes[5] / st.total * 100);
+        return `<div class="deck-stat"><div class="row"><span class="grow small" style="flex:1;font-weight:600">${esc(d.name)}</span><span class="muted small">${pct}% sitzen</span></div>${boxbar(st)}</div>`; }).join('') || '<div class="muted small">Noch keine Stapel.</div>'}</div>`;
+}
+
 function viewHome() {
   const nArch = db.decks.filter(d => d.archived).length;
   const items = db.decks.filter(d => !d.archived).map(deckItem).join('');
-  return `<div class="topbar"><h1>Karteikasten</h1><button class="icon-btn" data-act="calendar" aria-label="Klausurkalender">${ic('calendar')}</button><button class="icon-btn" data-act="settings" aria-label="Einstellungen und Daten">${ic('gear')}</button></div>
+  return `<div class="topbar"><h1>Karteikasten</h1><button class="icon-btn" data-act="stats" aria-label="Statistik">${ic('chart')}</button><button class="icon-btn" data-act="calendar" aria-label="Klausurkalender">${ic('calendar')}</button><button class="icon-btn" data-act="settings" aria-label="Einstellungen und Daten">${ic('gear')}</button></div>
+    ${streakPanel()}
     ${backupBanner()}
     ${!isStandalone() && (!db.settings.hideInstall || (isIOS() && Date.now() - (db.settings.hideInstallAt || 0) > 3 * DAY)) ? `<div class="panel install-banner"><div class="grow"><b>Als App installieren</b><div class="muted small">${isIOS() ? '<b style="color:var(--bad)">Wichtig:</b> Im Safari-Tab kann dein iPhone deinen Fortschritt nach 7 Tagen ohne Nutzung löschen. Als App auf dem Home-Bildschirm passiert das nicht.' : 'Kurzes Video: so kommt die App auf deinen Home-Bildschirm.'}</div></div>
       <button class="btn sm primary" data-act="show-install">Ansehen</button><button class="icon-btn" data-act="hide-install" aria-label="Hinweis ausblenden">${ic('close')}</button></div>` : ''}
@@ -1170,7 +1282,8 @@ function viewDeck() {
       <div class="seg">${seg('dir', 'normal', 'Normal')}${seg('dir', 'reverse', 'Umgekehrt')}</div>
       <div class="seg-caption">${ui.dir === 'normal' ? 'Umschreibung → Fachbegriff' : 'Fachbegriff → Erklärung'}</div>
       <div class="seg">${seg('sel', 'due', `Fällig (${st.due})`)}${seg('sel', 'all', `Alle (${st.total})`)}${seg('sel', 'hard', `Schwierig (${st.hard})`)}</div>
-      <label class="check" style="margin:4px 0 14px 4px"><input type="checkbox" id="write-toggle" ${ui.write ? 'checked' : ''}> Antwort eintippen</label>
+      <div class="seg">${seg('mode', 'flip', 'Umdrehen')}${seg('mode', 'mc', 'Auswahl')}${seg('mode', 'write', 'Eintippen')}</div>
+      <div class="seg-caption">${ui.mode === 'mc' ? 'Richtige Antwort aus 4 Möglichkeiten wählen' : ui.mode === 'write' ? 'Antwort selbst eintippen' : 'Karte umdrehen und selbst bewerten'}</div>
       <button class="btn primary block" data-act="start" ${n ? '' : 'disabled'}>Los geht’s · ${n} ${n === 1 ? 'Karte' : 'Karten'}</button>
       ${hint ? `<div class="hint">${hint}</div>` : ''}
     </div>
@@ -1180,21 +1293,22 @@ function viewDeck() {
 }
 
 function viewLearn() {
-  const w = S && S.write;
-  return `<div class="learn ${w ? 'write' : ''}">
+  const w = S && S.write, m = S && S.mc;
+  return `<div class="learn ${w ? 'write' : ''} ${m ? 'mc' : ''}">
     <div class="topbar"><button class="icon-btn" data-act="quit" aria-label="Runde beenden">${ic('close')}</button>
       <div class="lp"><div class="lp-bar"><span id="lp-fill"></span></div><div class="lp-text"><span id="lp-a"></span><span id="lp-b"></span></div></div>
       <button class="icon-btn ${w ? 'on' : ''}" data-act="toggle-write" aria-pressed="${w}" aria-label="Antwort eintippen ${w ? 'ausschalten' : 'einschalten'}" title="Antwort eintippen an/aus">${ic('kbd')}</button></div>
     <div class="stage"><div class="card" id="card">
       <div class="swipe-hint hint-bad" id="h-bad">NICHT GEWUSST</div><div class="swipe-hint hint-good" id="h-good">GEWUSST</div>
       <div class="card-inner">
-        <div class="face front"><span class="tag" id="tag-f"></span><div id="cf"></div><div class="tap-hint">${w ? 'Antwort unten eintippen' : 'Tippen zum Umdrehen'}</div></div>
+        <div class="face front"><span class="tag" id="tag-f"></span><div id="cf"></div><div class="tap-hint">${w ? 'Antwort unten eintippen' : m ? 'Wähle die richtige Antwort' : 'Tippen zum Umdrehen'}</div></div>
         <div class="face back"><span class="tag" id="tag-b"></span><div id="cb"></div></div>
       </div></div></div>
     ${w ? `<div class="verdict" id="verdict"></div>
     <form class="answer" id="answer" autocomplete="off"><input id="ans" type="text" placeholder="${S.dir === 'normal' ? 'Fachbegriff eintippen …' : 'Erklärung eintippen …'}" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="btn primary" id="ans-btn">Prüfen</button></form>` : ''}
-    <div class="rate off ${w ? 'hidden' : ''}" id="rate"><button class="r-bad" data-act="rate" data-v="0">Nicht gewusst</button><button class="r-good" data-act="rate" data-v="1">Gewusst</button></div>
-    <div class="kbd-hint">${w ? 'Enter: prüfen, dann weiter' : 'Leertaste: umdrehen · ← nicht gewusst · → gewusst'}</div>
+    ${m ? '<div class="mc" id="mc"></div>' : ''}
+    <div class="rate off ${w || m ? 'hidden' : ''}" id="rate"><button class="r-bad" data-act="rate" data-v="0">Nicht gewusst</button><button class="r-good" data-act="rate" data-v="1">Gewusst</button></div>
+    <div class="kbd-hint">${w ? 'Enter: prüfen, dann weiter' : m ? 'Tasten 1–4: auswählen · Enter: weiter' : 'Leertaste: umdrehen · ← nicht gewusst · → gewusst'}</div>
   </div>`;
 }
 
@@ -1205,13 +1319,15 @@ function viewSummary() {
   return `<div class="topbar"><button class="icon-btn" data-act="back-deck" aria-label="Zurück">${ic('back')}</button><h2>${s.complete ? 'Runde geschafft' : 'Runde beendet'}</h2></div>
     <div class="panel score"><div class="big">${pct}%</div><div class="muted small">beim ersten Versuch gewusst</div><div class="msg">${msg}</div>
       <div class="score-row"><div><b class="t-good">${s.right}</b><span>Gewusst</span></div><div><b class="t-bad">${s.wrong}</b><span>Nicht gewusst</span></div><div><b>${s.total}</b><span>Karten</span></div></div></div>
+    ${streakPanel()}
     ${d ? boxesPanel(d) : ''}
     ${s.wrongIds.length ? `<button class="btn primary block" data-act="retry-wrong">Nicht gewusste nochmal (${s.wrongIds.length})</button>` : ''}
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.3.1';
+const APP_VERSION = '1.4.0';
 const CHANGELOG = [
+  ['1.4.0', 'Tagesziel mit Serie 🔥, Statistik-Seite (14 Tage, Trefferquote, Stapel) und neuer Lernmodus „Auswahl“ (Multiple Choice)'],
   ['1.3.1', 'Hinweis auf der Startseite: Karten können Fehler enthalten'],
   ['1.3.0', 'Lerncode-Sync: Fortschritt zusätzlich auf dem Server sichern und zwischen Geräten wechseln – ohne Konto'],
   ['1.2.2', 'Backup-Erinnerung alle 7 Tage, Klausuren im Backup, Warnhinweis im iPhone-Safari-Tab, dauerhafter Speicher'],
@@ -1264,7 +1380,7 @@ document.addEventListener('touchend', e => {
 });
 function render() {
   if (typeof updatePending !== 'undefined' && updatePending && ui.view !== 'learn' && !sheetEl) { setTimeout(applyUpdate, 0); }
-  const views = { calendar: viewCalendar, archive: viewArchive, home: viewHome, deck: viewDeck, learn: viewLearn, summary: viewSummary, settings: viewSettings };
+  const views = { stats: viewStats, calendar: viewCalendar, archive: viewArchive, home: viewHome, deck: viewDeck, learn: viewLearn, summary: viewSummary, settings: viewSettings };
   $('#app').innerHTML = views[ui.view]();
   document.body.classList.toggle('learning', ui.view === 'learn');
   if (ui.view !== lastView) { window.scrollTo(0, 0); lastView = ui.view; }
@@ -1331,9 +1447,9 @@ function deckMenu() {
 
 /* ---------- Lernrunde ---------- */
 let S = null;
-function startSession(d, ids, dir, write) {
+function startSession(d, ids, dir, mode) {
   if (document.activeElement) document.activeElement.blur();
-  S = { deckId: d.id, dir, write: !!write, checked: false, verdict: false, queue: shuffle(ids.slice()), total: ids.length, first: new Map(), done: 0, current: null, flipped: false, revealed: false, busy: true };
+  S = { deckId: d.id, dir, mode, write: mode === 'write', mc: mode === 'mc', checked: false, verdict: false, queue: shuffle(ids.slice()), total: ids.length, first: new Map(), done: 0, current: null, flipped: false, revealed: false, busy: true };
   ui.view = 'learn'; render(); showNext();
 }
 const sizeCls = (t, m, s) => t.length > s ? 's' : t.length > m ? 'm' : '';
@@ -1368,6 +1484,7 @@ function showNext() {
     $('#answer').classList.remove('hidden'); $('#rate').classList.add('hidden');
     ans.focus({ preventScroll: true });
   }
+  if (S.mc) { S.checked = false; renderMc(d, c); }
   updateProgress();
   S.busy = false;
 }
@@ -1417,6 +1534,25 @@ function checkAnswer() {
   S.flipped = true; S.revealed = true;
   $('#card').classList.add('flipped'); $('#rate').classList.remove('off');
 }
+/* Auswahl-Modus */
+function renderMc(d, c) {
+  const ans = x => S.dir === 'normal' ? x.back : x.front;
+  const right = ans(c), seen = new Set([normA(right)]);
+  const pool = shuffle(d.cards.filter(x => x.id !== c.id)).map(ans).filter(a => { const k = normA(a); if (!k || seen.has(k)) return false; seen.add(k); return true; });
+  S.mcOpts = shuffle([right, ...pool.slice(0, 3)]);
+  S.mcRight = S.mcOpts.indexOf(right);
+  $('#mc').innerHTML = S.mcOpts.map((o, i) => `<button data-act="mc" data-i="${i}"><span class="k">${i + 1}</span><span>${esc(o.length > 160 ? o.slice(0, 157) + '…' : o)}</span></button>`).join('');
+}
+function pickMc(i) {
+  if (!S || S.busy || !S.mc || S.checked || i >= S.mcOpts.length) return;
+  S.checked = true;
+  const ok = i === S.mcRight, btns = [...$('#mc').querySelectorAll('button')], cur = S.current;
+  btns.forEach((b, j) => { b.disabled = true; if (j === S.mcRight) b.classList.add('ok'); else if (j === i) b.classList.add('no'); });
+  S.verdict = ok; S.flipped = true; S.revealed = true;
+  $('#card').classList.add('flipped');
+  if (ok) setTimeout(() => { if (S && S.current === cur) rate(true); }, 900);
+  else $('#mc').insertAdjacentHTML('beforeend', '<button class="mc-next" data-act="mc-next">Weiter</button>');
+}
 function updateProgress() {
   $('#lp-fill').style.width = (S.done / S.total * 100) + '%';
   $('#lp-a').textContent = `${S.done} / ${S.total} geschafft`;
@@ -1426,6 +1562,7 @@ function updateProgress() {
 function flip() {
   if (!S || S.busy) return;
   if (S.write && !S.checked) { $('#ans').focus(); return; }
+  if (S.mc && !S.checked) return;
   S.flipped = !S.flipped;
   $('#card').classList.toggle('flipped', S.flipped);
   if (S.flipped && !S.revealed) { S.revealed = true; $('#rate').classList.remove('off'); }
@@ -1439,7 +1576,7 @@ function rate(known) {
   if (!S || S.busy || !S.revealed) return;
   S.busy = true;
   const c = S.current, first = !S.first.has(c.id);
-  if (first) S.first.set(c.id, known);
+  if (first) { S.first.set(c.id, known); if (logAnswer(known)) setTimeout(() => toast(`Tagesziel geschafft! 🔥 ${streakNow()} ${streakNow() === 1 ? 'Tag' : 'Tage'} am Stück`), 350); }
   S.queue.shift();
   if (known) {
     if (first) c.box = Math.min(5, c.box + 1);
@@ -1481,7 +1618,7 @@ function bindCard() {
 }
 function finishSession() {
   const res = [...S.first.entries()], right = res.filter(([, k]) => k).length;
-  ui.summary = { deckId: S.deckId, dir: S.dir, write: S.write, total: res.length, right, wrong: res.length - right,
+  ui.summary = { deckId: S.deckId, dir: S.dir, mode: S.mode, total: res.length, right, wrong: res.length - right,
     wrongIds: res.filter(([, k]) => !k).map(([id]) => id), complete: !S.queue.length };
   S = null; ui.sel = null; ui.view = 'summary'; render();
 }
@@ -1506,11 +1643,16 @@ const actions = {
   'deck-menu'() { deckMenu(); },
   dir(el) { ui.dir = db.settings.dir = el.dataset.v; save(); render(); },
   sel(el) { ui.sel = el.dataset.v; render(); },
-  start() { const d = deck(), ids = selectCards(d, ui.sel).map(c => c.id); if (ids.length) startSession(d, ids, ui.dir, ui.write); },
+  start() { const d = deck(), ids = selectCards(d, ui.sel).map(c => c.id); if (ids.length) startSession(d, ids, ui.dir, ui.mode); },
+  mode(el) { ui.mode = db.settings.mode = el.dataset.v; save(); render(); },
+  mc(el) { pickMc(+el.dataset.i); },
+  'mc-next'() { if (S && S.checked) rate(S.verdict); },
+  stats() { ui.view = 'stats'; render(); },
+  goal(el) { db.settings.dailyGoal = +el.dataset.v; const e = db.log[dayKey()]; if (e) e.g = +el.dataset.v; save(); render(); },
   override() { if (S && S.checked) rate(!S.verdict); },
   'toggle-write'() {
     if (!S || S.busy) return;
-    S.write = ui.write = db.settings.write = !S.write; save();
+    S.mode = ui.mode = db.settings.mode = S.write ? 'flip' : 'write'; S.write = S.mode === 'write'; S.mc = false; save();
     render(); showNext(); // aktuelle Karte im neuen Modus neu anzeigen
     toast(S.write ? 'Antwort eintippen: an' : 'Antwort eintippen: aus');
   },
@@ -1518,7 +1660,7 @@ const actions = {
   'edit-card'(el) { const d = deck(); editCard(d, d.cards.find(c => c.id === el.dataset.id)); },
   rate(el) { el.blur(); rate(el.dataset.v === '1'); },
   quit() { if (S && S.first.size) finishSession(); else { S = null; ui.view = 'deck'; render(); } },
-  'retry-wrong'() { const s = ui.summary, d = deck(s.deckId); if (d) startSession(d, s.wrongIds, s.dir, s.write); },
+  'retry-wrong'() { const s = ui.summary, d = deck(s.deckId); if (d) startSession(d, s.wrongIds, s.dir, s.mode); },
   'back-deck'() { ui.deckId = ui.summary ? ui.summary.deckId : ui.deckId; ui.view = deck() ? 'deck' : 'home'; render(); },
   theme(el) { db.settings.theme = el.dataset.v; save(); applyTheme(); render(); },
   'export-all'() { exportData(db.decks, 'karteikasten-backup-' + dateStr() + '.json', true); },
@@ -1544,7 +1686,6 @@ $('#app').addEventListener('input', e => {
 });
 $('#app').addEventListener('submit', e => { e.preventDefault(); checkAnswer(); });
 $('#app').addEventListener('change', async e => {
-  if (e.target.id === 'write-toggle') { ui.write = db.settings.write = e.target.checked; save(); return; }
   if (e.target.id === 'file' && e.target.files[0]) {
     const text = await e.target.files[0].text(); e.target.value = '';
     doImport(text, $('#replace').checked);
@@ -1554,6 +1695,7 @@ document.addEventListener('keydown', e => {
   if (sheetEl) { if (e.key === 'Escape') closeSheet(); return; }
   if (ui.view !== 'learn' || !S || e.target.matches('input, textarea')) return;
   if (S.write && e.key === 'Enter') { e.preventDefault(); if (!S.checked || S.dir === 'normal') checkAnswer(); return; }
+  if (S.mc) { if (/^[1-4]$/.test(e.key)) pickMc(+e.key - 1); else if (e.key === 'Enter' && S.checked) rate(S.verdict); else if (e.key === 'Escape') actions.quit(); return; }
   if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); }
   else if (e.key === 'ArrowRight') { e.preventDefault(); S.revealed ? rate(true) : flip(); }
   else if (e.key === 'ArrowLeft') { e.preventDefault(); S.revealed ? rate(false) : flip(); }

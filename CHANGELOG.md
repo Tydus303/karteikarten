@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.4.0** – Tagesziel mit Serie, Statistik-Seite und neuer Lernmodus „Auswahl“ (Multiple Choice)
 - **1.3.1** – Hinweis auf der Startseite: Karten können Fehler enthalten
 - **1.3.0** – Lerncode-Sync: Fortschritt zusätzlich auf dem Server sichern und zwischen Geräten wechseln – ohne Konto
 - **1.2.2** – Backup-Erinnerung alle 7 Tage, Klausuren im Backup, Warnhinweis im iPhone-Safari-Tab, dauerhafter Speicher
