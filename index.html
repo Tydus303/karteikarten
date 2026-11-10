@@ -89,6 +89,14 @@ p{margin:0 0 12px}
 .hint{font-size:14px;color:var(--muted);margin-top:10px;text-align:center}
 .section-head{margin:22px 0 10px}
 .section-head h3{flex:1;font-size:19px}
+.exam{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:inherit;background:none;border:0;border-top:1px solid var(--border);padding:11px 2px;cursor:pointer}
+.exam:first-of-type{border-top:0}
+.exam-date{min-width:62px;font-weight:700;font-variant-numeric:tabular-nums}
+.exam-date small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.exam-name{flex:1;font-weight:600}
+.pill.soon{background:var(--bad);color:#fff}
+.exams-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.exams-head .panel-title{margin:0}
 .list{display:flex;flex-direction:column;gap:8px}
 .list-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:inherit;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;cursor:pointer}
 .list-item:hover{border-color:var(--muted)}
@@ -869,12 +877,62 @@ function viewArchive() {
     <p class="muted small" style="margin:0 4px 12px">Archivierte Stapel tauchen auf der Startseite nicht mehr auf. Du kannst sie hier öffnen, lernen oder über ⋯ zurückholen.</p>
     ${list.map(deckItem).join('') || '<div class="empty">Das Archiv ist leer.<br>Stapel archivierst du über ⋯ im Stapel.</div>'}`;
 }
+/* ---------- Klausurkalender ---------- */
+const EXAM_SEED = [
+  ['Geo', '2026-11-16', 'Geo – Arbeit 16.11.'],
+  ['Englisch', '2026-11-17', 'Englisch – Class Test 17.11.'],
+  ['WUG', '2026-11-23', 'WUG – Arbeit 23.11.'],
+  ['LF2', '2026-12-01', 'LF2 – Arbeit 01.12.'],
+  ['LF4', '2026-12-04', 'LF4 – Arbeit 04.12.'],
+];
+if (!Array.isArray(db.exams)) db.exams = [];
+if (!db.settings.examsSeeded) {
+  EXAM_SEED.forEach(([name, date, deckName]) => db.exams.push({ id: uid(), name, date, deckName }));
+  db.settings.examsSeeded = true; save();
+}
+const examDays = e => Math.round((new Date(e.date + 'T00:00:00') - new Date(new Date().toDateString())) / DAY);
+const examWhen = n => n === 0 ? 'heute' : n === 1 ? 'morgen' : n < 0 ? 'vorbei' : `in ${n} Tagen`;
+const examDate = e => { const d = new Date(e.date + 'T00:00:00'); return `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}<small>${d.toLocaleDateString('de-DE', { weekday: 'short' })}</small>`; };
+function examsPanel() {
+  const list = db.exams.filter(e => examDays(e) >= 0).sort((a, b) => a.date.localeCompare(b.date));
+  return `<div class="panel"><div class="exams-head"><div class="panel-title">Klausuren</div><button class="btn sm" data-act="add-exam">${ic('plus')} Klausur</button></div>
+    ${list.length ? list.map(e => { const n = examDays(e); return `<button class="exam" data-act="exam" data-id="${e.id}"><span class="exam-date">${examDate(e)}</span><span class="exam-name">${esc(e.name)}</span><span class="pill ${n <= 3 ? 'soon' : n <= 7 ? 'due' : ''}">${examWhen(n)}</span></button>`; }).join('')
+      : '<div class="muted small" style="padding:8px 2px">Keine anstehenden Klausuren.</div>'}</div>`;
+}
+function editExam(e) {
+  const isNew = !e;
+  const deckOpts = ['<option value="">– kein Stapel –</option>', ...db.decks.map(d => `<option ${e && e.deckName === d.name ? 'selected' : ''}>${esc(d.name)}</option>`)].join('');
+  openSheet(`<h3>${isNew ? 'Neue Klausur' : 'Klausur bearbeiten'}</h3>
+    <label for="ex-name">Fach</label><input id="ex-name" placeholder="z. B. LF3" value="${esc(e ? e.name : '')}" autocomplete="off">
+    <label for="ex-date">Datum</label><input id="ex-date" type="date" value="${e ? e.date : ''}">
+    <label for="ex-deck">Passender Stapel</label><select id="ex-deck" style="width:100%;font:inherit;font-size:17px;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text)">${deckOpts}</select>
+    <div class="sheet-actions">${isNew ? '' : '<button class="btn danger" data-s="del">Löschen</button>'}<button class="btn" data-s="cancel">Abbrechen</button><button class="btn primary" data-s="ok">Speichern</button></div>`,
+    (a, bg) => {
+      if (a === 'del') { db.exams = db.exams.filter(x => x !== e); save(); closeSheet(); render(); toast('Klausur gelöscht'); return; }
+      if (a !== 'ok') return;
+      const name = bg.querySelector('#ex-name').value.trim(), date = bg.querySelector('#ex-date').value, deckName = bg.querySelector('#ex-deck').value;
+      if (!name || !date) { toast('Bitte Fach und Datum eingeben'); return; }
+      if (isNew) db.exams.push({ id: uid(), name, date, deckName }); else Object.assign(e, { name, date, deckName });
+      save(); closeSheet(); render(); toast('Gespeichert');
+    });
+}
+function openExam(e) {
+  const d = e.deckName && db.decks.find(x => x.name === e.deckName);
+  openSheet(`<h3>${esc(e.name)}</h3><p class="muted small" style="margin:2px 0 0">${new Date(e.date + 'T00:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · ${examWhen(examDays(e))}</p>
+    <div class="menu">${d ? `<button data-s="learn">Stapel „${esc(d.name)}“ öffnen</button>` : ''}<button data-s="edit">Bearbeiten</button></div>
+    <button class="btn block" data-s="cancel">Schließen</button>`,
+    a => {
+      if (a === 'learn') { closeSheet(); ui.deckId = d.id; ui.sel = null; ui.search = ''; ui.view = 'deck'; render(); }
+      else if (a === 'edit') { closeSheet(); editExam(e); }
+    });
+}
 function viewHome() {
   const nArch = db.decks.filter(d => d.archived).length;
   const items = db.decks.filter(d => !d.archived).map(deckItem).join('');
   return `<div class="topbar"><h1>Karteikasten</h1><button class="icon-btn" data-act="settings" aria-label="Einstellungen und Daten">${ic('gear')}</button></div>
     ${!isStandalone() && !db.settings.hideInstall ? `<div class="panel install-banner"><div class="grow"><b>Als App installieren</b><div class="muted small">Kurzes Video: so kommt die App auf deinen Home-Bildschirm.</div></div>
       <button class="btn sm primary" data-act="show-install">Ansehen</button><button class="icon-btn" data-act="hide-install" aria-label="Hinweis ausblenden">${ic('close')}</button></div>` : ''}
+    ${examsPanel()}
     ${items || '<div class="empty">Noch keine Stapel.<br>Leg einen an oder importiere einen.</div>'}
     <button class="btn block" data-act="new-deck">${ic('plus')} Neuer Stapel</button>
     ${nArch ? `<button class="btn block" data-act="archive" style="margin-top:10px">${ic('archive')} Archiv (${nArch})</button>` : ''}`;
@@ -947,8 +1005,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.1.8';
+const APP_VERSION = '1.1.9';
 const CHANGELOG = [
+  ['1.1.9', 'Klausurkalender auf der Startseite mit Countdown'],
   ['1.1.8', 'Neue Stapel für die Arbeiten: Geo (16.11.), WUG (23.11.), LF2 (01.12.), LF4 (04.12.)'],
   ['1.1.7', 'Archiv: alte Stapel ausblenden und bei Bedarf wieder öffnen · Fehler behoben: App blieb seit 1.1.5 leer'],
   ['1.1.6', 'Versionsnummer und „Was ist neu“ in den Einstellungen'],
@@ -1212,6 +1271,8 @@ function finishSession() {
 const actions = {
   home() { ui.view = 'home'; render(); },
   archive() { ui.view = 'archive'; render(); },
+  'add-exam'() { editExam(null); },
+  exam(el) { const e = db.exams.find(x => x.id === el.dataset.id); if (e) openExam(e); },
   settings() { ui.view = 'settings'; render(); },
   'show-install'() { ui.view = 'settings'; render(); const v = document.querySelector('.install-video'); if (v) { v.scrollIntoView({ block: 'start' }); v.play().catch(() => {}); } },
   'hide-install'() { db.settings.hideInstall = true; save(); render(); },
