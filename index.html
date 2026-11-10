@@ -710,9 +710,12 @@ function load() {
   return freshDb();
 }
 let db = load();
+var syncApplying = false, syncTimer = null;
 function save() {
+  if (db.settings.syncCode && !syncApplying) { db.settings.localSavedAt = Date.now(); db.settings.syncDirty = true; }
   try { localStorage.setItem(KEY, JSON.stringify(db)); }
   catch (e) { toast('Speichern fehlgeschlagen – bitte exportieren!'); }
+  if (db.settings.syncCode && !syncApplying && typeof schedulePush === 'function') schedulePush();
 }
 if (!localStorage.getItem(KEY)) save();
 // Neue Startkarten in bestehende Daten übernehmen (Duplikate werden übersprungen)
@@ -888,6 +891,98 @@ function askText(title, placeholder, value, okLabel, cb) {
     <div class="sheet-actions"><button class="btn" data-s="cancel">Abbrechen</button><button class="btn primary" data-s="ok">${esc(okLabel)}</button></div>`,
     (a, bg) => { if (a === 'ok') submit(bg); },
     bg => { const i = bg.querySelector('#ask'); i.focus(); i.select(); i.addEventListener('keydown', e => { if (e.key === 'Enter') submit(bg); }); });
+}
+
+/* ---------- Lerncode-Sync (Supabase) ---------- */
+const SUPA_URL = 'https://wbpzhqmmdaftuiqdkomp.supabase.co';
+const SUPA_KEY = 'sb_publishable_ejf_xZkvucD7RORvyhkYAw_6iVSemo9'; // öffentlicher Schlüssel, für den Browser gedacht
+const CODE_ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const normCode = c => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+const fmtCode = c => normCode(c).match(/.{1,4}/g)?.join('-') || '';
+function newCode() { const r = crypto.getRandomValues(new Uint8Array(16)); return [...r].map(x => CODE_ABC[x % 32]).join(''); }
+async function rpc(fn, body, keepalive) {
+  const res = await fetch(`${SUPA_URL}/rest/v1/rpc/${fn}`, { method: 'POST', keepalive: !!keepalive,
+    headers: { apikey: SUPA_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!res.ok) throw new Error('Server ' + res.status);
+  return res.json();
+}
+const syncPayload = () => ({ v: 1, savedAt: db.settings.localSavedAt || Date.now(), decks: db.decks, exams: db.exams, examColors: db.settings.examColors || {} });
+function applyRemote(r) {
+  syncApplying = true;
+  try {
+    db.decks = (r.decks || []).map(dk => ({ ...dk, id: dk.id || uid(), cards: (dk.cards || []).map(c => Object.assign(makeCard(c), c.id ? { id: c.id } : {})) }));
+    db.exams = Array.isArray(r.exams) ? r.exams : [];
+    db.settings.examColors = r.examColors || {};
+    db.settings.localSavedAt = r.savedAt; db.settings.syncDirty = false; db.settings.lastSync = Date.now();
+    save();
+  } finally { syncApplying = false; }
+}
+let pushing = false;
+async function syncPush(keepalive) {
+  const code = db.settings.syncCode; if (!code || pushing || !navigator.onLine) return;
+  pushing = true;
+  try { await rpc('sync_put', { p_code: code, p_data: syncPayload() }, keepalive); db.settings.syncDirty = false; db.settings.lastSync = Date.now(); syncApplying = true; save(); syncApplying = false; }
+  catch (e) { console.warn('Sync', e); }
+  finally { pushing = false; if (ui.view === 'settings') render(); }
+}
+function schedulePush() { clearTimeout(syncTimer); syncTimer = setTimeout(syncPush, 2500); }
+async function syncPull() {
+  const code = db.settings.syncCode; if (!code || !navigator.onLine) return;
+  try {
+    const got = await rpc('sync_get', { p_code: code });
+    const r = got && got.data;
+    if (!r) { await syncPush(); return; }
+    if ((r.savedAt || 0) > (db.settings.localSavedAt || 0) && !(db.settings.syncDirty && (db.settings.localSavedAt || 0) > (r.savedAt || 0))) {
+      if (ui.view === 'learn') return; // nicht mitten in einer Lernrunde austauschen
+      applyRemote(r); render();
+    } else if (db.settings.syncDirty) await syncPush();
+  } catch (e) { console.warn('Sync', e); }
+}
+async function syncStart() {
+  const code = newCode();
+  db.settings.syncCode = code; db.settings.localSavedAt = Date.now(); db.settings.syncDirty = true; save();
+  await syncPush();
+  render(); showCode(true);
+}
+function showCode(fresh) {
+  openSheet(`<h3>${fresh ? 'Dein Lerncode' : 'Lerncode'}</h3>
+    <p class="muted small" style="margin:4px 0 12px">Schreib ihn dir auf oder mach einen Screenshot. Mit diesem Code holst du deinen Fortschritt auf jedes Gerät zurück. Gib ihn nicht weiter – wer ihn kennt, sieht deinen Fortschritt.</p>
+    <div style="font:700 26px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;letter-spacing:.06em;padding:14px;background:var(--surface2);border-radius:14px;user-select:all">${fmtCode(db.settings.syncCode)}</div>
+    <div class="sheet-actions"><button class="btn" data-s="copy">Kopieren</button><button class="btn primary" data-s="cancel">Fertig</button></div>`,
+    async a => { if (a === 'copy') { try { await navigator.clipboard.writeText(fmtCode(db.settings.syncCode)); toast('Code kopiert'); } catch (e) {} } });
+}
+function syncConnect() {
+  openSheet(`<h3>Mit Lerncode verbinden</h3>
+    <p class="muted small" style="margin:4px 0 0">Gib den Code von deinem anderen Gerät ein. Dein Fortschritt von dort ersetzt den auf diesem Gerät.</p>
+    <input id="code-in" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" style="margin-top:12px;font-family:ui-monospace,Menlo,monospace;letter-spacing:.05em">
+    <div class="sheet-actions"><button class="btn" data-s="cancel">Abbrechen</button><button class="btn primary" data-s="ok">Verbinden</button></div>`,
+    async (a, bg) => {
+      if (a !== 'ok') return;
+      const code = normCode(bg.querySelector('#code-in').value);
+      if (code.length !== 16) { toast('Der Code hat 16 Zeichen'); return; }
+      try {
+        const got = await rpc('sync_get', { p_code: code });
+        if (!got || !got.data) { toast('Zu diesem Code gibt es keine Daten'); return; }
+        closeSheet(); db.settings.syncCode = code; applyRemote(got.data); ui.view = 'home'; render(); toast('Fortschritt geladen – Sync ist aktiv');
+      } catch (e) { toast('Keine Verbindung zum Server'); }
+    }, bg => bg.querySelector('#code-in').focus());
+}
+async function syncStop() {
+  if (!await askConfirm('Sync beenden?', 'Dieses Gerät synchronisiert dann nicht mehr. Deine Daten bleiben hier und auf dem Server erhalten – mit dem Code kannst du dich jederzeit wieder verbinden.', 'Beenden', true)) return;
+  delete db.settings.syncCode; save(); render(); toast('Sync beendet');
+}
+function syncPanel() {
+  const c = db.settings.syncCode;
+  if (!c) return `<div class="panel"><div class="panel-title">Lerncode-Sync</div>
+      <p class="muted small">Speichert deinen Fortschritt zusätzlich auf dem Server – so geht nichts verloren, wenn der Browser gelöscht wird, und du kannst zwischen Handy und Laptop wechseln. Ohne Konto, ohne E-Mail: du bekommst nur einen Code.</p>
+      <button class="btn primary block" data-act="sync-start">Sync aktivieren</button>
+      <button class="btn block" data-act="sync-connect" style="margin-top:8px">Ich habe schon einen Code</button></div>`;
+  return `<div class="panel"><div class="panel-title">Lerncode-Sync · aktiv</div>
+      <p class="small" style="margin:0 0 10px">Dein Code: <b style="font-family:ui-monospace,Menlo,monospace">${fmtCode(c).slice(0, 4)}-••••-••••-••••</b><br>
+      <span class="muted">Zuletzt synchronisiert: ${db.settings.lastSync ? new Date(db.settings.lastSync).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'noch nicht'}${db.settings.syncDirty ? ' · Änderungen warten' : ''}</span></p>
+      <button class="btn block" data-act="sync-show">Code anzeigen</button>
+      <button class="btn block" data-act="sync-now" style="margin-top:8px">Jetzt synchronisieren</button>
+      <button class="btn block danger" data-act="sync-stop" style="margin-top:8px">Sync beenden</button></div>`;
 }
 
 /* ---------- Views ---------- */
@@ -1113,8 +1208,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.2.2';
+const APP_VERSION = '1.3.0';
 const CHANGELOG = [
+  ['1.3.0', 'Lerncode-Sync: Fortschritt zusätzlich auf dem Server sichern und zwischen Geräten wechseln – ohne Konto'],
   ['1.2.2', 'Backup-Erinnerung alle 7 Tage, Klausuren im Backup, Warnhinweis im iPhone-Safari-Tab, dauerhafter Speicher'],
   ['1.2.1', 'Jedes Fach hat im Kalender seine eigene Farbe, wählbar beim Bearbeiten'],
   ['1.2.0', 'Klausurkalender als eigene Seite im Stil des Apple-Kalenders (Monatsansicht, Wischen, Heute)'],
@@ -1131,6 +1227,7 @@ const CHANGELOG = [
 function viewSettings() {
   const seg = (v, label) => `<button class="${db.settings.theme === v ? 'on' : ''}" data-act="theme" data-v="${v}">${label}</button>`;
   return `<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Zurück">${ic('back')}</button><h2>Einstellungen &amp; Daten</h2></div>
+    ${syncPanel()}
     ${installPanel()}
     <div class="panel"><div class="panel-title">Darstellung</div><div class="seg" style="margin:0">${seg('auto', 'Automatisch')}${seg('light', 'Hell')}${seg('dark', 'Dunkel')}</div></div>
     <div class="panel"><div class="panel-title">Sichern</div>
@@ -1422,6 +1519,11 @@ const actions = {
   'back-deck'() { ui.deckId = ui.summary ? ui.summary.deckId : ui.deckId; ui.view = deck() ? 'deck' : 'home'; render(); },
   theme(el) { db.settings.theme = el.dataset.v; save(); applyTheme(); render(); },
   'export-all'() { exportData(db.decks, 'karteikasten-backup-' + dateStr() + '.json', true); },
+  'sync-start'() { syncStart(); },
+  'sync-connect'() { syncConnect(); },
+  'sync-show'() { showCode(false); },
+  'sync-now'() { syncPull().then(() => syncPush()).then(() => toast('Synchronisiert')); },
+  'sync-stop'() { syncStop(); },
   'backup-later'() { db.settings.backupSnooze = Date.now(); save(); render(); },
   'import-file'() { $('#file').click(); },
   'import-text'() { doImport($('#import-text').value, $('#replace').checked); },
@@ -1482,6 +1584,11 @@ function applyUpdate() {
   location.reload();
 }
 checkForUpdate();
+syncPull();
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') syncPull();
+  else if (db.settings.syncDirty) syncPush(true);
+});
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && Date.now() - lastCheck > 15000) checkForUpdate();
 });
