@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 440" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dbeefa"/><stop offset="1" stop-color="#f4f9fd"/></linearGradient><linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb6d6"/><stop offset="1" stop-color="#3f7fa6"/></linearGradient></defs>
+<rect width="820" height="440" rx="18" fill="url(#sky)"/>
+<rect x="0" y="250" width="820" height="120" fill="url(#sea)"/>
+<path d="M0,250 q10,-4 20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0" fill="none" stroke="#5c9cc2" stroke-width="2"/>
+<rect x="0" y="370" width="820" height="70" fill="#fff"/>
+
+<clipPath id="k1"><path d="M45,172 L755,167 C751,209.5 743,243 729,257 C759,257 779,276.2 767,295 C759,305 737,307 707,305 L127,305 C95,305 83,297 77,281 L51,254.46 Z"/></clipPath>
+<path d="M45,172 L755,167 C751,209.5 743,243 729,257 C759,257 779,276.2 767,295 C759,305 737,307 707,305 L127,305 C95,305 83,297 77,281 L51,254.46 Z" fill="#22303c"/>
+<rect x="0" y="250" width="820" height="200" fill="#a8322b" clip-path="url(#k1)"/>
+<rect x="0" y="247" width="820" height="3" fill="#e8e8e8" clip-path="url(#k1)"/>
+<ellipse cx="77.0" cy="281.0" rx="6.0" ry="17.0" fill="#c8a24b"/>
+<path d="M49.0,251.0 L63.0,251.0 L63.0,301.0 L51.0,301.0 Z" fill="#22303c"/>
+<g clip-path="url(#k1)"><rect x="215" y="172" width="475" height="117" fill="#eef2f5"/><rect x="120" y="289" width="620" height="16" fill="#93a8b8"/></g>
+<path d="M218.0,289 L218.0,256.45 Q241.38888888888889,190 264.77777777777777,256.45 L264.77777777777777,289 Z" fill="#3a3a3a"/>
+<rect x="212.0" y="172" width="6" height="117" fill="#3b4752"/>
+<path d="M270.77777777777777,289 L270.77777777777777,256.45 Q294.16666666666663,190 317.55555555555554,256.45 L317.55555555555554,289 Z" fill="#3a3a3a"/>
+<rect x="264.77777777777777" y="172" width="6" height="117" fill="#3b4752"/>
+<path d="M323.55555555555554,289 L323.55555555555554,256.45 Q346.94444444444446,190 370.33333333333337,256.45 L370.33333333333337,289 Z" fill="#3a3a3a"/>
+<rect x="317.55555555555554" y="172" width="6" height="117" fill="#3b4752"/>
+<path d="M376.33333333333337,289 L376.33333333333337,256.45 Q399.72222222222223,190 423.1111111111111,256.45 L423.1111111111111,289 Z" fill="#3a3a3a"/>
+<rect x="370.33333333333337" y="172" width="6" height="117" fill="#3b4752"/>
+<path d="M429.1111111111111,289 L429.1111111111111,256.45 Q452.5,190 475.8888888888889,256.45 L475.8888888888889,289 Z" fill="#3a3a3a"/>
+<rect x="423.1111111111111" y="172" width="6" height="117" fill="#3b4752"/>
+<path d="M481.8888888888889,289 L481.8888888888889,256.45 Q505.2777777777778,190 528.6666666666667,256.45 L528.6666666666667,289 Z" fill="#3a3a3a"/>
+<rect x="475.8888888888889" y="172" width="6" height="117" fill="#3b4752"/>
+<path d="M534.6666666666667,289 L534.6666666666667,256.45 Q558.0555555555557,190 581.4444444444445,256.45 L581.4444444444445,289 Z" fill="#3a3a3a"/>
+<rect x="528.6666666666667" y="172" width="6" height="117" fill="#3b4752"/>
+<path d="M587.4444444444445,289 L587.4444444444445,256.45 Q610.8333333333333,190 634.2222222222222,256.45 L634.2222222222222,289 Z" fill="#3a3a3a"/>
+<rect x="581.4444444444445" y="172" width="6" height="117" fill="#3b4752"/>
+<path d="M640.2222222222222,289 L640.2222222222222,256.45 Q663.6111111111111,190 687.0,256.45 L687.0,289 Z" fill="#3a3a3a"/>
+<rect x="634.2222222222222" y="172" width="6" height="117" fill="#3b4752"/>
+<rect x="687" y="172" width="6" height="117" fill="#3b4752"/>
+<rect x="223.0" y="156" width="36.77777777777777" height="8" fill="#2b3a46"/>
+<rect x="221.0" y="148" width="40.77777777777777" height="8" rx="2" fill="#a8322b"/>
+<rect x="275.77777777777777" y="156" width="36.77777777777777" height="8" fill="#2b3a46"/>
+<rect x="273.77777777777777" y="148" width="40.77777777777777" height="8" rx="2" fill="#a8322b"/>
+<rect x="328.55555555555554" y="156" width="36.77777777777783" height="8" fill="#2b3a46"/>
+<rect x="326.55555555555554" y="148" width="40.77777777777783" height="8" rx="2" fill="#a8322b"/>
+<rect x="381.33333333333337" y="156" width="36.777777777777715" height="8" fill="#2b3a46"/>
+<rect x="379.33333333333337" y="148" width="40.777777777777715" height="8" rx="2" fill="#a8322b"/>
+<rect x="434.1111111111111" y="156" width="36.77777777777783" height="8" fill="#2b3a46"/>
+<rect x="432.1111111111111" y="148" width="40.77777777777783" height="8" rx="2" fill="#a8322b"/>
+<rect x="486.8888888888889" y="156" width="36.77777777777783" height="8" fill="#2b3a46"/>
+<rect x="484.8888888888889" y="148" width="40.77777777777783" height="8" rx="2" fill="#a8322b"/>
+<rect x="539.6666666666667" y="156" width="36.777777777777715" height="8" fill="#2b3a46"/>
+<rect x="537.6666666666667" y="148" width="40.777777777777715" height="8" rx="2" fill="#a8322b"/>
+<rect x="592.4444444444445" y="156" width="36.777777777777715" height="8" fill="#2b3a46"/>
+<rect x="590.4444444444445" y="148" width="40.777777777777715" height="8" rx="2" fill="#a8322b"/>
+<rect x="645.2222222222222" y="156" width="36.77777777777783" height="8" fill="#2b3a46"/>
+<rect x="643.2222222222222" y="148" width="40.77777777777783" height="8" rx="2" fill="#a8322b"/>
+<rect x="110" y="71" width="80" height="101" fill="#f3f4f2" stroke="#9aa4ad" stroke-width="1.5"/>
+<rect x="120" y="85" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="139" y="85" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="158" y="85" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="120" y="102" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="139" y="102" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="158" y="102" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="120" y="119" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="139" y="119" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="158" y="119" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="120" y="136" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="139" y="136" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="158" y="136" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="120" y="153" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="139" y="153" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="158" y="153" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="102" y="57" width="96" height="16" fill="#f3f4f2" stroke="#9aa4ad" stroke-width="1.5"/>
+<rect x="106" y="61" width="88" height="6" fill="#2e4a63"/>
+<rect x="148.0" y="39" width="4" height="18" fill="#9aa4ad"/>
+<path d="M83,172 L87,85 L109,85 L109,172 Z" fill="#2f78b7"/><rect x="85" y="85" width="24" height="7" fill="#22303c"/>
+<path d="M45,172 L755,167 C751,209.5 743,243 729,257 C759,257 779,276.2 767,295 C759,305 737,307 707,305 L127,305 C95,305 83,297 77,281 L51,254.46 Z" fill="none" stroke="#1d2730" stroke-width="2.5"/>
+<line x1="450" y1="60" x2="450" y2="150" stroke="#e05a00" stroke-width="2"/><circle cx="450" cy="150" r="4" fill="#e05a00"/>
+<rect x="398.15999999999997" y="40.55" width="103.68" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="450" y="65.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">9 hatches</text>
+<rect x="175.8" y="310.55" width="208.4" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="280" y="335.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">no cranes (gearless)</text>
+<line x1="600" y1="330" x2="640" y2="300" stroke="#e05a00" stroke-width="2"/><circle cx="640" cy="300" r="4" fill="#e05a00"/>
+<rect x="481.52" y="310.55" width="236.96" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="600" y="335.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">very large &amp; deep draft</text>
+<rect x="419.15999999999997" y="90.55" width="341.68" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="590" y="115.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">route around the Cape of Good Hope</text>
+<rect x="271.25" y="368" width="277.5" height="40" rx="20" fill="#ff8a00"/>
+<text x="410.0" y="394" font-size="21" font-weight="800" fill="#fff" text-anchor="middle">CAPESIZE BULKER</text>
+<text x="18" y="426" font-size="13" fill="#5b6770">largest bulker – too big for Panama/Suez canal → sails around the Cape</text>
+</svg>

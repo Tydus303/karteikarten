@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 440" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dbeefa"/><stop offset="1" stop-color="#f4f9fd"/></linearGradient><linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb6d6"/><stop offset="1" stop-color="#3f7fa6"/></linearGradient></defs>
+<rect width="820" height="440" rx="18" fill="url(#sky)"/>
+<rect x="0" y="250" width="820" height="120" fill="url(#sea)"/>
+<path d="M0,250 q10,-4 20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0" fill="none" stroke="#5c9cc2" stroke-width="2"/>
+<rect x="0" y="370" width="820" height="70" fill="#fff"/>
+
+<path d="M0,120 L330,112 C326,160 318,200 300,240 C330,240 350,262 340,280 C330,292 300,300 260,300 L0,300 Z" fill="#22303c"/><rect x="0" y="250" width="320" height="60" fill="#a8322b" clip-path="url(#bigclip)"/><clipPath id="bigclip"><path d="M0,120 L330,112 C326,160 318,200 300,240 C330,240 350,262 340,280 C330,292 300,300 260,300 L0,300 Z"/></clipPath>
+<rect x="0" y="99" width="22" height="12.5" fill="#8a4b3c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="24" y="99" width="22" height="12.5" fill="#6b5b8c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="48" y="99" width="22" height="12.5" fill="#6b5b8c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="72" y="99" width="22" height="12.5" fill="#8a4b3c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="96" y="99" width="22" height="12.5" fill="#3f7a5a" stroke="#1d2730" stroke-width=".8"/>
+<rect x="120" y="99" width="22" height="12.5" fill="#6b5b8c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="144" y="99" width="22" height="12.5" fill="#a07a2c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="168" y="99" width="22" height="12.5" fill="#2f6f7a" stroke="#1d2730" stroke-width=".8"/>
+<rect x="192" y="99" width="22" height="12.5" fill="#6b5b8c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="216" y="99" width="22" height="12.5" fill="#4f6d8f" stroke="#1d2730" stroke-width=".8"/>
+<rect x="240" y="99" width="22" height="12.5" fill="#6b5b8c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="264" y="99" width="22" height="12.5" fill="#4f6d8f" stroke="#1d2730" stroke-width=".8"/>
+<rect x="0" y="86" width="22" height="12.5" fill="#9a3f4f" stroke="#1d2730" stroke-width=".8"/>
+<rect x="24" y="86" width="22" height="12.5" fill="#a07a2c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="48" y="86" width="22" height="12.5" fill="#3f7a5a" stroke="#1d2730" stroke-width=".8"/>
+<rect x="72" y="86" width="22" height="12.5" fill="#6b5b8c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="96" y="86" width="22" height="12.5" fill="#8a4b3c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="120" y="86" width="22" height="12.5" fill="#8a4b3c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="144" y="86" width="22" height="12.5" fill="#2f6f7a" stroke="#1d2730" stroke-width=".8"/>
+<rect x="168" y="86" width="22" height="12.5" fill="#a07a2c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="192" y="86" width="22" height="12.5" fill="#6b5b8c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="216" y="86" width="22" height="12.5" fill="#9a3f4f" stroke="#1d2730" stroke-width=".8"/>
+<rect x="240" y="86" width="22" height="12.5" fill="#6b5b8c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="264" y="86" width="22" height="12.5" fill="#a07a2c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="0" y="73" width="22" height="12.5" fill="#a07a2c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="24" y="73" width="22" height="12.5" fill="#2f6f7a" stroke="#1d2730" stroke-width=".8"/>
+<rect x="48" y="73" width="22" height="12.5" fill="#9a3f4f" stroke="#1d2730" stroke-width=".8"/>
+<rect x="72" y="73" width="22" height="12.5" fill="#8a4b3c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="96" y="73" width="22" height="12.5" fill="#8a4b3c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="120" y="73" width="22" height="12.5" fill="#2f6f7a" stroke="#1d2730" stroke-width=".8"/>
+<rect x="144" y="73" width="22" height="12.5" fill="#8a4b3c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="168" y="73" width="22" height="12.5" fill="#9a3f4f" stroke="#1d2730" stroke-width=".8"/>
+<rect x="192" y="73" width="22" height="12.5" fill="#6b5b8c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="216" y="73" width="22" height="12.5" fill="#a07a2c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="240" y="73" width="22" height="12.5" fill="#2f6f7a" stroke="#1d2730" stroke-width=".8"/>
+<rect x="264" y="73" width="22" height="12.5" fill="#4f6d8f" stroke="#1d2730" stroke-width=".8"/>
+<rect x="0" y="60" width="22" height="12.5" fill="#4f6d8f" stroke="#1d2730" stroke-width=".8"/>
+<rect x="48" y="60" width="22" height="12.5" fill="#4f6d8f" stroke="#1d2730" stroke-width=".8"/>
+<rect x="72" y="60" width="22" height="12.5" fill="#4f6d8f" stroke="#1d2730" stroke-width=".8"/>
+<rect x="96" y="60" width="22" height="12.5" fill="#3f7a5a" stroke="#1d2730" stroke-width=".8"/>
+<rect x="120" y="60" width="22" height="12.5" fill="#2f6f7a" stroke="#1d2730" stroke-width=".8"/>
+<rect x="144" y="60" width="22" height="12.5" fill="#a07a2c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="168" y="60" width="22" height="12.5" fill="#a07a2c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="192" y="60" width="22" height="12.5" fill="#9a3f4f" stroke="#1d2730" stroke-width=".8"/>
+<rect x="216" y="60" width="22" height="12.5" fill="#8a4b3c" stroke="#1d2730" stroke-width=".8"/>
+<rect x="240" y="60" width="22" height="12.5" fill="#4f6d8f" stroke="#1d2730" stroke-width=".8"/>
+<clipPath id="k1"><path d="M500,215 L720,197 C710,250.0 690,285 650,285 L560,285 C535,285 525,275 520,265 L504,253.5 Z"/></clipPath>
+<path d="M500,215 L720,197 C710,250.0 690,285 650,285 L560,285 C535,285 525,275 520,265 L504,253.5 Z" fill="#22303c"/>
+<rect x="0" y="250" width="820" height="200" fill="#a8322b" clip-path="url(#k1)"/>
+<rect x="0" y="247" width="820" height="3" fill="#e8e8e8" clip-path="url(#k1)"/>
+<rect x="610" y="150" width="60" height="62" fill="#f3f4f2" stroke="#9aa4ad"/><rect x="606" y="150" width="68" height="16" fill="#2e4a63"/><rect x="635" y="120" width="5" height="30" fill="#9aa4ad"/><rect x="585" y="172" width="16" height="40" fill="#c0392b"/>
+<circle cx="712" cy="205" r="8" fill="#111" stroke="#444" stroke-width="2"/>
+<circle cx="709" cy="218" r="8" fill="#111" stroke="#444" stroke-width="2"/>
+<circle cx="706" cy="231" r="8" fill="#111" stroke="#444" stroke-width="2"/>
+<circle cx="703" cy="244" r="8" fill="#111" stroke="#444" stroke-width="2"/>
+<circle cx="700" cy="257" r="8" fill="#111" stroke="#444" stroke-width="2"/>
+<path d="M520,206 Q430,200 330,130" fill="none" stroke="#f1c40f" stroke-width="4"/>
+<ellipse cx="519.2" cy="270.6" rx="3.5999999999999996" ry="10.2" fill="#c8a24b"/>
+<path d="M502.4,252.6 L510.8,252.6 L510.8,282.6 L503.6,282.6 Z" fill="#22303c"/>
+<path d="M500,215 L720,197 C710,250.0 690,285 650,285 L560,285 C535,285 525,275 520,265 L504,253.5 Z" fill="none" stroke="#1d2730" stroke-width="2.5"/>
+<line x1="430" y1="110" x2="430" y2="190" stroke="#e05a00" stroke-width="2"/><circle cx="430" cy="190" r="4" fill="#e05a00"/>
+<rect x="387.68" y="90.55" width="84.64" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="430" y="115.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">towline</text>
+<line x1="620" y1="330" x2="712" y2="250" stroke="#e05a00" stroke-width="2"/><circle cx="712" cy="250" r="4" fill="#e05a00"/>
+<rect x="482.48" y="310.55" width="275.04" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="620" y="335.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">fenders (tyres) for pushing</text>
+<line x1="560" y1="60" x2="620" y2="150" stroke="#e05a00" stroke-width="2"/><circle cx="620" cy="150" r="4" fill="#e05a00"/>
+<rect x="441.52" y="40.55" width="236.96" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="560" y="65.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">small but very powerful</text>
+<rect x="307.5" y="368" width="205.0" height="40" rx="20" fill="#ff8a00"/>
+<text x="410.0" y="394" font-size="21" font-weight="800" fill="#fff" text-anchor="middle">TUG (BOAT)</text>
+<text x="18" y="426" font-size="13" fill="#5b6770">small, very powerful boat that pulls or pushes big ships in port</text>
+</svg>

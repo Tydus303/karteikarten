@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 440" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dbeefa"/><stop offset="1" stop-color="#f4f9fd"/></linearGradient><linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb6d6"/><stop offset="1" stop-color="#3f7fa6"/></linearGradient></defs>
+<rect width="820" height="440" rx="18" fill="url(#sky)"/>
+<rect x="0" y="250" width="820" height="120" fill="url(#sea)"/>
+<path d="M0,250 q10,-4 20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0" fill="none" stroke="#5c9cc2" stroke-width="2"/>
+<rect x="0" y="370" width="820" height="70" fill="#fff"/>
+
+<path d="M220,110 L220,296 Q220,330 254,330 L566,330 Q600,330 600,296 L600,110 Z" fill="#22303c"/>
+<clipPath id="k1"><path d="M220,110 L220,296 Q220,330 254,330 L566,330 Q600,330 600,296 L600,110 Z"/></clipPath><rect x="0" y="250" width="820" height="200" fill="#a8322b" clip-path="url(#k1)"/>
+<rect x="230" y="120" width="360" height="200" fill="#eef2f5"/>
+<path d="M230,230 L330,304 L230,304 Z M590,230 L490,304 L590,304 Z" fill="#ff8a00" fill-opacity=".8" stroke="#e05a00" stroke-width="3"/><path d="M230,120 L320,120 L230,190 Z M590,120 L500,120 L590,190 Z" fill="#ff8a00" fill-opacity=".8" stroke="#e05a00" stroke-width="3"/>
+<rect x="230" y="304" width="360" height="16" fill="#93a8b8"/>
+<path d="M330,304 L230,230 L230,190 L320,140 L500,140 L590,190 L590,230 L490,304 Z" fill="#6b4a2b"/>
+<rect x="300" y="84" width="14" height="26" fill="#2b3a46"/><rect x="506" y="84" width="14" height="26" fill="#2b3a46"/><rect x="296" y="74" width="228" height="10" rx="2" fill="#a8322b"/>
+<path d="M0,250 q10,-4 20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0" fill="none" stroke="#5c9cc2" stroke-width="2" opacity=".8"/>
+<line x1="690" y1="60" x2="570" y2="140" stroke="#e05a00" stroke-width="2"/><circle cx="570" cy="140" r="4" fill="#e05a00"/>
+<rect x="566.76" y="40.55" width="246.48000000000002" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="690" y="65.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">wing tank (topside tank)</text>
+<line x1="700" y1="300" x2="560" y2="284" stroke="#e05a00" stroke-width="2"/><circle cx="560" cy="284" r="4" fill="#e05a00"/>
+<rect x="638.64" y="280.55" width="122.72000000000001" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="700" y="305.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">hopper tank</text>
+<rect x="258.2" y="190.55" width="303.6" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="410" y="215.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">loose bulk cargo levels itself</text>
+<rect x="249.5" y="368" width="321.0" height="40" rx="20" fill="#ff8a00"/>
+<text x="410.0" y="394" font-size="21" font-weight="800" fill="#fff" text-anchor="middle">SELF-TRIMMING HOLD</text>
+<text x="18" y="426" font-size="13" fill="#5b6770">bulker hold with sloping sides – loose bulk cargo levels itself and cannot shift</text>
+</svg>

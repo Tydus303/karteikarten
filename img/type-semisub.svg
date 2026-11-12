@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 440" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dbeefa"/><stop offset="1" stop-color="#f4f9fd"/></linearGradient><linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb6d6"/><stop offset="1" stop-color="#3f7fa6"/></linearGradient></defs>
+<rect width="820" height="440" rx="18" fill="url(#sky)"/>
+<rect x="0" y="250" width="820" height="120" fill="url(#sea)"/>
+<path d="M0,250 q10,-4 20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0" fill="none" stroke="#5c9cc2" stroke-width="2"/>
+<rect x="0" y="370" width="820" height="70" fill="#fff"/>
+
+<clipPath id="k1"><path d="M40,268 L760,268 C750,294.0 730,320 690,320 L100,320 C75,320 65,310 60,300 L44,296.6 Z"/></clipPath>
+<path d="M40,268 L760,268 C750,294.0 730,320 690,320 L100,320 C75,320 65,310 60,300 L44,296.6 Z" fill="#22303c"/>
+<rect x="0" y="250" width="820" height="200" fill="#a8322b" clip-path="url(#k1)"/>
+<rect x="0" y="247" width="820" height="3" fill="#e8e8e8" clip-path="url(#k1)"/>
+<rect x="50" y="158" width="40" height="110" fill="#e8e8e8" stroke="#9aa4ad"/>
+<rect x="660" y="107" width="80" height="161" fill="#f3f4f2" stroke="#9aa4ad" stroke-width="1.5"/>
+<rect x="670" y="121" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="689" y="121" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="708" y="121" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="670" y="138" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="689" y="138" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="708" y="138" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="670" y="155" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="689" y="155" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="708" y="155" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="670" y="172" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="689" y="172" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="708" y="172" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="670" y="189" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="689" y="189" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="708" y="189" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="670" y="206" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="689" y="206" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="708" y="206" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="670" y="223" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="689" y="223" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="708" y="223" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="670" y="240" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="689" y="240" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="708" y="240" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="654" y="93" width="92" height="16" fill="#f3f4f2" stroke="#9aa4ad" stroke-width="1.5"/>
+<rect x="658" y="97" width="84" height="6" fill="#2e4a63"/>
+<rect x="698.0" y="75" width="4" height="18" fill="#9aa4ad"/>
+<rect x="270" y="225" width="250" height="30" fill="#c0392b"/><rect x="290" y="150" width="30" height="80" fill="#e8b828"/><rect x="470" y="150" width="30" height="80" fill="#e8b828"/><rect x="280" y="120" width="230" height="32" fill="#9aa4ad" stroke="#5b6770"/><path d="M380,120 L395,40 L410,120" fill="none" stroke="#5b6770" stroke-width="4"/><path d="M386,90 L404,90 M390,65 L400,65" stroke="#5b6770" stroke-width="3"/>
+<rect x="0" y="250" width="820" height="120" fill="#3f7fa6" opacity="0.55"/>
+<path d="M0,250 q10,-4 20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0" fill="none" stroke="#5c9cc2" stroke-width="2"/>
+<line x1="200" y1="330" x2="200" y2="268" stroke="#e05a00" stroke-width="2"/><circle cx="200" cy="268" r="4" fill="#e05a00"/>
+<rect x="38.67999999999998" y="310.55" width="322.64000000000004" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="200" y="335.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">deck under water (tanks flooded)</text>
+<rect x="286.03999999999996" y="5.550000000000001" width="217.92000000000002" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="395" y="30.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">cargo floats on board</text>
+<line x1="640" y1="55" x2="690" y2="95" stroke="#e05a00" stroke-width="2"/><circle cx="690" cy="95" r="4" fill="#e05a00"/>
+<rect x="550.08" y="35.55" width="179.84" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="640" y="60.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">bridge at the bow</text>
+<line x1="600" y1="330" x2="600" y2="268" stroke="#e05a00" stroke-width="2"/><circle cx="600" cy="268" r="4" fill="#e05a00"/>
+<rect x="524.36" y="310.55" width="151.28" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="600" y="335.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">flat open deck</text>
+<rect x="264.0" y="368" width="292.0" height="40" rx="20" fill="#ff8a00"/>
+<text x="410.0" y="394" font-size="21" font-weight="800" fill="#fff" text-anchor="middle">SEMI-SUBMERSIBLE</text>
+<text x="18" y="426" font-size="13" fill="#5b6770">deck is lowered under water – the cargo floats on and off (float-on / float-off)</text>
+</svg>

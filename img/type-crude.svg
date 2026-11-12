@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 440" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dbeefa"/><stop offset="1" stop-color="#f4f9fd"/></linearGradient><linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb6d6"/><stop offset="1" stop-color="#3f7fa6"/></linearGradient></defs>
+<rect width="820" height="440" rx="18" fill="url(#sky)"/>
+<rect x="0" y="250" width="820" height="120" fill="url(#sea)"/>
+<path d="M0,250 q10,-4 20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0" fill="none" stroke="#5c9cc2" stroke-width="2"/>
+<rect x="0" y="370" width="820" height="70" fill="#fff"/>
+
+<clipPath id="k1"><path d="M35,212 L770,208 C766,234.95 758,251.89999999999998 744,265.9 C774,265.9 794,283.54 782,300 C774,310 752,312 722,310 L117,310 C85,310 73,302 67,286 L41,272.76 Z"/></clipPath>
+<path d="M35,212 L770,208 C766,234.95 758,251.89999999999998 744,265.9 C774,265.9 794,283.54 782,300 C774,310 752,312 722,310 L117,310 C85,310 73,302 67,286 L41,272.76 Z" fill="#22303c"/>
+<rect x="0" y="250" width="820" height="200" fill="#a8322b" clip-path="url(#k1)"/>
+<rect x="0" y="247" width="820" height="3" fill="#e8e8e8" clip-path="url(#k1)"/>
+<ellipse cx="63.8" cy="288.4" rx="5.4" ry="15.3" fill="#c8a24b"/>
+<path d="M38.6,261.4 L51.2,261.4 L51.2,306.4 L40.4,306.4 Z" fill="#22303c"/>
+<g clip-path="url(#k1)"><rect x="175" y="216" width="535" height="80" fill="#eef2f5"/></g>
+<rect x="178.0" y="226" width="83.16666666666667" height="64" fill="#2a2420"/>
+<rect x="267.1666666666667" y="226" width="83.16666666666667" height="64" fill="#2a2420"/>
+<rect x="356.33333333333337" y="226" width="83.16666666666667" height="64" fill="#2a2420"/>
+<rect x="445.5" y="226" width="83.16666666666667" height="64" fill="#2a2420"/>
+<rect x="534.6666666666667" y="226" width="83.16666666666667" height="64" fill="#2a2420"/>
+<rect x="623.8333333333334" y="226" width="83.16666666666667" height="64" fill="#2a2420"/>
+<line x1="175" y1="208" x2="710" y2="208" stroke="#7b8a96" stroke-width="2"/>
+<line x1="175" y1="205" x2="710" y2="205" stroke="#7b8a96" stroke-width="2"/>
+<line x1="175" y1="202" x2="710" y2="202" stroke="#7b8a96" stroke-width="2"/>
+<line x1="155" y1="182" x2="750" y2="180" stroke="#c8ced3" stroke-width="4"/>
+<line x1="175" y1="182" x2="175" y2="212" stroke="#c8ced3" stroke-width="2"/>
+<line x1="235" y1="182" x2="235" y2="212" stroke="#c8ced3" stroke-width="2"/>
+<line x1="295" y1="182" x2="295" y2="212" stroke="#c8ced3" stroke-width="2"/>
+<line x1="355" y1="182" x2="355" y2="212" stroke="#c8ced3" stroke-width="2"/>
+<line x1="415" y1="182" x2="415" y2="212" stroke="#c8ced3" stroke-width="2"/>
+<line x1="475" y1="182" x2="475" y2="212" stroke="#c8ced3" stroke-width="2"/>
+<line x1="535" y1="182" x2="535" y2="212" stroke="#c8ced3" stroke-width="2"/>
+<line x1="595" y1="182" x2="595" y2="212" stroke="#c8ced3" stroke-width="2"/>
+<line x1="655" y1="182" x2="655" y2="212" stroke="#c8ced3" stroke-width="2"/>
+<line x1="715" y1="182" x2="715" y2="212" stroke="#c8ced3" stroke-width="2"/>
+<rect x="372.5" y="190" width="60" height="18" fill="#c0392b" stroke="#7a1f1a"/>
+<circle cx="380.5" cy="199" r="4" fill="#fff"/>
+<circle cx="395.5" cy="199" r="4" fill="#fff"/>
+<circle cx="410.5" cy="199" r="4" fill="#fff"/>
+<circle cx="425.5" cy="199" r="4" fill="#fff"/>
+<rect x="445.5" y="182" width="14" height="30" fill="#e8e8e8" stroke="#8a6d10" stroke-width="1"/>
+<rect x="441.5" y="172" width="22" height="12" rx="2" fill="#e8e8e8" stroke="#8a6d10" stroke-width="1"/>
+<line x1="452.5" y1="178" x2="427.5" y2="138.69872981077805" stroke="#e8e8e8" stroke-width="7" stroke-linecap="round"/>
+<line x1="452.5" y1="178" x2="427.5" y2="138.69872981077805" stroke="#8a6d10" stroke-width="1"/>
+<rect x="90" y="106" width="80" height="106" fill="#f3f4f2" stroke="#9aa4ad" stroke-width="1.5"/>
+<rect x="100" y="120" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="119" y="120" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="138" y="120" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="100" y="137" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="119" y="137" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="138" y="137" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="100" y="154" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="119" y="154" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="138" y="154" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="100" y="171" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="119" y="171" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="138" y="171" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="100" y="188" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="119" y="188" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="138" y="188" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="82" y="92" width="96" height="16" fill="#f3f4f2" stroke="#9aa4ad" stroke-width="1.5"/>
+<rect x="86" y="96" width="88" height="6" fill="#2e4a63"/>
+<rect x="128.0" y="74" width="4" height="18" fill="#9aa4ad"/>
+<path d="M63,212 L67,112 L89,112 L89,212 Z" fill="#2f78b7"/><rect x="65" y="112" width="24" height="7" fill="#22303c"/>
+<path d="M35,212 L770,208 C766,234.95 758,251.89999999999998 744,265.9 C774,265.9 794,283.54 782,300 C774,310 752,312 722,310 L117,310 C85,310 73,302 67,286 L41,272.76 Z" fill="none" stroke="#1d2730" stroke-width="2.5"/>
+<line x1="640" y1="330" x2="700" y2="300" stroke="#e05a00" stroke-width="2"/><circle cx="700" cy="300" r="4" fill="#e05a00"/>
+<rect x="512.0" y="310.55" width="256.0" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="640" y="335.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">low freeboard, deep draft</text>
+<line x1="450" y1="150" x2="450" y2="204" stroke="#e05a00" stroke-width="2"/><circle cx="450" cy="204" r="4" fill="#e05a00"/>
+<rect x="345.8" y="130.55" width="208.4" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="450" y="155.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">flat deck with pipes</text>
+<line x1="620" y1="160" x2="640" y2="181" stroke="#e05a00" stroke-width="2"/><circle cx="640" cy="181" r="4" fill="#e05a00"/>
+<rect x="577.68" y="140.55" width="84.64" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="620" y="165.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">catwalk</text>
+<line x1="330" y1="330" x2="402.5" y2="200" stroke="#e05a00" stroke-width="2"/><circle cx="402.5" cy="200" r="4" fill="#e05a00"/>
+<rect x="235.32" y="310.55" width="189.36" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="330" y="335.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">manifold amidships</text>
+<rect x="193.4" y="100.55" width="113.2" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="250" y="125.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">no hatches</text>
+<rect x="256.75" y="368" width="306.5" height="40" rx="20" fill="#ff8a00"/>
+<text x="410.0" y="394" font-size="21" font-weight="800" fill="#fff" text-anchor="middle">CRUDE OIL CARRIER</text>
+<text x="18" y="426" font-size="13" fill="#5b6770">tanker for unrefined crude oil · very large (VLCC) · low freeboard, deep draft</text>
+</svg>

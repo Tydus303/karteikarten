@@ -165,8 +165,9 @@ ul.info li{margin:4px 0}
 .front-text.m{font-size:22px}.front-text.s{font-size:19px}
 .term{font-size:36px;font-weight:750;line-height:1.18;letter-spacing:-.015em;text-wrap:balance;overflow-wrap:anywhere;hyphens:auto;-webkit-hyphens:auto}
 .term.m{font-size:29px}.term.s{font-size:24px}
-.card-img{display:block;width:100%;max-height:52%;min-height:0;flex:0 1 auto;object-fit:contain;margin-top:14px;border-radius:12px;cursor:zoom-in}
+.card-img{display:block;width:100%;max-height:30vh;min-height:0;flex:0 1 auto;object-fit:contain;margin-top:14px;border-radius:12px;cursor:zoom-in}
 .img-hint{font-size:12px;color:var(--muted);margin-top:4px}
+.face:has(.card-img) #cb{width:100%}
 .face:has(.card-img) .example{margin-top:10px;font-size:15px}
 .zoom-img{display:block;width:100%;height:auto;border-radius:14px}
 .example{margin-top:22px;font-size:17px;line-height:1.45;color:var(--muted);max-width:30em}
@@ -819,6 +820,88 @@ Antworte ausschließlich mit JSON in genau diesem Format:
 {"name": "LF2 – Thema", "cards": [{"front": "…", "back": "…", "example": "…"}]}`;
 
 /* ---------- Daten ---------- */
+const IMG_BY_TERM = {
+  "amidships": "img/part-amidships.svg",
+  "beam": "img/sec-beam.svg",
+  "draught": "img/part-draught.svg",
+  "length overall (LOA)": "img/part-loa.svg",
+  "air draft": "img/part-air-draft.svg",
+  "freeboard": "img/part-freeboard.svg",
+  "hull and machinery": "img/part-hull-machinery.svg",
+  "hull": "img/part-hull.svg",
+  "superstructure": "img/part-superstructure.svg",
+  "main deck": "img/part-main-deck.svg",
+  "frames": "img/part-frames.svg",
+  "double hull": "img/sec-double-hull.svg",
+  "ballast tanks": "img/part-ballast-tanks.svg",
+  "tank top": "img/part-tank-top.svg",
+  "tween deck": "img/sec-tween-deck.svg",
+  "hatch coaming": "img/sec-hatch-coaming.svg",
+  "cell guides": "img/sec-cell-guides.svg",
+  "lashing bridges": "img/part-lashing-bridges.svg",
+  "lashing bars and twistlocks": "img/lashing.svg",
+  "cargo gear": "img/type-cargo-gear.svg",
+  "gearless (vessel)": "img/type-gearless.svg",
+  "main engine": "img/part-main-engine.svg",
+  "auxiliary engines (auxiliaries)": "img/part-auxiliaries.svg",
+  "shaft generator": "img/part-shaft-generator.svg",
+  "propeller": "img/part-propeller.svg",
+  "rudder": "img/part-rudder.svg",
+  "bow thruster": "img/part-bow-thruster.svg",
+  "bulbous bow": "img/part-bulbous-bow.svg",
+  "bridge wings": "img/part-bridge-wings.svg",
+  "accommodation": "img/part-accommodation.svg",
+  "free-fall lifeboat": "img/part-lifeboat.svg",
+  "anchor": "img/part-anchor.svg",
+  "to moor": "img/quay.svg",
+  "quay": "img/quay.svg",
+  "(moving) astern": "img/part-astern.svg",
+  "(moving) ahead": "img/part-ahead.svg",
+  "catwalk": "img/part-catwalk.svg",
+  "manifold (station)": "img/part-manifold.svg",
+  "ventilation heads (vent heads)": "img/part-vent.svg",
+  "ramp": "img/part-ramp.svg",
+  "block coefficient": "img/block-coefficient.svg",
+  "self-trimming hold": "img/sec-self-trimming.svg",
+  "understow": "img/sec-understow.svg",
+  "(full) container vessel": "img/type-container.svg",
+  "feeder vessel": "img/type-feeder.svg",
+  "multipurpose vessel (MPP)": "img/type-mpp.svg",
+  "heavy lift vessel": "img/type-heavylift.svg",
+  "semi-submersible": "img/type-semisub.svg",
+  "bulk carrier (bulker)": "img/type-bulker.svg",
+  "Capesize bulker": "img/type-capesize.svg",
+  "ore carrier": "img/type-ore.svg",
+  "coaster": "img/type-coaster.svg",
+  "crude (oil) carrier": "img/type-crude.svg",
+  "product tanker": "img/type-product.svg",
+  "chemical tanker": "img/type-chemical.svg",
+  "LNG carrier": "img/type-lng.svg",
+  "RoRo vessel": "img/type-roro.svg",
+  "PCTC": "img/type-pctc.svg",
+  "ConRo": "img/type-conro.svg",
+  "RoPax": "img/type-ropax.svg",
+  "reefer vessel": "img/type-reefer.svg",
+  "livestock carrier": "img/type-livestock.svg",
+  "tug (boat)": "img/type-tug.svg",
+  "container vessel": "img/type-container.svg",
+  "full container vessel": "img/type-container.svg",
+  "multi-purpose vessel": "img/type-mpp.svg",
+  "heavy-lift ship": "img/type-heavylift.svg",
+  "bulk carrier": "img/type-bulker.svg",
+  "crude oil tanker": "img/type-crude.svg",
+  "auxiliary engine": "img/part-auxiliaries.svg",
+  "cargo hold": "img/cargo-holds.svg",
+  "bulkhead": "img/bulkhead.svg",
+  "hatch cover": "img/hatch-covers.svg",
+  "bridge": "img/bridge.svg",
+  "bridge wing": "img/part-bridge-wings.svg",
+  "double bottom": "img/double-bottom.svg",
+  "gearless": "img/type-gearless.svg",
+  "bow / stern": "img/bow.svg"
+};
+// Bilder per Fachbegriff an die Englisch-Karten hängen (nur wenn noch keins gesetzt ist)
+[SEED_EN2, SEED_EN3].forEach(sd => sd.cards.forEach(c => { if (!c[3] && IMG_BY_TERM[c[1]]) c[3] = IMG_BY_TERM[c[1]]; }));
 function makeCard(o) {
   return { id: uid(), front: String(o.front).trim(), back: String(o.back).trim(), example: String(o.example || '').trim(), ...(o.img ? { img: String(o.img) } : {}),
     box: Math.min(5, Math.max(1, parseInt(o.box) || 1)), due: Number(o.due) || 0, wrong: Number(o.wrong) || 0 };
@@ -1430,8 +1513,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.4.2';
+const APP_VERSION = '1.4.3';
 const CHANGELOG = [
+  ['1.4.3', 'Bilder für alle Schiffstypen (Merkmale orange markiert), weitere Schiffsteile, Maße (LOA, draught, freeboard, air draft) und Querschnitte (beam, tween deck, cell guides, double hull …) – rund 60 neue Bilder · Bilder auf der Karte jetzt in voller Breite'],
   ['1.4.2', 'Bilder für bow, stern, bulkheads, hatch covers, double bottom, engine room, bridge und funnel – das Teil ist jeweils orange markiert'],
   ['1.4.1', 'Neuer Stapel „Englisch – Ship Parts & Terms (EN)“ (Schiffsteile, Schiffstypen, Fachbegriffe auf Englisch) · Karten können jetzt Bilder auf der Rückseite haben (antippen zum Vergrößern)'],
   ['1.4.0', 'Tagesziel mit Serie 🔥, Statistik-Seite (14 Tage, Trefferquote, Stapel) und neuer Lernmodus „Auswahl“ (Multiple Choice)'],

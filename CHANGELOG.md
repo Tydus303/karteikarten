@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.4.3** – Bilder für alle Schiffstypen (Merkmale orange markiert), weitere Schiffsteile, Maße und Querschnitte – rund 60 neue Bilder
 - **1.4.2** – Bilder für bow, stern, bulkheads, hatch covers, double bottom, engine room, bridge und funnel (Teil jeweils orange markiert)
 - **1.4.1** – Neuer Stapel „Englisch – Ship Parts & Terms (EN)“ mit Schiffsteilen, Schiffstypen und Fachbegriffen auf Englisch · Karten können Bilder auf der Rückseite haben (z. B. Laderäume), antippen zum Vergrößern
 - **1.4.0** – Tagesziel mit Serie, Statistik-Seite und neuer Lernmodus „Auswahl“ (Multiple Choice)

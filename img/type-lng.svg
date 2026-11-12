@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 440" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dbeefa"/><stop offset="1" stop-color="#f4f9fd"/></linearGradient><linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb6d6"/><stop offset="1" stop-color="#3f7fa6"/></linearGradient></defs>
+<rect width="820" height="440" rx="18" fill="url(#sky)"/>
+<rect x="0" y="250" width="820" height="120" fill="url(#sea)"/>
+<path d="M0,250 q10,-4 20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0" fill="none" stroke="#5c9cc2" stroke-width="2"/>
+<rect x="0" y="370" width="820" height="70" fill="#fff"/>
+
+<clipPath id="k1"><path d="M45,182 L760,174 C756,206.5 748,233 734,247 C764,247 784,266.2 772,285 C764,295 742,297 712,295 L127,295 C95,295 83,287 77,271 L51,252.06 Z"/></clipPath>
+<path d="M45,182 L760,174 C756,206.5 748,233 734,247 C764,247 784,266.2 772,285 C764,295 742,297 712,295 L127,295 C95,295 83,287 77,271 L51,252.06 Z" fill="#22303c"/>
+<rect x="0" y="250" width="820" height="200" fill="#a8322b" clip-path="url(#k1)"/>
+<rect x="0" y="247" width="820" height="3" fill="#e8e8e8" clip-path="url(#k1)"/>
+<ellipse cx="77.0" cy="271.0" rx="6.0" ry="17.0" fill="#c8a24b"/>
+<path d="M49.0,241.0 L63.0,241.0 L63.0,291.0 L51.0,291.0 Z" fill="#22303c"/>
+<path d="M210,182 A58,58 0 0 1 320,182 Z" fill="#f3f4f2" stroke="#9aa4ad" stroke-width="2"/>
+<rect x="207" y="178" width="116" height="6" fill="#c0392b"/>
+<path d="M330,182 A58,58 0 0 1 440,182 Z" fill="#f3f4f2" stroke="#9aa4ad" stroke-width="2"/>
+<rect x="327" y="178" width="116" height="6" fill="#c0392b"/>
+<path d="M450,182 A58,58 0 0 1 560,182 Z" fill="#f3f4f2" stroke="#9aa4ad" stroke-width="2"/>
+<rect x="447" y="178" width="116" height="6" fill="#c0392b"/>
+<path d="M570,182 A58,58 0 0 1 680,182 Z" fill="#f3f4f2" stroke="#9aa4ad" stroke-width="2"/>
+<rect x="567" y="178" width="116" height="6" fill="#c0392b"/>
+<rect x="105" y="76" width="80" height="106" fill="#f3f4f2" stroke="#9aa4ad" stroke-width="1.5"/>
+<rect x="115" y="90" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="134" y="90" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="153" y="90" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="115" y="107" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="134" y="107" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="153" y="107" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="115" y="124" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="134" y="124" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="153" y="124" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="115" y="141" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="134" y="141" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="153" y="141" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="115" y="158" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="134" y="158" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="153" y="158" width="11" height="7" rx="1.5" fill="#6c8aa3"/>
+<rect x="97" y="62" width="96" height="16" fill="#f3f4f2" stroke="#9aa4ad" stroke-width="1.5"/>
+<rect x="101" y="66" width="88" height="6" fill="#2e4a63"/>
+<rect x="143.0" y="44" width="4" height="18" fill="#9aa4ad"/>
+<path d="M78,182 L82,80 L104,80 L104,182 Z" fill="#2f78b7"/><rect x="80" y="80" width="24" height="7" fill="#22303c"/>
+<path d="M45,182 L760,174 C756,206.5 748,233 734,247 C764,247 784,266.2 772,285 C764,295 742,297 712,295 L127,295 C95,295 83,287 77,271 L51,252.06 Z" fill="none" stroke="#1d2730" stroke-width="2.5"/>
+<line x1="445" y1="40" x2="445" y2="130" stroke="#e05a00" stroke-width="2"/><circle cx="445" cy="130" r="4" fill="#e05a00"/>
+<rect x="259.88" y="20.55" width="370.24" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="445" y="45.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">spherical insulated tanks (Moss type)</text>
+<line x1="265" y1="330" x2="265" y2="230" stroke="#e05a00" stroke-width="2"/><circle cx="265" cy="230" r="4" fill="#e05a00"/>
+<rect x="179.83999999999997" y="310.55" width="170.32000000000002" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="265" y="335.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">cargo at −162 °C</text>
+<line x1="600" y1="330" x2="700" y2="210" stroke="#e05a00" stroke-width="2"/><circle cx="700" cy="210" r="4" fill="#e05a00"/>
+<rect x="457.72" y="310.55" width="284.56" height="28.4" rx="14.2" fill="#fff" stroke="#e05a00" stroke-width="2"/>
+<text x="600" y="335.1" font-size="17" font-weight="800" fill="#e05a00" text-anchor="middle">high freeboard – light cargo</text>
+<rect x="300.25" y="368" width="219.5" height="40" rx="20" fill="#ff8a00"/>
+<text x="410.0" y="394" font-size="21" font-weight="800" fill="#fff" text-anchor="middle">LNG CARRIER</text>
+<text x="18" y="426" font-size="13" fill="#5b6770">liquefied natural gas, cooled to −162 °C, in insulated tanks</text>
+</svg>
