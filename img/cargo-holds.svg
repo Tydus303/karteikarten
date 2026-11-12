@@ -4,6 +4,7 @@
 <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dbeefa"/><stop offset="1" stop-color="#f4f9fd"/></linearGradient>
 <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb6d6"/><stop offset="1" stop-color="#3f7fa6"/></linearGradient>
 <pattern id="ct" width="22" height="13" patternUnits="userSpaceOnUse"><rect width="22" height="13" fill="#f6b44b"/><rect x=".75" y=".75" width="20.5" height="11.5" fill="none" stroke="#c9832a" stroke-width="1.5"/></pattern>
+<pattern id="cg" width="22" height="13" patternUnits="userSpaceOnUse"><rect width="22" height="13" fill="#d5dde4"/><rect x=".75" y=".75" width="20.5" height="11.5" fill="none" stroke="#b1bdc8" stroke-width="1.5"/></pattern>
 </defs>
 <rect width="820" height="440" rx="18" fill="url(#sky)"/>
 <rect x="0" y="252" width="820" height="118" fill="url(#sea)"/>
@@ -16,7 +17,6 @@
 <rect x="232" y="170" width="458" height="112" fill="#eef2f5"/>
 <rect x="112" y="170" width="120" height="130" fill="#c9ced3"/>
 <rect x="150" y="238" width="54" height="34" rx="4" fill="#8d959c"/>
-<rect x="196" y="270" width="0" height="0"/>
 <line x1="150" y1="262" x2="100" y2="274" stroke="#6b737a" stroke-width="5"/>
 <rect x="112" y="282" width="588" height="18" fill="#93a8b8"/>
 <line x1="240" y1="282" x2="240" y2="300" stroke="#7b91a2" stroke-width="2"/>
@@ -164,27 +164,27 @@
 <line x1="560" y1="34" x2="548" y2="112" stroke="#22303c" stroke-width="1.5"/>
 <circle cx="548" cy="112" r="3" fill="#22303c"/>
 <text x="560" y="28" font-size="16" font-weight="600" fill="#22303c" text-anchor="middle">deck cargo (containers)</text>
-<line x1="170" y1="18" x2="176" y2="55" stroke="#22303c" stroke-width="1.5"/>
-<circle cx="176" cy="55" r="3" fill="#22303c"/>
-<text x="170" y="12" font-size="16" font-weight="600" fill="#22303c" text-anchor="middle">bridge</text>
+<line x1="176" y1="18" x2="176" y2="48" stroke="#22303c" stroke-width="1.5"/>
+<circle cx="176" cy="48" r="3" fill="#22303c"/>
+<text x="176" y="12" font-size="16" font-weight="600" fill="#22303c" text-anchor="middle">bridge</text>
 <line x1="14" y1="82" x2="92" y2="120" stroke="#22303c" stroke-width="1.5"/>
 <circle cx="92" cy="120" r="3" fill="#22303c"/>
 <text x="14" y="76" font-size="16" font-weight="600" fill="#22303c" text-anchor="start">funnel</text>
 <line x1="468" y1="326" x2="416" y2="230" stroke="#22303c" stroke-width="1.5"/>
 <circle cx="416" cy="230" r="3" fill="#22303c"/>
-<text x="468" y="342" font-size="16" font-weight="600" fill="#22303c" text-anchor="middle">bulkhead</text>
+<text x="468" y="343" font-size="16" font-weight="600" fill="#22303c" text-anchor="middle">bulkhead</text>
 <line x1="612" y1="326" x2="600" y2="292" stroke="#22303c" stroke-width="1.5"/>
 <circle cx="600" cy="292" r="3" fill="#22303c"/>
-<text x="612" y="342" font-size="16" font-weight="600" fill="#22303c" text-anchor="middle">double bottom</text>
+<text x="612" y="343" font-size="16" font-weight="600" fill="#22303c" text-anchor="middle">double bottom</text>
 <line x1="172" y1="326" x2="172" y2="230" stroke="#22303c" stroke-width="1.5"/>
 <circle cx="172" cy="230" r="3" fill="#22303c"/>
-<text x="172" y="342" font-size="16" font-weight="600" fill="#22303c" text-anchor="middle">engine room</text>
+<text x="172" y="343" font-size="16" font-weight="600" fill="#22303c" text-anchor="middle">engine room</text>
 <line x1="772" y1="222" x2="738" y2="214" stroke="#22303c" stroke-width="1.5"/>
 <circle cx="738" cy="214" r="3" fill="#22303c"/>
-<text x="772" y="238" font-size="16" font-weight="600" fill="#22303c" text-anchor="start">bow</text>
+<text x="772" y="239" font-size="16" font-weight="600" fill="#22303c" text-anchor="start">bow</text>
 <line x1="14" y1="222" x2="72" y2="214" stroke="#22303c" stroke-width="1.5"/>
 <circle cx="72" cy="214" r="3" fill="#22303c"/>
-<text x="14" y="238" font-size="16" font-weight="600" fill="#22303c" text-anchor="start">stern</text>
+<text x="14" y="239" font-size="16" font-weight="600" fill="#22303c" text-anchor="start">stern</text>
 <path d="M240,360 v-8 M240,360 H680 v-8" fill="none" stroke="#e05a00" stroke-width="3"/>
 <rect x="290.0" y="368" width="340" height="40" rx="20" fill="#ff8a00"/>
 <text x="460.0" y="394" font-size="21" font-weight="800" fill="#ffffff" text-anchor="middle">CARGO HOLDS No 1 – No 5</text>

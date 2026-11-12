@@ -460,8 +460,8 @@ const IMG_HOLDS = 'img/cargo-holds.svg';
 const SEED_EN3 = { name: 'Englisch – Ship Parts & Terms (EN)', cards: [
  ["Where are the cargo holds of a ship – and what are they?", "cargo holds", "Large compartments below the main deck between bow and engine room, used for stowing cargo. Numbered from the bow (No 1) aft, separated by bulkheads, closed by hatch covers.", IMG_HOLDS],
  ["The area in a ship that is used for stowing goods", "cargo hold", "Look at the picture: holds No 1 – No 5 (orange).", IMG_HOLDS],
- ["The very front part of a ship", "bow", ""],
- ["The rear part of a ship", "stern", ""],
+ ["The very front part of a ship", "bow", "", 'img/bow.svg'],
+ ["The rear part of a ship", "stern", "", 'img/stern.svg'],
  ["The middle part of a ship", "amidships", "The maximum breadth is found in the amidships body."],
  ["The widest part of a ship from one side to the other", "beam", "also: breadth (over all)"],
  ["The depth of the ship below the waterline (waterline to keel)", "draught", "AE: draft – e.g. a draught of 14 metres"],
@@ -474,13 +474,13 @@ const SEED_EN3 = { name: 'Englisch – Ship Parts & Terms (EN)', cards: [
  ["The uppermost continuous deck running over the whole length of the ship", "main deck", ""],
  ["Steel construction providing strength to the ship's hull", "frames", ""],
  ["Two layers of watertight hull surfaces with a space between the inner and outer shell", "double hull", "protects against leaks, e.g. on tankers"],
- ["The space between the bottom of the ship and the floor of the cargo holds", "double bottom", "contains the ballast tanks"],
+ ["The space between the bottom of the ship and the floor of the cargo holds", "double bottom", "contains the ballast tanks", 'img/double-bottom.svg'],
  ["Tanks filled with seawater to balance the ship when the cargo weight is distributed unevenly", "ballast tanks", "located in the double bottom"],
  ["The floor of a cargo hold (top of the double bottom)", "tank top", ""],
- ["Vertical steel walls that separate the cargo holds from each other", "bulkheads", "very important on bulk carriers and tankers"],
+ ["Vertical steel walls that separate the cargo holds from each other", "bulkheads", "very important on bulk carriers and tankers", 'img/bulkhead.svg'],
  ["A horizontal separation (extra deck) inside a cargo hold", "tween deck", "not needed on a container ship – containers are simply stacked"],
  ["A vertical steel structure surrounding the opening of a cargo hatch", "hatch coaming", ""],
- ["Steel lids that close the cargo hatches", "hatch covers", "mechanically operated → speedy cargo handling"],
+ ["Steel lids that close the cargo hatches", "hatch covers", "mechanically operated → speedy cargo handling", 'img/hatch-covers.svg'],
  ["Vertical guide rails in the hold of a container ship that fix the containers so no lashing is needed", "cell guides", ""],
  ["Steel platforms on deck between container stacks where the crew lash the containers", "lashing bridges", ""],
  ["Equipment to secure containers on deck", "lashing bars and twistlocks", ""],
@@ -489,15 +489,15 @@ const SEED_EN3 = { name: 'Englisch – Ship Parts & Terms (EN)', cards: [
  ["The primary propulsion engine for generating power to move the ship", "main engine", "Lexa Maersk: 11,500 hp, up to 27 knots"],
  ["Engines that create power for manoeuvring, steering, cargo handling and other services", "auxiliary engines (auxiliaries)", "generate power during port stays"],
  ["Converts the rotation of the turning propeller shaft into electrical energy", "shaft generator", ""],
- ["The room in which the main engine is located", "engine room", "usually at the stern below the superstructure"],
+ ["The room in which the main engine is located", "engine room", "usually at the stern below the superstructure", 'img/engine-room.svg'],
  ["The rotating blades at the stern that push the ship through the water", "propeller", "Lexa Maersk: 6 blades, 35 tonnes"],
  ["The device at the stern designed to steer the vessel", "rudder", ""],
  ["A propeller in the bow that gives the ship sideways thrust", "bow thruster", "helps manoeuvring in port, ship can almost turn on the spot"],
  ["A rounded bulge at the bow below the waterline that reduces the water resistance", "bulbous bow", ""],
- ["The place from which the ship is navigated and steered", "(navigating) bridge", "on container ships positioned high / forward for a good view"],
+ ["The place from which the ship is navigated and steered", "(navigating) bridge", "on container ships positioned high / forward for a good view", 'img/bridge.svg'],
  ["Platforms extending from the bridge to the ship's sides, used by the master when mooring", "bridge wings", "he can look straight down the hull to the quay"],
  ["The living quarters of the crew", "accommodation", "located under the bridge"],
- ["The chimney of the ship through which exhaust gases leave", "funnel", ""],
+ ["The chimney of the ship through which exhaust gases leave", "funnel", "", 'img/funnel.svg'],
  ["A lifeboat that drops from a ramp into the water for quick evacuation", "free-fall lifeboat", ""],
  ["Heavy device used to keep the ship from moving when it lies outside a port", "anchor", ""],
  ["To fasten a ship at a berth with ropes", "to moor", "a LNG carrier moors at a berth"],
@@ -859,6 +859,9 @@ const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X2, SEED_X3, SEE
 const SEED_HASH = hashStr(JSON.stringify(SEEDS));
 if (db.settings.seedHash !== SEED_HASH) {
   importDecks(SEEDS.map(seedDeck));
+  // Bilder auch an bereits vorhandene Karten hängen
+  SEEDS.forEach(sd => { const dk = db.decks.find(x => x.name.toLowerCase() === sd.name.toLowerCase()); if (!dk) return;
+    sd.cards.forEach(([f, b, , img]) => { if (!img) return; const c = dk.cards.find(x => x.front === f && x.back === b); if (c && c.img !== img) c.img = img; }); });
   db.settings.seedHash = SEED_HASH; save();
 }
 let persisted = null;
@@ -1427,8 +1430,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.4.1';
+const APP_VERSION = '1.4.2';
 const CHANGELOG = [
+  ['1.4.2', 'Bilder für bow, stern, bulkheads, hatch covers, double bottom, engine room, bridge und funnel – das Teil ist jeweils orange markiert'],
   ['1.4.1', 'Neuer Stapel „Englisch – Ship Parts & Terms (EN)“ (Schiffsteile, Schiffstypen, Fachbegriffe auf Englisch) · Karten können jetzt Bilder auf der Rückseite haben (antippen zum Vergrößern)'],
   ['1.4.0', 'Tagesziel mit Serie 🔥, Statistik-Seite (14 Tage, Trefferquote, Stapel) und neuer Lernmodus „Auswahl“ (Multiple Choice)'],
   ['1.3.1', 'Hinweis auf der Startseite: Karten können Fehler enthalten'],

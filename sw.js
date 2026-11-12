@@ -1,6 +1,6 @@
 // Version erhöhen, wenn du index.html änderst – dann lädt die App die neue Fassung.
-const CACHE = 'karteikasten-1.4.1'; // = APP_VERSION in index.html
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './img/cargo-holds.svg'];
+const CACHE = 'karteikasten-1.4.2'; // = APP_VERSION in index.html
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './img/cargo-holds.svg', './img/bow.svg', './img/stern.svg', './img/bulkhead.svg', './img/hatch-covers.svg', './img/double-bottom.svg', './img/engine-room.svg', './img/bridge.svg', './img/funnel.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
