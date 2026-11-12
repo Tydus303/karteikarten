@@ -165,6 +165,10 @@ ul.info li{margin:4px 0}
 .front-text.m{font-size:22px}.front-text.s{font-size:19px}
 .term{font-size:36px;font-weight:750;line-height:1.18;letter-spacing:-.015em;text-wrap:balance;overflow-wrap:anywhere;hyphens:auto;-webkit-hyphens:auto}
 .term.m{font-size:29px}.term.s{font-size:24px}
+.card-img{display:block;width:100%;max-height:52%;min-height:0;flex:0 1 auto;object-fit:contain;margin-top:14px;border-radius:12px;cursor:zoom-in}
+.img-hint{font-size:12px;color:var(--muted);margin-top:4px}
+.face:has(.card-img) .example{margin-top:10px;font-size:15px}
+.zoom-img{display:block;width:100%;height:auto;border-radius:14px}
 .example{margin-top:22px;font-size:17px;line-height:1.45;color:var(--muted);max-width:30em}
 .example b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
 .swipe-hint{position:absolute;top:18px;z-index:3;font-weight:800;font-size:14px;letter-spacing:.06em;padding:6px 12px;border-radius:10px;border:2.5px solid currentColor;background:var(--surface);opacity:0;pointer-events:none}
@@ -452,6 +456,104 @@ const SEED_EN2 = { name: 'Englisch – Class Test 17.11.', cards: [
  ["Eine Gemeinsamkeit von X und Y ist …", "One thing X and Y have in common is …", ""],
  ["Beim Vergleich von X mit Y fällt auf, dass …", "When comparing X with Y, it becomes clear that …", ""]
 ]};
+const IMG_HOLDS = 'img/cargo-holds.svg';
+const SEED_EN3 = { name: 'Englisch – Ship Parts & Terms (EN)', cards: [
+ ["Where are the cargo holds of a ship – and what are they?", "cargo holds", "Large compartments below the main deck between bow and engine room, used for stowing cargo. Numbered from the bow (No 1) aft, separated by bulkheads, closed by hatch covers.", IMG_HOLDS],
+ ["The area in a ship that is used for stowing goods", "cargo hold", "Look at the picture: holds No 1 – No 5 (orange).", IMG_HOLDS],
+ ["The very front part of a ship", "bow", ""],
+ ["The rear part of a ship", "stern", ""],
+ ["The middle part of a ship", "amidships", "The maximum breadth is found in the amidships body."],
+ ["The widest part of a ship from one side to the other", "beam", "also: breadth (over all)"],
+ ["The depth of the ship below the waterline (waterline to keel)", "draught", "AE: draft – e.g. a draught of 14 metres"],
+ ["The length of a ship measured from bow to stern", "length overall (LOA)", "Lexa Maersk: 266 metres"],
+ ["The height from the waterline to the highest point of the ship", "air draft", "high on container vessels – important for bridges"],
+ ["The distance between the waterline and the main deck", "freeboard", "tankers: low freeboard, deep draft"],
+ ["The two main parts of a ship", "hull and machinery", ""],
+ ["The actual shell (body) of the ship", "hull", ""],
+ ["The parts of a ship that are located above the main deck", "superstructure", "bridge + accommodation; on a gearless ship nothing else"],
+ ["The uppermost continuous deck running over the whole length of the ship", "main deck", ""],
+ ["Steel construction providing strength to the ship's hull", "frames", ""],
+ ["Two layers of watertight hull surfaces with a space between the inner and outer shell", "double hull", "protects against leaks, e.g. on tankers"],
+ ["The space between the bottom of the ship and the floor of the cargo holds", "double bottom", "contains the ballast tanks"],
+ ["Tanks filled with seawater to balance the ship when the cargo weight is distributed unevenly", "ballast tanks", "located in the double bottom"],
+ ["The floor of a cargo hold (top of the double bottom)", "tank top", ""],
+ ["Vertical steel walls that separate the cargo holds from each other", "bulkheads", "very important on bulk carriers and tankers"],
+ ["A horizontal separation (extra deck) inside a cargo hold", "tween deck", "not needed on a container ship – containers are simply stacked"],
+ ["A vertical steel structure surrounding the opening of a cargo hatch", "hatch coaming", ""],
+ ["Steel lids that close the cargo hatches", "hatch covers", "mechanically operated → speedy cargo handling"],
+ ["Vertical guide rails in the hold of a container ship that fix the containers so no lashing is needed", "cell guides", ""],
+ ["Steel platforms on deck between container stacks where the crew lash the containers", "lashing bridges", ""],
+ ["Equipment to secure containers on deck", "lashing bars and twistlocks", ""],
+ ["Equipment and machinery on a ship for loading and discharging cargo", "cargo gear", "e.g. own cargo cranes"],
+ ["A ship without its own cargo cranes", "gearless (vessel)", "depends on shore cranes"],
+ ["The primary propulsion engine for generating power to move the ship", "main engine", "Lexa Maersk: 11,500 hp, up to 27 knots"],
+ ["Engines that create power for manoeuvring, steering, cargo handling and other services", "auxiliary engines (auxiliaries)", "generate power during port stays"],
+ ["Converts the rotation of the turning propeller shaft into electrical energy", "shaft generator", ""],
+ ["The room in which the main engine is located", "engine room", "usually at the stern below the superstructure"],
+ ["The rotating blades at the stern that push the ship through the water", "propeller", "Lexa Maersk: 6 blades, 35 tonnes"],
+ ["The device at the stern designed to steer the vessel", "rudder", ""],
+ ["A propeller in the bow that gives the ship sideways thrust", "bow thruster", "helps manoeuvring in port, ship can almost turn on the spot"],
+ ["A rounded bulge at the bow below the waterline that reduces the water resistance", "bulbous bow", ""],
+ ["The place from which the ship is navigated and steered", "(navigating) bridge", "on container ships positioned high / forward for a good view"],
+ ["Platforms extending from the bridge to the ship's sides, used by the master when mooring", "bridge wings", "he can look straight down the hull to the quay"],
+ ["The living quarters of the crew", "accommodation", "located under the bridge"],
+ ["The chimney of the ship through which exhaust gases leave", "funnel", ""],
+ ["A lifeboat that drops from a ramp into the water for quick evacuation", "free-fall lifeboat", ""],
+ ["Heavy device used to keep the ship from moving when it lies outside a port", "anchor", ""],
+ ["To fasten a ship at a berth with ropes", "to moor", "a LNG carrier moors at a berth"],
+ ["The wall in a port where ships lie alongside", "quay", ""],
+ ["The vessel moves stern first", "(moving) astern", ""],
+ ["The vessel moves bow first", "(moving) ahead", ""],
+ ["Unit of speed at sea: one nautical mile per hour", "knot", ""],
+ ["The time a ship spends in port for discharging and loading", "turn-round time", "large hatches reduce it to a minimum"],
+ ["A narrow raised walkway along the deck of a tanker", "catwalk", ""],
+ ["The connection point on a tanker where the shore hoses are connected", "manifold (station)", "pipes and valves on deck"],
+ ["Openings on deck that bring fresh air into the cargo spaces", "ventilation heads (vent heads)", "typical for RoRo and livestock carriers"],
+ ["A ramp-like slope on which vehicles drive on and off the ship", "ramp", "RoRo vessels"],
+ ["A figure that shows how full (bulky) or slim (pointed) the hull shape is", "block coefficient", "container ship: small · bulker: high"],
+ ["A bulker hold with sloping sides, so loose bulk cargo levels itself and cannot shift", "self-trimming hold", "hopper tanks below, wing tanks above"],
+ ["Cargo stowed in the hold outside the hatch opening, hard to reach from above", "understow", "modern MPP holds open completely → no understow"],
+ ["A ship that only carries containers; high superstructure, cell guides, lashing bridges", "(full) container vessel", ""],
+ ["A small container ship that distributes containers from hub ports to smaller ports", "feeder vessel", ""],
+ ["A ship with tween decks and own cranes that can carry many different cargo types", "multipurpose vessel (MPP)", ""],
+ ["A ship with very strong own cranes for extremely heavy and large cargo", "heavy lift vessel", "can have deep draft"],
+ ["A ship that can lower its deck under water so cargo floats on and off", "semi-submersible", "float-on / float-off"],
+ ["A ship carrying loose dry cargo such as coal, ore or grain; large hatches, bulky hull", "bulk carrier (bulker)", ""],
+ ["The largest type of bulk carrier, too big for the Suez/Panama Canal", "Capesize bulker", "e.g. 9 hatches"],
+ ["A bulk carrier specialised in iron ore", "ore carrier", ""],
+ ["A small cargo ship for coastal trade", "coaster", ""],
+ ["A tanker carrying unrefined oil", "crude (oil) carrier", ""],
+ ["A tanker carrying oil products from the refinery process", "product tanker", "e.g. diesel, gasoline"],
+ ["A tanker with many separate tanks for liquid chemicals", "chemical tanker", "parcels of e.g. 4,000 mts"],
+ ["A ship carrying liquefied natural gas in insulated tanks", "LNG carrier", ""],
+ ["A ship onto which vehicles are driven via a ramp", "RoRo vessel", "Roll-on / Roll-off"],
+ ["A RoRo ship built only for new cars and trucks", "PCTC", "Pure Car and Truck Carrier (PCC: Pure Car Carrier)"],
+ ["A combination of container ship and RoRo ship", "ConRo", ""],
+ ["A RoRo ship that also carries passengers (ferry)", "RoPax", ""],
+ ["A refrigerated ship for perishable cargo such as fruit, usually painted white", "reefer vessel", ""],
+ ["A ship carrying live animals", "livestock carrier", "also: cattle carrier"],
+ ["A small powerful boat that pulls or pushes ships in port", "tug (boat)", ""],
+ ["Provides marketing and sales, canvasses and books cargo, maintains contact with shippers, consignees and forwarders", "liner agent", ""],
+ ["Arranges berthing, bunkering, repairs, crew changes, ship's stores and spare parts for a vessel in port", "clearing agent", "port agent – organises the port call"],
+ ["Mediates between ship owners and charterers", "chartering broker", ""],
+ ["Brokers the sale and purchase of ships", "S&P broker", "Sale & Purchase broker"],
+ ["Manages vessels (crew, technical matters) on behalf of the owner", "ship management company", ""],
+ ["The company who really owns the ship, with the help of financers (banks) or own money", "ship owner", ""],
+ ["A company that offers transport services for cargo with own or chartered vessels", "carrier", ""],
+ ["Any person or organisation paying for its cargo to be shipped from one place to another", "shipper", ""],
+ ["The person or company that receives the cargo at the destination", "consignee", ""],
+ ["The party that hires a vessel from the ship owner", "charterer", ""],
+ ["Umbrella term for all contracts for the carriage of goods by sea", "contract of affreightment", ""],
+ ["Liner contract between carrier and shipper; freight paid per container/unit", "contract of carriage (CoC)", ""],
+ ["A vessel is hired for one voyage; freight is paid per ton of cargo", "voyage charter (V/C)", ""],
+ ["A vessel is hired for a period of time; the charterer pays hire per day", "time charter (T/C)", ""],
+ ["The daily payment for a vessel under a time charter", "hire", ""],
+ ["Document of title and receipt for the cargo shipped", "bill of lading (B/L)", ""],
+ ["Internationally standardised delivery terms in a sales contract", "Incoterms", "decide if exporter or importer contracts the carrier"],
+ ["Taking on fuel for the ship", "bunkering", ""],
+ ["To put a ship into a dock out of the water for repairs", "to dry-dock a vessel", ""],
+ ["Department that plans voyages, coordinates port calls and links ship and shore", "operations department", ""],
+]};
 const SEED_X1 = { name: "Geo – Arbeit 16.11.", cards: [
  ["Ein vollständiges Auf und Ab des Wassers (12 h 25 min)", "Tide", "Von niederdeutsch „Tid“ = Zeit"],
  ["Das Wasser steigt vom Niedrigwasser bis zum Hochwasser („läuft auf“)", "Flut", ""],
@@ -702,7 +804,7 @@ const SEED_X4 = { name: "LF4 – Arbeit 04.12.", cards: [
  ["Kredit der Bank, der durch das Schiff abgesichert ist", "Schiffshypothek", ""],
  ["Geld, das der Inhaber selbst ins Unternehmen einbringt", "Eigenkapital", ""]
 ]};
-const seedDeck = sd => ({ name: sd.name, cards: sd.cards.map(([front, back, example]) => ({ front, back, example })) });
+const seedDeck = sd => ({ name: sd.name, cards: sd.cards.map(([front, back, example, img]) => (img ? { front, back, example, img } : { front, back, example })) });
 
 const PROMPT = `Erstelle Karteikarten für meine Ausbildung zum Schifffahrtskaufmann (Berufsschule).
 Thema: [THEMA / LERNFELD HIER EINTRAGEN]
@@ -718,11 +820,11 @@ Antworte ausschließlich mit JSON in genau diesem Format:
 
 /* ---------- Daten ---------- */
 function makeCard(o) {
-  return { id: uid(), front: String(o.front).trim(), back: String(o.back).trim(), example: String(o.example || '').trim(),
+  return { id: uid(), front: String(o.front).trim(), back: String(o.back).trim(), example: String(o.example || '').trim(), ...(o.img ? { img: String(o.img) } : {}),
     box: Math.min(5, Math.max(1, parseInt(o.box) || 1)), due: Number(o.due) || 0, wrong: Number(o.wrong) || 0 };
 }
 function makeDeck(name, cards) { return { id: uid(), name: name.trim(), cards: cards.map(makeCard) }; }
-const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_X1, SEED_X2, SEED_X3, SEED_X4];
+const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X2, SEED_X3, SEED_X4];
 function freshDb() {
   return { decks: SEEDS_ALL().map(sd => { const x = seedDeck(sd); return makeDeck(x.name, x.cards); }), settings: { theme: 'auto', dir: 'normal' }, log: {} };
 }
@@ -753,7 +855,7 @@ if (!localStorage.getItem(KEY)) save();
 // Neue Startkarten in bestehende Daten übernehmen (Duplikate werden übersprungen)
 // Automatisch: sobald sich die Startkarten im Code ändern, werden neue Karten übernommen.
 const hashStr = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = (h * 33 + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
-const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_X1, SEED_X2, SEED_X3, SEED_X4];
+const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X2, SEED_X3, SEED_X4];
 const SEED_HASH = hashStr(JSON.stringify(SEEDS));
 if (db.settings.seedHash !== SEED_HASH) {
   importDecks(SEEDS.map(seedDeck));
@@ -781,12 +883,12 @@ function selectCards(d, sel) {
 /* ---------- Import / Export ---------- */
 const pick = (o, keys) => { for (const k of keys) if (o[k] != null && String(o[k]).trim() !== '') return String(o[k]); return ''; };
 function normCard(c) {
-  if (Array.isArray(c)) c = { front: c[0], back: c[1], example: c[2] };
+  if (Array.isArray(c)) c = { front: c[0], back: c[1], example: c[2], img: c[3] };
   if (!c || typeof c !== 'object') return null;
   return {
     front: pick(c, ['front','vorderseite','umschreibung','frage','question','definition']),
     back: pick(c, ['back','rueckseite','rückseite','begriff','fachbegriff','antwort','answer','term']),
-    example: pick(c, ['example','beispiel']),
+    example: pick(c, ['example','beispiel']), img: pick(c, ['img','image','bild']) || undefined,
     box: c.box, due: c.due, wrong: c.wrong
   };
 }
@@ -852,7 +954,7 @@ async function exportData(decks, filename, full) {
 }
 async function exportFile(decks, filename, full) {
   const data = { app: 'karteikasten', version: 1, exported: new Date().toISOString(), exams: full ? db.exams : undefined, log: full ? db.log : undefined,
-    decks: decks.map(d => ({ name: d.name, archived: d.archived || undefined, cards: d.cards.map(c => ({ front: c.front, back: c.back, example: c.example || undefined, box: c.box, due: c.due, wrong: c.wrong })) })) };
+    decks: decks.map(d => ({ name: d.name, archived: d.archived || undefined, cards: d.cards.map(c => ({ front: c.front, back: c.back, example: c.example || undefined, img: c.img || undefined, box: c.box, due: c.due, wrong: c.wrong })) })) };
   const json = JSON.stringify(data, null, 2);
   const file = new File([json], filename, { type: 'application/json' });
   if (matchMedia('(hover: none)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -1325,8 +1427,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.4.0';
+const APP_VERSION = '1.4.1';
 const CHANGELOG = [
+  ['1.4.1', 'Neuer Stapel „Englisch – Ship Parts & Terms (EN)“ (Schiffsteile, Schiffstypen, Fachbegriffe auf Englisch) · Karten können jetzt Bilder auf der Rückseite haben (antippen zum Vergrößern)'],
   ['1.4.0', 'Tagesziel mit Serie 🔥, Statistik-Seite (14 Tage, Trefferquote, Stapel) und neuer Lernmodus „Auswahl“ (Multiple Choice)'],
   ['1.3.1', 'Hinweis auf der Startseite: Karten können Fehler enthalten'],
   ['1.3.0', 'Lerncode-Sync: Fortschritt zusätzlich auf dem Server sichern und zwischen Geräten wechseln – ohne Konto'],
@@ -1466,7 +1569,8 @@ function showNext() {
   const term = `<div class="term ${sizeCls(c.back, 18, 30)}">${esc(c.back)}</div>`;
   const desc = `<div class="front-text ${sizeCls(c.front, 70, 130)}">${esc(c.front)}</div>`;
   $('#cf').innerHTML = S.dir === 'normal' ? desc : term;
-  $('#cb').innerHTML = (S.dir === 'normal' ? term : desc) + ex;
+  const pic = c.img ? `<img class="card-img" src="${esc(c.img)}" alt="Bild zur Lösung" draggable="false"><div class="img-hint">🔍 Bild antippen zum Vergrößern</div>` : '';
+  $('#cb').innerHTML = (S.dir === 'normal' ? term : desc) + pic + ex;
   const again = S.first.has(c.id);
   const tag = `<span class="dot b${c.box}"></span>Fach ${c.box}${again ? ' · Wiederholung' : ''}`;
   $('#tag-f').innerHTML = tag; $('#tag-b').innerHTML = tag;
@@ -1599,7 +1703,7 @@ function bindCard() {
   const card = $('#card'); let st = null;
   card.addEventListener('pointerdown', e => {
     if (!S || S.busy || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    st = { x: e.clientX, y: e.clientY, dx: 0, moved: false };
+    st = { x: e.clientX, y: e.clientY, dx: 0, moved: false, img: e.target.closest && e.target.closest('.card-img') };
     try { card.setPointerCapture(e.pointerId); } catch (_) {}
   });
   card.addEventListener('pointermove', e => {
@@ -1611,10 +1715,13 @@ function bindCard() {
   const snap = () => { card.style.transition = 'transform .25s cubic-bezier(.2,.8,.2,1)'; card.style.transform = ''; setHints(0); };
   card.addEventListener('pointerup', () => {
     if (!st) return; const s = st; st = null;
-    if (!s.moved) { flip(); return; }
+    if (!s.moved) { if (s.img && S.flipped) { zoomImg(s.img.getAttribute('src')); return; } flip(); return; }
     if (S.revealed && Math.abs(s.dx) > 90) rate(s.dx > 0); else snap();
   });
   card.addEventListener('pointercancel', () => { st = null; snap(); });
+}
+function zoomImg(src) {
+  openSheet(`<img class="zoom-img" src="${esc(src)}" alt="Bild zur Lösung"><div class="sheet-actions"><button class="btn primary" data-s="cancel">Schließen</button></div>`);
 }
 function finishSession() {
   const res = [...S.first.entries()], right = res.filter(([, k]) => k).length;
