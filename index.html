@@ -169,6 +169,8 @@ ul.info li{margin:4px 0}
 .img-hint{font-size:12px;color:var(--muted);margin-top:4px}
 .face:has(.card-img) #cb{width:100%}
 .face:has(.card-img) .example{margin-top:10px;font-size:15px}
+.speak{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;margin-left:10px;vertical-align:middle;border-radius:50%;border:1px solid var(--border);background:var(--surface2);font-size:19px;line-height:1;cursor:pointer;padding:0}
+.en-term{margin-top:10px;font-size:17px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap}.en-term b{color:var(--text)}
 .zoom-img{display:block;width:100%;height:auto;border-radius:14px}
 .example{margin-top:22px;font-size:17px;line-height:1.45;color:var(--muted);max-width:30em}
 .example b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
@@ -805,7 +807,7 @@ const SEED_X4 = { name: "LF4 – Arbeit 04.12.", cards: [
  ["Kredit der Bank, der durch das Schiff abgesichert ist", "Schiffshypothek", ""],
  ["Geld, das der Inhaber selbst ins Unternehmen einbringt", "Eigenkapital", ""]
 ]};
-const seedDeck = sd => ({ name: sd.name, cards: sd.cards.map(([front, back, example, img]) => (img ? { front, back, example, img } : { front, back, example })) });
+const seedDeck = sd => ({ name: sd.name, cards: sd.cards.map(([front, back, example, img, de]) => Object.assign({ front, back, example }, img ? { img } : {}, de ? { de } : {})) });
 
 const PROMPT = `Erstelle Karteikarten für meine Ausbildung zum Schifffahrtskaufmann (Berufsschule).
 Thema: [THEMA / LERNFELD HIER EINTRAGEN]
@@ -902,8 +904,107 @@ const IMG_BY_TERM = {
 };
 // Bilder per Fachbegriff an die Englisch-Karten hängen (nur wenn noch keins gesetzt ist)
 [SEED_EN2, SEED_EN3].forEach(sd => sd.cards.forEach(c => { if (!c[3] && IMG_BY_TERM[c[1]]) c[3] = IMG_BY_TERM[c[1]]; }));
+// Deutsche Fassung des Stapels „Englisch – Ship Parts & Terms (EN)“ (Schlüssel = englischer Fachbegriff)
+const DE_EN3 = {
+ "cargo holds": ["Wo liegen die Laderäume eines Schiffs – und was sind sie?", "Laderäume", "Große Räume unter dem Hauptdeck zwischen Bug und Maschinenraum zum Stauen der Ladung. Nummeriert vom Bug (Nr. 1) nach achtern, getrennt durch Schotten, verschlossen mit Lukendeckeln."],
+ "cargo hold": ["Der Bereich im Schiff, in dem Ladung gestaut wird", "Laderaum", "Siehe Bild: Laderäume Nr. 1 – Nr. 5 (orange)."],
+ "bow": ["Der vorderste Teil eines Schiffs", "Bug", ""],
+ "stern": ["Der hintere Teil eines Schiffs", "Heck", ""],
+ "amidships": ["Der mittlere Teil eines Schiffs", "mittschiffs", "Die größte Breite liegt mittschiffs."],
+ "beam": ["Die breiteste Stelle eines Schiffs von einer Seite zur anderen", "Breite", "auch: größte Breite (über alles)"],
+ "draught": ["Die Tiefe des Schiffs unter der Wasserlinie (Wasserlinie bis Kiel)", "Tiefgang", "z. B. 14 Meter Tiefgang"],
+ "length overall (LOA)": ["Die Länge eines Schiffs von Bug bis Heck", "Länge über alles (LüA)", "Lexa Maersk: 266 Meter"],
+ "air draft": ["Die Höhe von der Wasserlinie bis zum höchsten Punkt des Schiffs", "Höhe über der Wasserlinie", "bei Containerschiffen hoch – wichtig für Brücken"],
+ "freeboard": ["Der Abstand zwischen Wasserlinie und Hauptdeck", "Freibord", "Tanker: niedriger Freibord, großer Tiefgang"],
+ "hull and machinery": ["Die zwei Hauptteile eines Schiffs", "Schiffskörper und Maschinenanlage", ""],
+ "hull": ["Die eigentliche Hülle (der Körper) des Schiffs", "Schiffsrumpf / Schiffskörper", ""],
+ "superstructure": ["Die Teile eines Schiffs, die über dem Hauptdeck liegen", "Aufbauten", "Brücke + Wohnbereich; bei Schiffen ohne Ladegeschirr nichts weiter"],
+ "main deck": ["Das oberste durchgehende Deck über die ganze Schiffslänge", "Hauptdeck", ""],
+ "frames": ["Stahlkonstruktion, die dem Schiffsrumpf Festigkeit gibt", "Spanten", ""],
+ "double hull": ["Zwei wasserdichte Rumpfhüllen mit einem Zwischenraum zwischen Innen- und Außenhaut", "Doppelhülle", "schützt vor Lecks, z. B. bei Tankern"],
+ "double bottom": ["Der Raum zwischen Schiffsboden und Boden der Laderäume", "Doppelboden", "enthält die Ballasttanks"],
+ "ballast tanks": ["Tanks, die mit Seewasser gefüllt werden, um das Schiff bei ungleicher Ladungsverteilung auszugleichen", "Ballasttanks", "liegen im Doppelboden"],
+ "tank top": ["Der Boden eines Laderaums (Oberseite des Doppelbodens)", "Tankdecke", ""],
+ "bulkheads": ["Senkrechte Stahlwände, die die Laderäume voneinander trennen", "Schotten", "sehr wichtig bei Massengutschiffen und Tankern"],
+ "tween deck": ["Eine waagerechte Unterteilung (Zusatzdeck) in einem Laderaum", "Zwischendeck", "auf Containerschiffen nicht nötig – Container werden einfach gestapelt"],
+ "hatch coaming": ["Senkrechte Stahlkonstruktion rund um die Lukenöffnung", "Lukensüll", ""],
+ "hatch covers": ["Stahldeckel, die die Ladeluken verschließen", "Lukendeckel", "mechanisch betrieben → schneller Umschlag"],
+ "cell guides": ["Senkrechte Führungsschienen im Laderaum eines Containerschiffs, die die Container fixieren – kein Laschen nötig", "Zellgerüst / Führungsschienen", ""],
+ "lashing bridges": ["Stahlplattformen an Deck zwischen den Containerstapeln, von denen aus die Crew die Container lascht", "Laschbrücken", ""],
+ "lashing bars and twistlocks": ["Ausrüstung zum Sichern der Container an Deck", "Laschstangen und Twistlocks", ""],
+ "cargo gear": ["Ausrüstung und Maschinen an Bord zum Laden und Löschen", "Ladegeschirr", "z. B. eigene Ladekräne"],
+ "gearless (vessel)": ["Ein Schiff ohne eigene Ladekräne", "ohne Ladegeschirr", "ist auf die Kräne im Hafen angewiesen"],
+ "main engine": ["Der Hauptantriebsmotor, der die Kraft zur Fortbewegung des Schiffs erzeugt", "Hauptmaschine", "Lexa Maersk: 11.500 PS, bis 27 Knoten"],
+ "auxiliary engines (auxiliaries)": ["Motoren, die Strom für Manövrieren, Steuern, Ladungsumschlag und andere Dienste erzeugen", "Hilfsdiesel / Hilfsmaschinen", "erzeugen Strom während der Hafenliegezeit"],
+ "shaft generator": ["Wandelt die Drehung der Propellerwelle in elektrische Energie um", "Wellengenerator", ""],
+ "engine room": ["Der Raum, in dem sich die Hauptmaschine befindet", "Maschinenraum", "meist achtern unter den Aufbauten"],
+ "propeller": ["Die rotierenden Flügel am Heck, die das Schiff durchs Wasser schieben", "Propeller / Schiffsschraube", "Lexa Maersk: 6 Flügel, 35 Tonnen"],
+ "rudder": ["Die Vorrichtung am Heck zum Steuern des Schiffs", "Ruder", ""],
+ "bow thruster": ["Ein Propeller im Bug, der dem Schiff seitlichen Schub gibt", "Bugstrahlruder", "hilft beim Manövrieren im Hafen, Schiff dreht fast auf der Stelle"],
+ "bulbous bow": ["Eine runde Ausbuchtung am Bug unter der Wasserlinie, die den Wasserwiderstand verringert", "Wulstbug", ""],
+ "(navigating) bridge": ["Der Ort, von dem aus das Schiff navigiert und gesteuert wird", "(Kommando-)Brücke", "bei Containerschiffen hoch / weit vorne für gute Sicht"],
+ "bridge wings": ["Plattformen, die von der Brücke bis zu den Schiffsseiten reichen – der Kapitän nutzt sie beim Anlegen", "Brückennocken", "er sieht direkt am Rumpf hinunter zur Kaje"],
+ "accommodation": ["Die Wohnräume der Besatzung", "Wohnbereich / Unterkünfte", "unter der Brücke"],
+ "funnel": ["Der Schornstein des Schiffs, durch den die Abgase austreten", "Schornstein", ""],
+ "free-fall lifeboat": ["Ein Rettungsboot, das von einer Rampe ins Wasser fällt – für schnelle Evakuierung", "Freifall-Rettungsboot", ""],
+ "anchor": ["Schwere Vorrichtung, die das Schiff außerhalb eines Hafens an Ort und Stelle hält", "Anker", ""],
+ "to moor": ["Ein Schiff mit Leinen an einem Liegeplatz festmachen", "festmachen", "ein LNG-Tanker macht am Liegeplatz fest"],
+ "quay": ["Die Mauer im Hafen, an der Schiffe längsseits liegen", "Kai / Kaje", ""],
+ "(moving) astern": ["Das Schiff fährt mit dem Heck voran", "achteraus (fahren)", ""],
+ "(moving) ahead": ["Das Schiff fährt mit dem Bug voran", "voraus (fahren)", ""],
+ "knot": ["Geschwindigkeitseinheit auf See: eine Seemeile pro Stunde", "Knoten", ""],
+ "turn-round time": ["Die Zeit, die ein Schiff im Hafen zum Löschen und Laden braucht", "Hafenliegezeit / Umschlagzeit", "große Luken verkürzen sie auf ein Minimum"],
+ "catwalk": ["Ein schmaler erhöhter Laufsteg über das Deck eines Tankers", "Laufsteg (Catwalk)", ""],
+ "manifold (station)": ["Der Anschlusspunkt auf einem Tanker, an dem die Landschläuche angeschlossen werden", "Manifold (Ladeanschluss)", "Rohre und Ventile an Deck"],
+ "ventilation heads (vent heads)": ["Öffnungen an Deck, die frische Luft in die Laderäume bringen", "Lüfterköpfe", "typisch für RoRo- und Tiertransportschiffe"],
+ "ramp": ["Eine Schräge, über die Fahrzeuge an und von Bord fahren", "Rampe", "RoRo-Schiffe"],
+ "block coefficient": ["Eine Kennzahl, die zeigt, wie völlig (bauchig) oder schlank (spitz) die Rumpfform ist", "Blockkoeffizient", "Containerschiff: klein · Massengutschiff: hoch"],
+ "self-trimming hold": ["Laderaum eines Bulkers mit schrägen Seiten – loses Schüttgut verteilt sich selbst und kann nicht verrutschen", "selbsttrimmender Laderaum", "Hoppertanks unten, Topseitentanks oben"],
+ "understow": ["Ladung im Laderaum außerhalb der Lukenöffnung, von oben schwer erreichbar", "Unterstau", "moderne MPP-Laderäume öffnen sich ganz → kein Unterstau"],
+ "(full) container vessel": ["Ein Schiff, das nur Container transportiert; hohe Aufbauten, Zellgerüste, Laschbrücken", "Vollcontainerschiff", ""],
+ "feeder vessel": ["Ein kleines Containerschiff, das Container von großen Hub-Häfen in kleinere Häfen verteilt", "Feederschiff (Zubringer)", ""],
+ "multipurpose vessel (MPP)": ["Ein Schiff mit Zwischendecks und eigenen Kränen für viele verschiedene Ladungsarten", "Mehrzweckschiff (MPP)", ""],
+ "heavy lift vessel": ["Ein Schiff mit sehr starken eigenen Kränen für extrem schwere und große Ladung", "Schwergutschiff", "kann großen Tiefgang haben"],
+ "semi-submersible": ["Ein Schiff, das sein Deck unter Wasser absenken kann, sodass die Ladung auf- und abschwimmt", "Halbtaucher (Dockschiff)", "Float-on / Float-off"],
+ "bulk carrier (bulker)": ["Ein Schiff für lose trockene Ladung wie Kohle, Erz oder Getreide; große Luken, bauchiger Rumpf", "Massengutfrachter (Bulker)", ""],
+ "Capesize bulker": ["Der größte Massengutfrachter, zu groß für Suez- und Panamakanal", "Capesize-Bulker", "z. B. 9 Luken"],
+ "ore carrier": ["Ein Massengutfrachter speziell für Eisenerz", "Erzfrachter", ""],
+ "coaster": ["Ein kleines Frachtschiff für die Küstenfahrt", "Küstenmotorschiff (Kümo)", ""],
+ "crude (oil) carrier": ["Ein Tanker für unraffiniertes Öl", "Rohöltanker", ""],
+ "product tanker": ["Ein Tanker für Ölprodukte aus der Raffinerie", "Produktentanker", "z. B. Diesel, Benzin"],
+ "chemical tanker": ["Ein Tanker mit vielen getrennten Tanks für flüssige Chemikalien", "Chemikalientanker", "Partien von z. B. 4.000 t"],
+ "LNG carrier": ["Ein Schiff, das verflüssigtes Erdgas in isolierten Tanks transportiert", "Flüssiggastanker (LNG-Tanker)", ""],
+ "RoRo vessel": ["Ein Schiff, auf das Fahrzeuge über eine Rampe fahren", "RoRo-Schiff", "Roll-on / Roll-off"],
+ "PCTC": ["Ein RoRo-Schiff nur für Neuwagen und Lkw", "Autotransporter (PCTC)", "Pure Car and Truck Carrier (PCC: Pure Car Carrier)"],
+ "ConRo": ["Eine Kombination aus Containerschiff und RoRo-Schiff", "ConRo-Schiff", ""],
+ "RoPax": ["Ein RoRo-Schiff, das auch Passagiere befördert (Fähre)", "RoPax-Fähre", ""],
+ "reefer vessel": ["Ein Kühlschiff für verderbliche Ladung wie Obst, meist weiß gestrichen", "Kühlschiff", ""],
+ "livestock carrier": ["Ein Schiff, das lebende Tiere transportiert", "Tiertransportschiff", "auch: Viehtransporter"],
+ "tug (boat)": ["Ein kleines, sehr starkes Boot, das Schiffe im Hafen zieht oder schiebt", "Schlepper", ""],
+ "liner agent": ["Übernimmt Marketing und Vertrieb, akquiriert und bucht Ladung, hält Kontakt zu Verladern, Empfängern und Spediteuren", "Linienagent", ""],
+ "clearing agent": ["Organisiert Liegeplatz, Bunkern, Reparaturen, Crewwechsel, Proviant und Ersatzteile für ein Schiff im Hafen", "Klarierungsagent / Hafenagent", "organisiert den Hafenanlauf"],
+ "chartering broker": ["Vermittelt zwischen Reedern und Charterern", "Befrachtungsmakler", ""],
+ "S&P broker": ["Vermittelt den Kauf und Verkauf von Schiffen", "An- und Verkaufsmakler", "Sale & Purchase broker"],
+ "ship management company": ["Verwaltet Schiffe (Crew, Technik) im Auftrag des Eigners", "Schiffsmanagement-Gesellschaft", ""],
+ "ship owner": ["Das Unternehmen, dem das Schiff wirklich gehört – finanziert über Banken oder eigenes Geld", "Reeder / Schiffseigner", ""],
+ "carrier": ["Ein Unternehmen, das Transportleistungen mit eigenen oder gecharterten Schiffen anbietet", "Verfrachter", ""],
+ "shipper": ["Jede Person oder Organisation, die dafür bezahlt, dass ihre Ladung von A nach B verschifft wird", "Befrachter / Ablader", ""],
+ "consignee": ["Die Person oder Firma, die die Ladung am Zielort empfängt", "Empfänger", ""],
+ "charterer": ["Die Partei, die ein Schiff vom Reeder mietet", "Charterer", ""],
+ "contract of affreightment": ["Oberbegriff für alle Verträge über die Beförderung von Gütern auf See", "Seefrachtvertrag", ""],
+ "contract of carriage (CoC)": ["Linienvertrag zwischen Verfrachter und Befrachter; Fracht pro Container/Einheit", "Stückgutfrachtvertrag", ""],
+ "voyage charter (V/C)": ["Ein Schiff wird für eine Reise gemietet; Fracht pro Tonne Ladung", "Reisecharter", ""],
+ "time charter (T/C)": ["Ein Schiff wird für einen Zeitraum gemietet; der Charterer zahlt Miete pro Tag", "Zeitcharter", ""],
+ "hire": ["Die tägliche Zahlung für ein Schiff in der Zeitcharter", "Charterrate / Miete", ""],
+ "bill of lading (B/L)": ["Wertpapier und Empfangsbestätigung für die verschiffte Ladung", "Konnossement", ""],
+ "Incoterms": ["International standardisierte Lieferbedingungen im Kaufvertrag", "Incoterms", "legen fest, ob Exporteur oder Importeur den Verfrachter beauftragt"],
+ "bunkering": ["Treibstoff an Bord nehmen", "Bunkern", ""],
+ "to dry-dock a vessel": ["Ein Schiff zur Reparatur in ein Dock außerhalb des Wassers bringen", "ein Schiff ins Trockendock bringen", ""],
+ "operations department": ["Abteilung, die Reisen plant, Hafenanläufe koordiniert und Schiff und Land verbindet", "Operations-Abteilung", ""],
+};
+SEED_EN3.cards.forEach(c => { if (DE_EN3[c[1]]) c[4] = DE_EN3[c[1]]; });
 function makeCard(o) {
-  return { id: uid(), front: String(o.front).trim(), back: String(o.back).trim(), example: String(o.example || '').trim(), ...(o.img ? { img: String(o.img) } : {}),
+  return { id: uid(), front: String(o.front).trim(), back: String(o.back).trim(), example: String(o.example || '').trim(), ...(o.img ? { img: String(o.img) } : {}), ...(Array.isArray(o.de) && o.de[0] && o.de[1] ? { de: o.de.slice(0, 3).map(x => String(x || '')) } : {}),
     box: Math.min(5, Math.max(1, parseInt(o.box) || 1)), due: Number(o.due) || 0, wrong: Number(o.wrong) || 0 };
 }
 function makeDeck(name, cards) { return { id: uid(), name: name.trim(), cards: cards.map(makeCard) }; }
@@ -944,7 +1045,7 @@ if (db.settings.seedHash !== SEED_HASH) {
   importDecks(SEEDS.map(seedDeck));
   // Bilder auch an bereits vorhandene Karten hängen
   SEEDS.forEach(sd => { const dk = db.decks.find(x => x.name.toLowerCase() === sd.name.toLowerCase()); if (!dk) return;
-    sd.cards.forEach(([f, b, , img]) => { if (!img) return; const c = dk.cards.find(x => x.front === f && x.back === b); if (c && c.img !== img) c.img = img; }); });
+    sd.cards.forEach(([f, b, , img, de]) => { if (!img && !de) return; const c = dk.cards.find(x => x.front === f && x.back === b); if (!c) return; if (img) c.img = img; if (de) c.de = de; }); });
   db.settings.seedHash = SEED_HASH; save();
 }
 let persisted = null;
@@ -969,12 +1070,12 @@ function selectCards(d, sel) {
 /* ---------- Import / Export ---------- */
 const pick = (o, keys) => { for (const k of keys) if (o[k] != null && String(o[k]).trim() !== '') return String(o[k]); return ''; };
 function normCard(c) {
-  if (Array.isArray(c)) c = { front: c[0], back: c[1], example: c[2], img: c[3] };
+  if (Array.isArray(c)) c = { front: c[0], back: c[1], example: c[2], img: c[3], de: c[4] };
   if (!c || typeof c !== 'object') return null;
   return {
     front: pick(c, ['front','vorderseite','umschreibung','frage','question','definition']),
     back: pick(c, ['back','rueckseite','rückseite','begriff','fachbegriff','antwort','answer','term']),
-    example: pick(c, ['example','beispiel']), img: pick(c, ['img','image','bild']) || undefined,
+    example: pick(c, ['example','beispiel']), img: pick(c, ['img','image','bild']) || undefined, de: Array.isArray(c.de) ? c.de : undefined,
     box: c.box, due: c.due, wrong: c.wrong
   };
 }
@@ -1040,7 +1141,7 @@ async function exportData(decks, filename, full) {
 }
 async function exportFile(decks, filename, full) {
   const data = { app: 'karteikasten', version: 1, exported: new Date().toISOString(), exams: full ? db.exams : undefined, log: full ? db.log : undefined,
-    decks: decks.map(d => ({ name: d.name, archived: d.archived || undefined, cards: d.cards.map(c => ({ front: c.front, back: c.back, example: c.example || undefined, img: c.img || undefined, box: c.box, due: c.due, wrong: c.wrong })) })) };
+    decks: decks.map(d => ({ name: d.name, archived: d.archived || undefined, cards: d.cards.map(c => ({ front: c.front, back: c.back, example: c.example || undefined, img: c.img || undefined, de: c.de || undefined, box: c.box, due: c.due, wrong: c.wrong })) })) };
   const json = JSON.stringify(data, null, 2);
   const file = new File([json], filename, { type: 'application/json' });
   if (matchMedia('(hover: none)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -1459,6 +1560,7 @@ function viewDeck() {
   if (!ui.sel) ui.sel = st.due ? 'due' : 'all';
   const n = selectCards(d, ui.sel).length;
   const seg = (group, v, label) => `<button class="${ui[group] === v ? 'on' : ''}" data-act="${group}" data-v="${v}">${label}</button>`;
+  const segL = (v, label) => `<button class="${(d.lang || 'en') === v ? 'on' : ''}" data-act="lang" data-v="${v}">${label}</button>`;
   let hint = '';
   if (!st.total) hint = 'Füge zuerst Karten hinzu.';
   else if (ui.sel === 'due' && !n) hint = 'Heute ist nichts fällig. Lerne alle Karten oder komm morgen wieder.';
@@ -1467,6 +1569,8 @@ function viewDeck() {
       <h2>${esc(d.name)}${d.archived ? ' <span class="pill">Archiv</span>' : ''}</h2><button class="icon-btn" data-act="deck-menu" aria-label="Stapel-Optionen">${ic('more')}</button></div>
     ${boxesPanel(d)}
     <div class="panel"><div class="panel-title">Lernen</div>
+      ${d.cards.some(c => c.de) ? `<div class="seg">${segL('en', '🇬🇧 English')}${segL('de', '🇩🇪 Deutsch')}</div>
+      <div class="seg-caption">${(d.lang || 'en') === 'de' ? 'Karten auf Deutsch – englischer Begriff mit 🔊 auf der Rückseite' : 'Karten auf Englisch'}</div>` : ''}
       <div class="seg">${seg('dir', 'normal', 'Normal')}${seg('dir', 'reverse', 'Umgekehrt')}</div>
       <div class="seg-caption">${ui.dir === 'normal' ? 'Umschreibung → Fachbegriff' : 'Fachbegriff → Erklärung'}</div>
       <div class="seg">${seg('sel', 'due', `Fällig (${st.due})`)}${seg('sel', 'all', `Alle (${st.total})`)}${seg('sel', 'hard', `Schwierig (${st.hard})`)}</div>
@@ -1513,8 +1617,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.4.3';
+const APP_VERSION = '1.4.4';
 const CHANGELOG = [
+  ['1.4.4', '🔊 Aussprache-Button in den Englisch-Stapeln · Stapel „Ship Parts & Terms“ wahlweise auf Englisch oder Deutsch lernen (englischer Begriff mit 🔊 auf der Rückseite) · Eintippen akzeptiert jetzt jede Variante bei „A / B“'],
   ['1.4.3', 'Bilder für alle Schiffstypen (Merkmale orange markiert), weitere Schiffsteile, Maße (LOA, draught, freeboard, air draft) und Querschnitte (beam, tween deck, cell guides, double hull …) – rund 60 neue Bilder · Bilder auf der Karte jetzt in voller Breite'],
   ['1.4.2', 'Bilder für bow, stern, bulkheads, hatch covers, double bottom, engine room, bridge und funnel – das Teil ist jeweils orange markiert'],
   ['1.4.1', 'Neuer Stapel „Englisch – Ship Parts & Terms (EN)“ (Schiffsteile, Schiffstypen, Fachbegriffe auf Englisch) · Karten können jetzt Bilder auf der Rückseite haben (antippen zum Vergrößern)'],
@@ -1640,7 +1745,7 @@ function deckMenu() {
 let S = null;
 function startSession(d, ids, dir, mode) {
   if (document.activeElement) document.activeElement.blur();
-  S = { deckId: d.id, dir, mode, write: mode === 'write', mc: mode === 'mc', checked: false, verdict: false, queue: shuffle(ids.slice()), total: ids.length, first: new Map(), done: 0, current: null, flipped: false, revealed: false, busy: true };
+  S = { deckId: d.id, lang: d.cards.some(c => c.de) ? (d.lang || 'en') : 'en', en: /englisch|english/i.test(d.name), dir, mode, write: mode === 'write', mc: mode === 'mc', checked: false, verdict: false, queue: shuffle(ids.slice()), total: ids.length, first: new Map(), done: 0, current: null, flipped: false, revealed: false, busy: true };
   ui.view = 'learn'; render(); showNext();
 }
 const sizeCls = (t, m, s) => t.length > s ? 's' : t.length > m ? 'm' : '';
@@ -1653,12 +1758,15 @@ function showNext() {
   S.current = c; S.flipped = false; S.revealed = false;
   const card = $('#card'), inner = card.querySelector('.card-inner');
   inner.style.transition = 'none'; card.classList.remove('flipped');
-  const ex = c.example ? `<div class="example"><b>Beispiel</b>${esc(c.example)}</div>` : '';
-  const term = `<div class="term ${sizeCls(c.back, 18, 30)}">${esc(c.back)}</div>`;
-  const desc = `<div class="front-text ${sizeCls(c.front, 70, 130)}">${esc(c.front)}</div>`;
+  const de = S.lang === 'de' && c.de, F = cardF(c), B = cardB(c), E = de ? c.de[2] : c.example;
+  const spk = S.en ? `<button type="button" class="speak" data-say="${esc(c.back)}" aria-label="Aussprache anhören" title="Aussprache anhören">🔊</button>` : '';
+  const ex = E ? `<div class="example"><b>Beispiel</b>${esc(E)}</div>` : '';
+  const term = `<div class="term ${sizeCls(B, 18, 30)}">${esc(B)}${de ? '' : spk}</div>`;
+  const desc = `<div class="front-text ${sizeCls(F, 70, 130)}">${esc(F)}</div>`;
+  const enLine = de ? `<div class="en-term">EN: <b>${esc(c.back)}</b>${spk}</div>` : '';
   $('#cf').innerHTML = S.dir === 'normal' ? desc : term;
   const pic = c.img ? `<img class="card-img" src="${esc(c.img)}" alt="Bild zur Lösung" draggable="false"><div class="img-hint">🔍 Bild antippen zum Vergrößern</div>` : '';
-  $('#cb').innerHTML = (S.dir === 'normal' ? term : desc) + pic + ex;
+  $('#cb').innerHTML = (S.dir === 'normal' ? term : desc) + enLine + pic + ex;
   const again = S.first.has(c.id);
   const tag = `<span class="dot b${c.box}"></span>Fach ${c.box}${again ? ' · Wiederholung' : ''}`;
   $('#tag-f').innerHTML = tag; $('#tag-b').innerHTML = tag;
@@ -1685,7 +1793,7 @@ function showNext() {
 const normA = s => String(s || '').toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
   .replace(/[^a-z0-9& ]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/^(der|die|das|ein|eine) /, '');
 function variants(term) {
-  const v = new Set([term]), m = term.match(/^(.*?)(\S+)\s*\(([^)]+)\)(.*)$/);
+  const v = new Set([term, ...term.split(/\s+\/\s+/)]), m = term.match(/^(.*?)(\S+)\s*\(([^)]+)\)(.*)$/);
   if (m) { v.add(m[1] + m[2] + m[4]); v.add(m[1] + m[3] + m[4]); v.add(m[3]); }
   return [...v].map(normA).filter(Boolean);
 }
@@ -1697,6 +1805,18 @@ function lev(a, b) {
     prev = cur;
   }
   return prev[b.length];
+}
+const cardF = c => (S && S.lang === 'de' && c.de) ? c.de[0] : c.front;
+const cardB = c => (S && S.lang === 'de' && c.de) ? c.de[1] : c.back;
+function speak(text) {
+  try {
+    const synth = window.speechSynthesis; if (!synth) throw 0;
+    const u = new SpeechSynthesisUtterance(String(text).replace(/\s+[–-]\s+.*$/, '').replace(/[()]/g, ''));
+    u.lang = 'en-GB'; u.rate = .9;
+    const vs = synth.getVoices(), v = vs.find(x => x.lang === 'en-GB') || vs.find(x => /^en/i.test(x.lang));
+    if (v) u.voice = v;
+    synth.cancel(); synth.speak(u);
+  } catch (e) { toast('Vorlesen wird auf diesem Gerät nicht unterstützt'); }
 }
 function judge(input, term) {
   const a = normA(input); if (!a) return 'wrong';
@@ -1712,7 +1832,7 @@ function checkAnswer() {
   S.checked = true;
   const shown = input ? esc(input) : '<i>keine Antwort</i>';
   if (S.dir === 'normal') {
-    const r = judge(input, c.back);
+    const r = judge(input, cardB(c));
     S.verdict = r !== 'wrong';
     const txt = r === 'right' ? '✓ Richtig' : r === 'typo' ? '✓ Fast richtig – Schreibweise prüfen' : '✗ Leider falsch';
     $('#verdict').innerHTML = `<span class="v-text ${S.verdict ? 't-good' : 't-bad'}">${txt}</span><button type="button" class="btn" data-act="override">${S.verdict ? 'Doch falsch' : 'Doch gewusst'}</button>`;
@@ -1728,7 +1848,7 @@ function checkAnswer() {
 }
 /* Auswahl-Modus */
 function renderMc(d, c) {
-  const ans = x => S.dir === 'normal' ? x.back : x.front;
+  const ans = x => S.dir === 'normal' ? cardB(x) : cardF(x);
   const right = ans(c), seen = new Set([normA(right)]);
   const pool = shuffle(d.cards.filter(x => x.id !== c.id)).map(ans).filter(a => { const k = normA(a); if (!k || seen.has(k)) return false; seen.add(k); return true; });
   S.mcOpts = shuffle([right, ...pool.slice(0, 3)]);
@@ -1791,7 +1911,7 @@ function bindCard() {
   const card = $('#card'); let st = null;
   card.addEventListener('pointerdown', e => {
     if (!S || S.busy || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    st = { x: e.clientX, y: e.clientY, dx: 0, moved: false, img: e.target.closest && e.target.closest('.card-img') };
+    st = { x: e.clientX, y: e.clientY, dx: 0, moved: false, img: e.target.closest && e.target.closest('.card-img'), spk: e.target.closest && e.target.closest('.speak') };
     try { card.setPointerCapture(e.pointerId); } catch (_) {}
   });
   card.addEventListener('pointermove', e => {
@@ -1803,7 +1923,7 @@ function bindCard() {
   const snap = () => { card.style.transition = 'transform .25s cubic-bezier(.2,.8,.2,1)'; card.style.transform = ''; setHints(0); };
   card.addEventListener('pointerup', () => {
     if (!st) return; const s = st; st = null;
-    if (!s.moved) { if (s.img && S.flipped) { zoomImg(s.img.getAttribute('src')); return; } flip(); return; }
+    if (!s.moved) { if (s.spk) { speak(s.spk.dataset.say); return; } if (s.img && S.flipped) { zoomImg(s.img.getAttribute('src')); return; } flip(); return; }
     if (S.revealed && Math.abs(s.dx) > 90) rate(s.dx > 0); else snap();
   });
   card.addEventListener('pointercancel', () => { st = null; snap(); });
@@ -1837,6 +1957,7 @@ const actions = {
     const d = makeDeck(name, []); db.decks.push(d); save(); ui.deckId = d.id; ui.sel = null; ui.search = ''; ui.view = 'deck'; render(); }); },
   'deck-menu'() { deckMenu(); },
   dir(el) { ui.dir = db.settings.dir = el.dataset.v; save(); render(); },
+  lang(el) { const d = deck(); if (d) { d.lang = el.dataset.v; save(); render(); } },
   sel(el) { ui.sel = el.dataset.v; render(); },
   start() { const d = deck(), ids = selectCards(d, ui.sel).map(c => c.id); if (ids.length) startSession(d, ids, ui.dir, ui.mode); },
   mode(el) { ui.mode = db.settings.mode = el.dataset.v; save(); render(); },

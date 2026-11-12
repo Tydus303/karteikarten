@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.4.4** – 🔊 Aussprache-Button in den Englisch-Stapeln · Stapel „Ship Parts & Terms“ wahlweise auf Englisch oder Deutsch · Eintippen akzeptiert Varianten bei „A / B“
 - **1.4.3** – Bilder für alle Schiffstypen (Merkmale orange markiert), weitere Schiffsteile, Maße und Querschnitte – rund 60 neue Bilder
 - **1.4.2** – Bilder für bow, stern, bulkheads, hatch covers, double bottom, engine room, bridge und funnel (Teil jeweils orange markiert)
 - **1.4.1** – Neuer Stapel „Englisch – Ship Parts & Terms (EN)“ mit Schiffsteilen, Schiffstypen und Fachbegriffen auf Englisch · Karten können Bilder auf der Rückseite haben (z. B. Laderäume), antippen zum Vergrößern
