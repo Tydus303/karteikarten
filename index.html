@@ -155,7 +155,7 @@ ul.info li{margin:4px 0}
 .card{position:relative;width:100%;height:100%;max-height:480px;perspective:1600px;-webkit-perspective:1600px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:pointer;will-change:transform}
 .card-inner{position:absolute;inset:0;transition:transform .6s cubic-bezier(.2,.75,.25,1);transform-style:preserve-3d;-webkit-transform-style:preserve-3d}
 .card.flipped .card-inner{transform:rotateY(180deg)}
-.face{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;background:var(--surface);border:1px solid var(--border);border-radius:26px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 26px 40px;text-align:center}
+.face{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;background:var(--surface);border:1px solid var(--border);border-radius:26px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:safe center;overflow:hidden;padding:44px 26px 40px;text-align:center}
 .face.front{transform:rotateY(0deg)}
 .face.back{transform:rotateY(180deg)}
 .tag{position:absolute;top:16px;left:18px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.02em}
@@ -165,7 +165,8 @@ ul.info li{margin:4px 0}
 .front-text.m{font-size:22px}.front-text.s{font-size:19px}
 .term{font-size:36px;font-weight:750;line-height:1.18;letter-spacing:-.015em;text-wrap:balance;overflow-wrap:anywhere;hyphens:auto;-webkit-hyphens:auto}
 .term.m{font-size:29px}.term.s{font-size:24px}
-.card-img{display:block;width:100%;max-height:30vh;min-height:0;flex:0 1 auto;object-fit:contain;margin-top:14px;border-radius:12px;cursor:zoom-in}
+#cf,#cb{display:flex;flex-direction:column;align-items:center;width:100%;min-height:0;max-height:100%}
+.card-img{display:block;width:100%;max-height:30vh;min-height:70px;flex:0 1 auto;object-fit:contain;margin-top:14px;border-radius:12px;cursor:zoom-in}
 .img-hint{font-size:12px;color:var(--muted);margin-top:4px}
 .face:has(.card-img) #cb{width:100%}
 .face:has(.card-img) .example{margin-top:10px;font-size:15px}
@@ -187,9 +188,12 @@ ul.info li{margin:4px 0}
 @media (hover:none){.kbd-hint{display:none}}
 /* Schreib-Modus */
 .hidden{display:none!important}
-.learn.write .card{max-height:340px}
+.learn.write .card{max-height:340px;transition:max-height .3s}
+.learn.write .card.flipped{max-height:480px}
 .answer{display:flex;gap:10px}
-.answer input{flex:1;min-width:0;font-size:18px;min-height:56px;border-radius:16px}
+.answer input,.answer textarea{flex:1;min-width:0;font-size:18px;min-height:56px;border-radius:16px}
+.answer textarea{resize:none;max-height:150px;line-height:1.35}
+.answer .btn{align-self:flex-end}
 .answer .btn{min-height:56px;border-radius:16px;flex:none}
 .verdict{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-weight:700}
 .verdict:empty{display:none}
@@ -429,7 +433,7 @@ const SEED_EN2 = { name: 'Englisch – Class Test 17.11.', cards: [
 ]};
 const IMG_HOLDS = 'img/cargo-holds.svg';
 const SEED_EN3 = { name: 'Englisch – Ship Parts & Terms (EN)', cards: [
- ["Where are the cargo holds of a ship – and what are they?", "cargo holds", "Large compartments below the main deck between bow and engine room, used for stowing cargo. Numbered from the bow (No 1) aft, separated by bulkheads, closed by hatch covers.", IMG_HOLDS],
+ ["Where are the cargo holds of a ship – and what are they?", "cargo holds", "Large compartments below the main deck, between bow and engine room – used for storing cargo.", IMG_HOLDS],
  ["The area in a ship that is used for stowing goods", "cargo hold", "Look at the picture: holds No 1 – No 5 (orange).", IMG_HOLDS],
  ["The very front part of a ship", "bow", "", 'img/bow.svg'],
  ["The rear part of a ship", "stern", "", 'img/stern.svg'],
@@ -854,7 +858,7 @@ const IMG_BY_TERM = {
 [SEED_EN2, SEED_EN3].forEach(sd => sd.cards.forEach(c => { if (!c[3] && IMG_BY_TERM[c[1]]) c[3] = IMG_BY_TERM[c[1]]; }));
 // Deutsche Fassung des Stapels „Englisch – Ship Parts & Terms (EN)“ (Schlüssel = englischer Fachbegriff)
 const DE_EN3 = {
- "cargo holds": ["Wo liegen die Laderäume eines Schiffs – und was sind sie?", "Laderäume", "Große Räume unter dem Hauptdeck zwischen Bug und Maschinenraum zum Stauen der Ladung. Nummeriert vom Bug (Nr. 1) nach achtern, getrennt durch Schotten, verschlossen mit Lukendeckeln."],
+ "cargo holds": ["Wo liegen die Laderäume eines Schiffs – und was sind sie?", "Laderäume", "Große Räume unter dem Hauptdeck, zwischen Bug und Maschinenraum – zum Stauen der Ladung."],
  "cargo hold": ["Der Bereich im Schiff, in dem Ladung gestaut wird", "Laderaum", "Siehe Bild: Laderäume Nr. 1 – Nr. 5 (orange)."],
  "bow": ["Der vorderste Teil eines Schiffs", "Bug", ""],
  "stern": ["Der hintere Teil eines Schiffs", "Heck", ""],
@@ -1001,6 +1005,9 @@ if (db.settings.seedHash !== SEED_HASH) {
     sd.cards.forEach(([f, b, , img, de]) => { if (!img && !de) return; const c = dk.cards.find(x => x.front === f && x.back === b); if (!c) return; if (img) c.img = img; if (de) c.de = de; }); });
   // Dopplungen entfernen: Schiffsteile/-typen nur in „Ship Parts & Terms“, alles andere nur im „Class Test“
   Object.entries(DUP_REMOVED).forEach(([name, fronts]) => { const dk = db.decks.find(x => x.name === name); if (dk) dk.cards = dk.cards.filter(c => !fronts.includes(c.front)); });
+  // Gekürzte Antworttexte auch in gespeicherte Karten übernehmen (nur wenn noch der alte Text drinsteht)
+  const EX_UPDATED = { "Large compartments below the main deck between bow and engine room, used for stowing cargo. Numbered from the bow (No 1) aft, separated by bulkheads, closed by hatch covers.": "Large compartments below the main deck, between bow and engine room – used for storing cargo." };
+  db.decks.forEach(dk => dk.cards.forEach(c => { if (EX_UPDATED[c.example]) c.example = EX_UPDATED[c.example]; }));
   db.settings.seedHash = SEED_HASH; save();
 }
 let persisted = null;
@@ -1552,7 +1559,7 @@ function viewLearn() {
         <div class="face back"><span class="tag" id="tag-b"></span><div id="cb"></div></div>
       </div></div></div>
     ${w ? `<div class="verdict" id="verdict"></div>
-    <form class="answer" id="answer" autocomplete="off"><input id="ans" type="text" placeholder="${S.dir === 'normal' ? 'Fachbegriff eintippen …' : 'Erklärung eintippen …'}" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="btn primary" id="ans-btn">Prüfen</button></form>` : ''}
+    <form class="answer" id="answer" autocomplete="off">${S.dir === 'normal' ? '<input id="ans" type="text" placeholder="Fachbegriff eintippen …" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">' : '<textarea id="ans" rows="3" placeholder="Erklärung eintippen … (eigene Worte reichen)" autocapitalize="sentences" spellcheck="false" enterkeyhint="go"></textarea>'}<button class="btn primary" id="ans-btn">Prüfen</button></form>` : ''}
     ${m ? '<div class="mc" id="mc"></div>' : ''}
     <div class="rate off ${w || m ? 'hidden' : ''}" id="rate"><button class="r-bad" data-act="rate" data-v="0">Nicht gewusst</button><button class="r-good" data-act="rate" data-v="1">Gewusst</button></div>
     <div class="kbd-hint">${w ? 'Enter: prüfen, dann weiter' : m ? 'Tasten 1–4: auswählen · Enter: weiter' : 'Leertaste: umdrehen · ← nicht gewusst · → gewusst'}</div>
@@ -1572,8 +1579,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.4.5';
+const APP_VERSION = '1.4.6';
 const CHANGELOG = [
+  ['1.4.6', 'Karten mit Bild: Text und Bild passen sich der Karte an und bleiben mittig (nichts wird mehr oben/unten abgeschnitten) · Eintippen „Umgekehrt“: größeres, mehrzeiliges Feld für Erklärungen (Shift+Enter = neue Zeile) · „cargo holds“: Antwort auf das Wesentliche gekürzt'],
   ['1.4.5', 'Englisch: keine doppelten Karten mehr – Schiffsteile und Schiffstypen nur noch in „Ship Parts & Terms“, Firmen, Verträge, Dokumente und Sätze nur noch im „Class Test“ (bunkering dorthin verschoben)'],
   ['1.4.4', '🔊 Aussprache-Button in den Englisch-Stapeln · Stapel „Ship Parts & Terms“ wahlweise auf Englisch oder Deutsch lernen (englischer Begriff mit 🔊 auf der Rückseite) · Eintippen akzeptiert jetzt jede Variante bei „A / B“'],
   ['1.4.3', 'Bilder für alle Schiffstypen (Merkmale orange markiert), weitere Schiffsteile, Maße (LOA, draught, freeboard, air draft) und Querschnitte (beam, tween deck, cell guides, double hull …) – rund 60 neue Bilder · Bilder auf der Karte jetzt in voller Breite'],
@@ -1736,7 +1744,7 @@ function showNext() {
   if (S.write) {
     S.checked = false; S.verdict = false;
     const ans = $('#ans');
-    ans.value = ''; $('#ans-btn').textContent = 'Prüfen'; $('#verdict').innerHTML = '';
+    ans.value = ''; ans.style.height = ''; $('#ans-btn').textContent = 'Prüfen'; $('#verdict').innerHTML = '';
     $('#answer').classList.remove('hidden'); $('#rate').classList.add('hidden');
     ans.focus({ preventScroll: true });
   }
@@ -1954,6 +1962,7 @@ $('#app').addEventListener('click', e => {
   if (el && !el.disabled && actions[el.dataset.act]) actions[el.dataset.act](el, e);
 });
 $('#app').addEventListener('input', e => {
+  if (e.target.id === 'ans' && e.target.tagName === 'TEXTAREA') { e.target.style.height = ''; e.target.style.height = Math.min(e.target.scrollHeight + 2, 150) + 'px'; }
   if (e.target.id === 'search') { ui.search = e.target.value; const d = deck(); if (d) $('#card-list').innerHTML = cardListHtml(d); }
 });
 $('#app').addEventListener('submit', e => { e.preventDefault(); checkAnswer(); });
@@ -1964,6 +1973,7 @@ $('#app').addEventListener('change', async e => {
   }
 });
 document.addEventListener('keydown', e => {
+  if (e.target.id === 'ans' && e.target.tagName === 'TEXTAREA' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); checkAnswer(); return; }
   if (sheetEl) { if (e.key === 'Escape') closeSheet(); return; }
   if (ui.view !== 'learn' || !S || e.target.matches('input, textarea')) return;
   if (S.write && e.key === 'Enter') { e.preventDefault(); if (!S.checked || S.dir === 'normal') checkAnswer(); return; }

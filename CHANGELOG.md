@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.4.6** – Karten mit Bild: Text und Bild passen sich der Karte an und bleiben mittig (nichts wird mehr oben/unten abgeschnitten) · Eintippen „Umgekehrt“: größeres, mehrzeiliges Feld für Erklärungen (Shift+Enter = neue Zeile) · „cargo holds“: Antwort auf das Wesentliche gekürzt
 - **1.4.5** – Englisch: keine doppelten Karten mehr – Schiffsteile und Schiffstypen nur noch in „Ship Parts & Terms“, Firmen, Verträge, Dokumente und Sätze nur noch im „Class Test“ (bunkering dorthin verschoben)
 - **1.4.4** – 🔊 Aussprache-Button in den Englisch-Stapeln · Stapel „Ship Parts & Terms“ wahlweise auf Englisch oder Deutsch · Eintippen akzeptiert Varianten bei „A / B“
 - **1.4.3** – Bilder für alle Schiffstypen (Merkmale orange markiert), weitere Schiffsteile, Maße und Querschnitte – rund 60 neue Bilder
