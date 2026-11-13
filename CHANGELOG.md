@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.4.5** – Englisch: keine doppelten Karten mehr – Schiffsteile und Schiffstypen nur noch in „Ship Parts & Terms“, Firmen, Verträge, Dokumente und Sätze nur noch im „Class Test“ (bunkering dorthin verschoben)
 - **1.4.4** – 🔊 Aussprache-Button in den Englisch-Stapeln · Stapel „Ship Parts & Terms“ wahlweise auf Englisch oder Deutsch · Eintippen akzeptiert Varianten bei „A / B“
 - **1.4.3** – Bilder für alle Schiffstypen (Merkmale orange markiert), weitere Schiffsteile, Maße und Querschnitte – rund 60 neue Bilder
 - **1.4.2** – Bilder für bow, stern, bulkheads, hatch covers, double bottom, engine room, bridge und funnel (Teil jeweils orange markiert)

@@ -409,15 +409,7 @@ const SEED_EN2 = { name: 'Englisch – Class Test 17.11.', cards: [
  ["Außenhandel", "foreign trade", ""],
  ["Überkapazitäten", "overcapacities", ""],
  ["ein Schiff ins Trockendock bringen / im Trockendock", "to dry-dock a vessel / dry-docked", ""],
- ["Containerschiff", "container vessel", ""],
- ["Vollcontainerschiff", "full container vessel", ""],
- ["Mehrzweckschiff", "multi-purpose vessel", ""],
- ["Schwergutschiff", "heavy-lift ship", ""],
- ["Massengutfrachter", "bulk carrier", ""],
- ["Rohöltanker", "crude oil tanker", ""],
- ["Flüssiggastanker", "LNG carrier", ""],
- ["Chemietanker", "chemical tanker", ""],
- ["RoRo-Schiff", "RoRo vessel", "Roll-on/Roll-off"],
+ ["Bunkern (Treibstoff an Bord nehmen)", "bunkering", ""],
  ["Ein Containerschiff durchquert einen Kanal.", "A container vessel passes through a canal.", ""],
  ["Ein Schwergutschiff läuft einen Hafen an.", "A heavy-lift ship calls at a port.", ""],
  ["Ein Massengutfrachter wird beladen.", "A bulk carrier gets loaded.", ""],
@@ -425,30 +417,6 @@ const SEED_EN2 = { name: 'Englisch – Class Test 17.11.', cards: [
  ["Ein Flüssiggastanker legt am Liegeplatz an.", "An LNG carrier moors at a berth.", ""],
  ["Ein Chemietanker nutzt eine Schleuse.", "A chemical tanker uses a lock.", ""],
  ["ein RoRo-Schiff im Hafen manövrieren", "to maneuver a RoRo vessel in the port", ""],
- ["Tiefgang", "draught", ""],
- ["Breite (eines Schiffs)", "beam", ""],
- ["Bug / Heck", "bow / stern", ""],
- ["Propeller / Schiffsschraube", "propeller", ""],
- ["Ruder", "rudder", ""],
- ["Hauptmaschine", "main engine", ""],
- ["Hilfsdiesel / Hilfsmaschine", "auxiliary engine", "generates power during port stays"],
- ["Laderaum", "cargo hold", ""],
- ["Zellgerüst / Führungsschienen für Container", "cell guides", "fix the containers in the hold, no lashing needed"],
- ["Zwischendeck", "tween deck", "horizontal separation of a cargo hold"],
- ["Schott", "bulkhead", ""],
- ["Lukendeckel", "hatch cover", ""],
- ["Laschstangen und Twistlocks", "lashing bars and twistlocks", "secure containers on deck"],
- ["Brücke", "bridge", ""],
- ["Brückennock", "bridge wing", "the master looks down the hull when mooring"],
- ["Wohnbereich der Besatzung", "accommodation", ""],
- ["Doppelboden", "double bottom", ""],
- ["Ballasttanks", "ballast tanks", "balance the ship"],
- ["Anker", "anchor", ""],
- ["Bugstrahlruder", "bow thruster", "helps manoeuvring in port"],
- ["Aufbauten", "superstructure", ""],
- ["ohne eigenes Ladegeschirr", "gearless", ""],
- ["Freifall-Rettungsboot", "free-fall lifeboat", ""],
- ["Kai", "quay", ""],
  ["Im Vergleich zu …", "In comparison to … / Compared to …", ""],
  ["Anders als …", "Unlike …", ""],
  ["Im Gegensatz zu …", "In contrast to …", ""],
@@ -536,26 +504,6 @@ const SEED_EN3 = { name: 'Englisch – Ship Parts & Terms (EN)', cards: [
  ["A refrigerated ship for perishable cargo such as fruit, usually painted white", "reefer vessel", ""],
  ["A ship carrying live animals", "livestock carrier", "also: cattle carrier"],
  ["A small powerful boat that pulls or pushes ships in port", "tug (boat)", ""],
- ["Provides marketing and sales, canvasses and books cargo, maintains contact with shippers, consignees and forwarders", "liner agent", ""],
- ["Arranges berthing, bunkering, repairs, crew changes, ship's stores and spare parts for a vessel in port", "clearing agent", "port agent – organises the port call"],
- ["Mediates between ship owners and charterers", "chartering broker", ""],
- ["Brokers the sale and purchase of ships", "S&P broker", "Sale & Purchase broker"],
- ["Manages vessels (crew, technical matters) on behalf of the owner", "ship management company", ""],
- ["The company who really owns the ship, with the help of financers (banks) or own money", "ship owner", ""],
- ["A company that offers transport services for cargo with own or chartered vessels", "carrier", ""],
- ["Any person or organisation paying for its cargo to be shipped from one place to another", "shipper", ""],
- ["The person or company that receives the cargo at the destination", "consignee", ""],
- ["The party that hires a vessel from the ship owner", "charterer", ""],
- ["Umbrella term for all contracts for the carriage of goods by sea", "contract of affreightment", ""],
- ["Liner contract between carrier and shipper; freight paid per container/unit", "contract of carriage (CoC)", ""],
- ["A vessel is hired for one voyage; freight is paid per ton of cargo", "voyage charter (V/C)", ""],
- ["A vessel is hired for a period of time; the charterer pays hire per day", "time charter (T/C)", ""],
- ["The daily payment for a vessel under a time charter", "hire", ""],
- ["Document of title and receipt for the cargo shipped", "bill of lading (B/L)", ""],
- ["Internationally standardised delivery terms in a sales contract", "Incoterms", "decide if exporter or importer contracts the carrier"],
- ["Taking on fuel for the ship", "bunkering", ""],
- ["To put a ship into a dock out of the water for repairs", "to dry-dock a vessel", ""],
- ["Department that plans voyages, coordinates port calls and links ship and shore", "operations department", ""],
 ]};
 const SEED_X1 = { name: "Geo – Arbeit 16.11.", cards: [
  ["Ein vollständiges Auf und Ab des Wassers (12 h 25 min)", "Tide", "Von niederdeutsch „Tid“ = Zeit"],
@@ -1039,6 +987,11 @@ if (!localStorage.getItem(KEY)) save();
 // Neue Startkarten in bestehende Daten übernehmen (Duplikate werden übersprungen)
 // Automatisch: sobald sich die Startkarten im Code ändern, werden neue Karten übernommen.
 const hashStr = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = (h * 33 + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+// Doppelte Karten, die aus dem jeweiligen Stapel entfernt wurden (auch aus gespeicherten Daten)
+const DUP_REMOVED = {
+  [SEED_EN2.name]: ["Containerschiff","Vollcontainerschiff","Mehrzweckschiff","Schwergutschiff","Massengutfrachter","Rohöltanker","Flüssiggastanker","Chemietanker","RoRo-Schiff","Tiefgang","Breite (eines Schiffs)","Bug / Heck","Propeller / Schiffsschraube","Ruder","Hauptmaschine","Hilfsdiesel / Hilfsmaschine","Laderaum","Zellgerüst / Führungsschienen für Container","Zwischendeck","Schott","Lukendeckel","Laschstangen und Twistlocks","Brücke","Brückennock","Wohnbereich der Besatzung","Doppelboden","Ballasttanks","Anker","Bugstrahlruder","Aufbauten","ohne eigenes Ladegeschirr","Freifall-Rettungsboot","Kai"],
+  [SEED_EN3.name]: ["Provides marketing and sales, canvasses and books cargo, maintains contact with shippers, consignees and forwarders","Arranges berthing, bunkering, repairs, crew changes, ship's stores and spare parts for a vessel in port","Mediates between ship owners and charterers","Brokers the sale and purchase of ships","Manages vessels (crew, technical matters) on behalf of the owner","The company who really owns the ship, with the help of financers (banks) or own money","A company that offers transport services for cargo with own or chartered vessels","Any person or organisation paying for its cargo to be shipped from one place to another","The person or company that receives the cargo at the destination","The party that hires a vessel from the ship owner","Umbrella term for all contracts for the carriage of goods by sea","Liner contract between carrier and shipper; freight paid per container/unit","A vessel is hired for one voyage; freight is paid per ton of cargo","A vessel is hired for a period of time; the charterer pays hire per day","The daily payment for a vessel under a time charter","Document of title and receipt for the cargo shipped","Internationally standardised delivery terms in a sales contract","Taking on fuel for the ship","To put a ship into a dock out of the water for repairs","Department that plans voyages, coordinates port calls and links ship and shore"]
+};
 const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X2, SEED_X3, SEED_X4];
 const SEED_HASH = hashStr(JSON.stringify(SEEDS));
 if (db.settings.seedHash !== SEED_HASH) {
@@ -1046,6 +999,8 @@ if (db.settings.seedHash !== SEED_HASH) {
   // Bilder auch an bereits vorhandene Karten hängen
   SEEDS.forEach(sd => { const dk = db.decks.find(x => x.name.toLowerCase() === sd.name.toLowerCase()); if (!dk) return;
     sd.cards.forEach(([f, b, , img, de]) => { if (!img && !de) return; const c = dk.cards.find(x => x.front === f && x.back === b); if (!c) return; if (img) c.img = img; if (de) c.de = de; }); });
+  // Dopplungen entfernen: Schiffsteile/-typen nur in „Ship Parts & Terms“, alles andere nur im „Class Test“
+  Object.entries(DUP_REMOVED).forEach(([name, fronts]) => { const dk = db.decks.find(x => x.name === name); if (dk) dk.cards = dk.cards.filter(c => !fronts.includes(c.front)); });
   db.settings.seedHash = SEED_HASH; save();
 }
 let persisted = null;
@@ -1617,8 +1572,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.4.4';
+const APP_VERSION = '1.4.5';
 const CHANGELOG = [
+  ['1.4.5', 'Englisch: keine doppelten Karten mehr – Schiffsteile und Schiffstypen nur noch in „Ship Parts & Terms“, Firmen, Verträge, Dokumente und Sätze nur noch im „Class Test“ (bunkering dorthin verschoben)'],
   ['1.4.4', '🔊 Aussprache-Button in den Englisch-Stapeln · Stapel „Ship Parts & Terms“ wahlweise auf Englisch oder Deutsch lernen (englischer Begriff mit 🔊 auf der Rückseite) · Eintippen akzeptiert jetzt jede Variante bei „A / B“'],
   ['1.4.3', 'Bilder für alle Schiffstypen (Merkmale orange markiert), weitere Schiffsteile, Maße (LOA, draught, freeboard, air draft) und Querschnitte (beam, tween deck, cell guides, double hull …) – rund 60 neue Bilder · Bilder auf der Karte jetzt in voller Breite'],
   ['1.4.2', 'Bilder für bow, stern, bulkheads, hatch covers, double bottom, engine room, bridge und funnel – das Teil ist jeweils orange markiert'],
