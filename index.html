@@ -886,6 +886,29 @@ const GEO_IMG = {
   "Nord-Ostsee-Kanal": "img/geo-nord-ostsee-kanal.svg",
   "Main-Donau-Kanal": "img/geo-main-donau-kanal.svg"
 };
+// Skizzen zu Tide, Gezeiten und tideabhängigen Hafentypen (erzeugt mit tools/tide-skizzen.py)
+Object.assign(GEO_IMG, {
+  "Tide": "img/tide-tide.svg",
+  "Flut": "img/tide-flut.svg",
+  "Ebbe": "img/tide-ebbe.svg",
+  "Hochwasser": "img/tide-hochwasser.svg",
+  "Niedrigwasser": "img/tide-niedrigwasser.svg",
+  "Tidenhub": "img/tide-tidenhub.svg",
+  "Flutstrom": "img/tide-flutstrom.svg",
+  "Ebbstrom": "img/tide-ebbstrom.svg",
+  "ca. 50 Minuten": "img/tide-50-minuten.svg",
+  "Die Erde wird stärker vom Mond angezogen als das Wasser dort – das Wasser „bleibt zurück“": "img/tide-zweiter-flutberg.svg",
+  "Springtide": "img/tide-springtide.svg",
+  "Nipptide": "img/tide-nipptide.svg",
+  "ca. 45 % der Mondwirkung": "img/tide-sonne-45.svg",
+  "Sturmflut": "img/tide-sturmflut.svg",
+  "Pegelturm": "img/tide-pegelturm.svg",
+  "13,80 m": "img/tide-tiefgang-elbe.svg",
+  "Tidehafen": "img/hafen-tidehafen.svg",
+  "Fluthafen": "img/hafen-fluthafen.svg",
+  "Reedehafen": "img/hafen-reedehafen.svg",
+  "Dockhafen (Schleusenhafen)": "img/hafen-dockhafen.svg"
+});
 SEED_X1.cards.forEach(c => { if (!c[3] && GEO_IMG[c[1]]) c[3] = GEO_IMG[c[1]]; });
 // Deutsche Fassung des Stapels „Englisch – Ship Parts & Terms (EN)“ (Schlüssel = englischer Fachbegriff)
 const DE_EN3 = {
@@ -1669,8 +1692,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.4.9';
+const APP_VERSION = '1.4.10';
 const CHANGELOG = [
+  ['1.4.10', 'Geo: 20 Skizzen zu Tide & Co. – Tidenkurve (Flut, Ebbe, HW, NW, Tidenhub), Flut-/Ebbstrom, Mond/Sonne (zweiter Flutberg, Spring-/Nipptide, 50 Minuten, 45 %), Sturmflut, Pegelturm, Tiefgang Elbe und Tide-/Flut-/Reede-/Dockhafen'],
   ['1.4.9', 'Geo: 26 Lagekarten – Häfen (Hamburg, Rotterdam, Antwerpen … Nordrange), Elbmündung, Zugspitze, Landschaftszonen, Nachbarländer, Kanäle, Ural, Gibraltar, Bosporus/Dardanellen – das Gesuchte ist orange markiert'],
   ['1.4.8', 'Sync repariert: Geräte führen ihren Stand jetzt zusammen statt sich gegenseitig zu überschreiben (pro Karte gewinnt der neueste Lernstand) · App-Updates zählen nicht mehr als „neuerer Stand“ · Fortschritt wird schneller gesendet, auch beim Schließen · alle 60 s wird abgeholt · Sync-Fehler werden in den Einstellungen angezeigt'],
   ['1.4.7', 'Zurückspulen: neuer ↶-Button oben in der Lernrunde (oder ⌫) holt die zuletzt bewertete Karte zurück – aufgedeckt zum nochmal Ansehen, Bewertung wird rückgängig gemacht und neu vergeben'],

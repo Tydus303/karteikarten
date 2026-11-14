@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.4.10** – Geo: 20 Skizzen zu Tide & Co. – Tidenkurve (Flut, Ebbe, HW, NW, Tidenhub), Flut-/Ebbstrom, Mond/Sonne (zweiter Flutberg, Spring-/Nipptide, 50 Minuten, 45 %), Sturmflut, Pegelturm, Tiefgang Elbe und Tide-/Flut-/Reede-/Dockhafen
 - **1.4.9** – Geo: 26 Lagekarten – Häfen (Hamburg, Rotterdam, Antwerpen … Nordrange), Elbmündung, Zugspitze, Landschaftszonen, Nachbarländer, Kanäle, Ural, Gibraltar, Bosporus/Dardanellen – das Gesuchte ist orange markiert
 - **1.4.8** – Sync repariert: Geräte führen ihren Stand jetzt zusammen statt sich gegenseitig zu überschreiben (pro Karte gewinnt der neueste Lernstand) · App-Updates zählen nicht mehr als „neuerer Stand“ · Fortschritt wird schneller gesendet, auch beim Schließen · alle 60 s wird abgeholt · Sync-Fehler werden in den Einstellungen angezeigt
 - **1.4.7** – Zurückspulen: neuer ↶-Button oben in der Lernrunde (oder ⌫) holt die zuletzt bewertete Karte zurück – aufgedeckt zum nochmal Ansehen, Bewertung wird rückgängig gemacht und neu vergeben
