@@ -857,6 +857,36 @@ const IMG_BY_TERM = {
 };
 // Bilder per Fachbegriff an die Englisch-Karten hängen (nur wenn noch keins gesetzt ist)
 [SEED_EN2, SEED_EN3].forEach(sd => sd.cards.forEach(c => { if (!c[3] && IMG_BY_TERM[c[1]]) c[3] = IMG_BY_TERM[c[1]]; }));
+// Lagekarten für den Geo-Stapel (erzeugt mit tools/geo-karten.py aus Natural-Earth-Daten)
+const GEO_IMG = {
+  "Hamburg": "img/geo-hamburg.svg",
+  "Rotterdam": "img/geo-rotterdam.svg",
+  "Antwerpen": "img/geo-antwerpen.svg",
+  "Wilhelmshaven": "img/geo-wilhelmshaven.svg",
+  "Bremerhaven (Bremische Häfen)": "img/geo-bremerhaven.svg",
+  "Duisburg": "img/geo-duisburg.svg",
+  "Emden": "img/geo-emden.svg",
+  "Le Havre": "img/geo-le-havre.svg",
+  "Rouen": "img/geo-rouen.svg",
+  "Dover": "img/geo-dover.svg",
+  "Felixstowe": "img/geo-felixstowe.svg",
+  "Amsterdam": "img/geo-amsterdam.svg",
+  "Cuxhaven": "img/geo-cuxhaven.svg",
+  "Southampton": "img/geo-southampton.svg",
+  "Nordrange": "img/geo-nordrange.svg",
+  "Trichtermündung": "img/geo-elbe-trichter.svg",
+  "Zugspitze": "img/geo-zugspitze.svg",
+  "Norddeutsche Tiefebene, Mittelgebirgszone, Alpenvorland, Alpen": "img/geo-landschaftszonen.svg",
+  "neun": "img/geo-nachbarlaender.svg",
+  "Transitland": "img/geo-transitland.svg",
+  "Uralgebirge und Uralfluss": "img/geo-ural.svg",
+  "Straße von Gibraltar": "img/geo-gibraltar.svg",
+  "Bosporus und Dardanellen": "img/geo-bosporus-dardanellen.svg",
+  "Europa": "img/geo-europa.svg",
+  "Nord-Ostsee-Kanal": "img/geo-nord-ostsee-kanal.svg",
+  "Main-Donau-Kanal": "img/geo-main-donau-kanal.svg"
+};
+SEED_X1.cards.forEach(c => { if (!c[3] && GEO_IMG[c[1]]) c[3] = GEO_IMG[c[1]]; });
 // Deutsche Fassung des Stapels „Englisch – Ship Parts & Terms (EN)“ (Schlüssel = englischer Fachbegriff)
 const DE_EN3 = {
  "cargo holds": ["Wo liegen die Laderäume eines Schiffs – und was sind sie?", "Laderäume", "Große Räume unter dem Hauptdeck, zwischen Bug und Maschinenraum – zum Stauen der Ladung."],
@@ -1639,8 +1669,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.4.8';
+const APP_VERSION = '1.4.9';
 const CHANGELOG = [
+  ['1.4.9', 'Geo: 26 Lagekarten – Häfen (Hamburg, Rotterdam, Antwerpen … Nordrange), Elbmündung, Zugspitze, Landschaftszonen, Nachbarländer, Kanäle, Ural, Gibraltar, Bosporus/Dardanellen – das Gesuchte ist orange markiert'],
   ['1.4.8', 'Sync repariert: Geräte führen ihren Stand jetzt zusammen statt sich gegenseitig zu überschreiben (pro Karte gewinnt der neueste Lernstand) · App-Updates zählen nicht mehr als „neuerer Stand“ · Fortschritt wird schneller gesendet, auch beim Schließen · alle 60 s wird abgeholt · Sync-Fehler werden in den Einstellungen angezeigt'],
   ['1.4.7', 'Zurückspulen: neuer ↶-Button oben in der Lernrunde (oder ⌫) holt die zuletzt bewertete Karte zurück – aufgedeckt zum nochmal Ansehen, Bewertung wird rückgängig gemacht und neu vergeben'],
   ['1.4.6', 'Karten mit Bild: Text und Bild passen sich der Karte an und bleiben mittig (nichts wird mehr oben/unten abgeschnitten) · Eintippen „Umgekehrt“: größeres, mehrzeiliges Feld für Erklärungen (Shift+Enter = neue Zeile) · „cargo holds“: Antwort auf das Wesentliche gekürzt'],
