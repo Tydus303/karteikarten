@@ -958,7 +958,7 @@ const DE_EN3 = {
 SEED_EN3.cards.forEach(c => { if (DE_EN3[c[1]]) c[4] = DE_EN3[c[1]]; });
 function makeCard(o) {
   return { id: uid(), front: String(o.front).trim(), back: String(o.back).trim(), example: String(o.example || '').trim(), ...(o.img ? { img: String(o.img) } : {}), ...(Array.isArray(o.de) && o.de[0] && o.de[1] ? { de: o.de.slice(0, 3).map(x => String(x || '')) } : {}),
-    box: Math.min(5, Math.max(1, parseInt(o.box) || 1)), due: Number(o.due) || 0, wrong: Number(o.wrong) || 0 };
+    box: Math.min(5, Math.max(1, parseInt(o.box) || 1)), due: Number(o.due) || 0, wrong: Number(o.wrong) || 0, ...(o.t ? { t: Number(o.t) } : {}) };
 }
 function makeDeck(name, cards) { return { id: uid(), name: name.trim(), cards: cards.map(makeCard) }; }
 const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X2, SEED_X3, SEED_X4];
@@ -1000,6 +1000,7 @@ const DUP_REMOVED = {
 const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X2, SEED_X3, SEED_X4];
 const SEED_HASH = hashStr(JSON.stringify(SEEDS));
 if (db.settings.seedHash !== SEED_HASH) {
+  syncApplying = true; // kein „neuerer Stand“ – sonst gewinnt das Gerät, das zuerst das Update bekommt
   importDecks(SEEDS.map(seedDeck));
   // Bilder auch an bereits vorhandene Karten hängen
   SEEDS.forEach(sd => { const dk = db.decks.find(x => x.name.toLowerCase() === sd.name.toLowerCase()); if (!dk) return;
@@ -1009,7 +1010,7 @@ if (db.settings.seedHash !== SEED_HASH) {
   // Gekürzte Antworttexte auch in gespeicherte Karten übernehmen (nur wenn noch der alte Text drinsteht)
   const EX_UPDATED = { "Large compartments below the main deck between bow and engine room, used for stowing cargo. Numbered from the bow (No 1) aft, separated by bulkheads, closed by hatch covers.": "Large compartments below the main deck, between bow and engine room – used for storing cargo." };
   db.decks.forEach(dk => dk.cards.forEach(c => { if (EX_UPDATED[c.example]) c.example = EX_UPDATED[c.example]; }));
-  db.settings.seedHash = SEED_HASH; save();
+  db.settings.seedHash = SEED_HASH; save(); syncApplying = false;
 }
 let persisted = null;
 (async () => { try { if (navigator.storage && navigator.storage.persist) persisted = (await navigator.storage.persisted()) || (await navigator.storage.persist()); } catch (e) {} })();
@@ -1194,39 +1195,95 @@ async function rpc(fn, body, keepalive) {
   if (!res.ok) throw new Error('Server ' + res.status);
   return res.json();
 }
-const syncPayload = () => ({ v: 1, savedAt: db.settings.localSavedAt || Date.now(), decks: db.decks, exams: db.exams, examColors: db.settings.examColors || {}, log: db.log, dailyGoal: db.settings.dailyGoal });
+const syncPayload = () => ({ v: 2, savedAt: db.settings.localSavedAt || Date.now(), decks: db.decks, exams: db.exams, examColors: db.settings.examColors || {}, log: db.log, dailyGoal: db.settings.dailyGoal, tomb: db.tomb || {} });
+/* Gelöschtes merken, damit es beim Zusammenführen nicht vom anderen Gerät zurückkommt */
+const cardKey = c => (c.front + '|' + c.back).toLowerCase().replace(/\s+/g, ' ').trim();
+function tombs() { if (!db.tomb || typeof db.tomb !== 'object') db.tomb = {}; db.tomb.decks ||= {}; db.tomb.cards ||= {}; return db.tomb; }
+function tombCard(c) { tombs().cards[cardKey(c)] = Date.now(); }
+function tombDeck(d) { const t = tombs(); t.decks[d.id] = t.decks['n:' + d.name.toLowerCase()] = Date.now(); }
+const normDecks = list => (list || []).map(dk => ({ ...dk, id: dk.id || uid(), cards: (dk.cards || []).map(c => Object.assign(makeCard(c), c.id ? { id: c.id } : {})) }));
 function applyRemote(r) {
   syncApplying = true;
   try {
-    db.decks = (r.decks || []).map(dk => ({ ...dk, id: dk.id || uid(), cards: (dk.cards || []).map(c => Object.assign(makeCard(c), c.id ? { id: c.id } : {})) }));
+    db.decks = normDecks(r.decks);
     db.exams = Array.isArray(r.exams) ? r.exams : [];
     db.settings.examColors = r.examColors || {};
     db.log = mergeLog(db.log, r.log);
+    db.tomb = r.tomb || {};
     if (r.dailyGoal) db.settings.dailyGoal = r.dailyGoal;
     db.settings.localSavedAt = r.savedAt; db.settings.syncDirty = false; db.settings.lastSync = Date.now();
     save();
   } finally { syncApplying = false; }
 }
-let pushing = false;
-async function syncPush(keepalive) {
-  const code = db.settings.syncCode; if (!code || pushing || !navigator.onLine) return;
-  pushing = true;
-  try { await rpc('sync_put', { p_code: code, p_data: syncPayload() }, keepalive); db.settings.syncDirty = false; db.settings.lastSync = Date.now(); syncApplying = true; save(); syncApplying = false; }
-  catch (e) { console.warn('Sync', e); }
-  finally { pushing = false; if (ui.view === 'settings') render(); }
+/* Zusammenführen statt Überschreiben: pro Karte gewinnt die zuletzt gelernte/bearbeitete Version */
+function mergeRemote(r) {
+  const rNewer = (r.savedAt || 0) > (db.settings.localSavedAt || 0);
+  // ohne Zeitstempel (vor 1.4.8 gelernt): die Version mit mehr Lernaktivität nehmen
+  const pick = (a, b) => (a.t || b.t) ? ((a.t || 0) >= (b.t || 0) ? a : b)
+    : a.cards ? (rNewer ? b : a)
+    : (a.wrong || 0) !== (b.wrong || 0) ? ((a.wrong || 0) > (b.wrong || 0) ? a : b)
+    : (a.due || 0) !== (b.due || 0) ? ((a.due || 0) > (b.due || 0) ? a : b) : (rNewer ? b : a);
+  const minId = (a, b) => (a < b ? a : b);
+  const T = tombs(), RT = r.tomb || {};
+  for (const k of ['decks', 'cards']) for (const [x, v] of Object.entries(RT[k] || {})) T[k][x] = Math.max(T[k][x] || 0, v);
+  const rd = normDecks(r.decks), used = new Set(), out = [];
+  const mergeCards = (A, B) => {
+    const m = new Map();
+    for (const c of A) m.set(cardKey(c), c);
+    for (const c of B) { const k = cardKey(c), o = m.get(k); m.set(k, o ? { ...pick(o, c), id: minId(o.id, c.id) } : c); }
+    return [...m.values()];
+  };
+  for (const L of db.decks) {
+    const R = rd.find(x => !used.has(x) && x.id === L.id) || rd.find(x => !used.has(x) && x.name.toLowerCase() === L.name.toLowerCase());
+    if (!R) { out.push(L); continue; }
+    used.add(R);
+    out.push({ ...pick(L, R), id: minId(L.id, R.id), cards: mergeCards(L.cards, R.cards) });
+  }
+  rd.forEach(R => { if (!used.has(R)) out.push(R); });
+  const cur = deck(), curName = cur && cur.name;
+  db.decks = out.filter(d => Math.max(T.decks[d.id] || 0, T.decks['n:' + d.name.toLowerCase()] || 0) <= (d.t || 0))
+    .map(d => ({ ...d, cards: d.cards.filter(c => (T.cards[cardKey(c)] || 0) <= (c.t || 0)) }));
+  if (curName && !deck()) { const d = db.decks.find(x => x.name === curName); if (d) ui.deckId = d.id; }
+  if (rNewer) { if (Array.isArray(r.exams)) db.exams = r.exams; if (r.examColors) db.settings.examColors = r.examColors; if (r.dailyGoal) db.settings.dailyGoal = r.dailyGoal; }
+  db.log = mergeLog(db.log, r.log);
+  db.settings.localSavedAt = Math.max(r.savedAt || 0, db.settings.localSavedAt || 0);
 }
-function schedulePush() { clearTimeout(syncTimer); syncTimer = setTimeout(syncPush, 2500); }
-async function syncPull() {
+const syncCore = p => JSON.stringify([p.decks, p.exams, p.log, p.tomb || {}]);
+let pushing = false, pushAgain = false, syncErr = '';
+async function syncPush() {
   const code = db.settings.syncCode; if (!code || !navigator.onLine) return;
+  if (pushing) { pushAgain = true; return; }
+  pushing = true; pushAgain = false;
+  const at = db.settings.localSavedAt, body = { p_code: code, p_data: syncPayload() };
+  try {
+    // keepalive (Senden beim Schließen der App) erlaubt nur ~64 KB – größere Stände normal senden
+    await rpc('sync_put', body, JSON.stringify(body).length < 60000);
+    db.settings.syncDirty = db.settings.localSavedAt !== at; db.settings.lastSync = Date.now(); syncErr = '';
+    syncApplying = true; save(); syncApplying = false;
+  } catch (e) { console.warn('Sync', e); syncErr = String(e.message || e); }
+  finally { pushing = false; if (pushAgain || (db.settings.syncDirty && !syncErr)) schedulePush(); if (ui.view === 'settings') render(); }
+}
+function schedulePush() { clearTimeout(syncTimer); syncTimer = setTimeout(syncPush, 1000); }
+let pulling = false;
+async function syncPull() {
+  const code = db.settings.syncCode; if (!code || !navigator.onLine || pulling) return;
+  if (ui.view === 'learn' || sheetEl) return; // nicht mitten in einer Lernrunde / beim Bearbeiten austauschen
+  pulling = true;
   try {
     const got = await rpc('sync_get', { p_code: code });
     const r = got && got.data;
     if (!r) { await syncPush(); return; }
-    if ((r.savedAt || 0) > (db.settings.localSavedAt || 0) && !(db.settings.syncDirty && (db.settings.localSavedAt || 0) > (r.savedAt || 0))) {
-      if (ui.view === 'learn') return; // nicht mitten in einer Lernrunde austauschen
-      applyRemote(r); render();
-    } else if (db.settings.syncDirty) await syncPush();
-  } catch (e) { console.warn('Sync', e); }
+    if (ui.view === 'learn' || sheetEl) return;
+    const before = syncCore(syncPayload());
+    syncApplying = true;
+    try { mergeRemote(r); db.settings.lastSync = Date.now(); save(); } finally { syncApplying = false; }
+    const after = syncCore(syncPayload());
+    syncErr = '';
+    if (after !== before) render();
+    if (after !== syncCore(r) || db.settings.syncDirty) { db.settings.syncDirty = true; await syncPush(); }
+    else if (ui.view === 'settings') render();
+  } catch (e) { console.warn('Sync', e); syncErr = String(e.message || e); }
+  finally { pulling = false; }
 }
 async function syncStart() {
   const code = newCode();
@@ -1269,7 +1326,7 @@ function syncPanel() {
       <button class="btn block" data-act="sync-connect" style="margin-top:8px">Ich habe schon einen Code</button></div>`;
   return `<div class="panel"><div class="panel-title">Lerncode-Sync · aktiv</div>
       <p class="small" style="margin:0 0 10px">Dein Code: <b style="font-family:ui-monospace,Menlo,monospace">${fmtCode(c).slice(0, 4)}-••••-••••-••••</b><br>
-      <span class="muted">Zuletzt synchronisiert: ${db.settings.lastSync ? new Date(db.settings.lastSync).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'noch nicht'}${db.settings.syncDirty ? ' · Änderungen warten' : ''}</span></p>
+      <span class="muted">Zuletzt synchronisiert: ${db.settings.lastSync ? new Date(db.settings.lastSync).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'noch nicht'}${db.settings.syncDirty ? ' · Änderungen warten' : ''}${syncErr ? ` · <span class="t-bad">Fehler: ${esc(syncErr)}</span>` : ''}</span></p>
       <button class="btn block" data-act="sync-show">Code anzeigen</button>
       <button class="btn block" data-act="sync-now" style="margin-top:8px">Jetzt synchronisieren</button>
       <button class="btn block danger" data-act="sync-stop" style="margin-top:8px">Sync beenden</button></div>`;
@@ -1582,8 +1639,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.4.7';
+const APP_VERSION = '1.4.8';
 const CHANGELOG = [
+  ['1.4.8', 'Sync repariert: Geräte führen ihren Stand jetzt zusammen statt sich gegenseitig zu überschreiben (pro Karte gewinnt der neueste Lernstand) · App-Updates zählen nicht mehr als „neuerer Stand“ · Fortschritt wird schneller gesendet, auch beim Schließen · alle 60 s wird abgeholt · Sync-Fehler werden in den Einstellungen angezeigt'],
   ['1.4.7', 'Zurückspulen: neuer ↶-Button oben in der Lernrunde (oder ⌫) holt die zuletzt bewertete Karte zurück – aufgedeckt zum nochmal Ansehen, Bewertung wird rückgängig gemacht und neu vergeben'],
   ['1.4.6', 'Karten mit Bild: Text und Bild passen sich der Karte an und bleiben mittig (nichts wird mehr oben/unten abgeschnitten) · Eintippen „Umgekehrt“: größeres, mehrzeiliges Feld für Erklärungen (Shift+Enter = neue Zeile) · „cargo holds“: Antwort auf das Wesentliche gekürzt'],
   ['1.4.5', 'Englisch: keine doppelten Karten mehr – Schiffsteile und Schiffstypen nur noch in „Ship Parts & Terms“, Firmen, Verträge, Dokumente und Sätze nur noch im „Class Test“ (bunkering dorthin verschoben)'],
@@ -1668,15 +1726,15 @@ function editCard(d, card) {
     async (a, bg) => {
       if (a === 'del') {
         if (await askConfirm('Karte löschen?', `„${card.back}“ wird endgültig gelöscht.`, 'Löschen', true)) {
-          d.cards = d.cards.filter(c => c !== card); save(); render(); toast('Karte gelöscht');
+          d.cards = d.cards.filter(c => c !== card); tombCard(card); save(); render(); toast('Karte gelöscht');
         }
         return;
       }
       if (a !== 'save' && a !== 'next') return;
       const front = bg.querySelector('#f-front').value.trim(), back = bg.querySelector('#f-back').value.trim(), example = bg.querySelector('#f-ex').value.trim();
       if (!front || !back) { toast('Vorder- und Rückseite ausfüllen'); return; }
-      if (card) Object.assign(card, { front, back, example });
-      else d.cards.push(makeCard({ front, back, example }));
+      if (card) Object.assign(card, { front, back, example, t: Date.now() });
+      else d.cards.push(makeCard({ front, back, example, t: Date.now() }));
       save(); render();
       if (a === 'next') { editCard(d, null); toast('Gespeichert'); }
     },
@@ -1690,20 +1748,20 @@ function deckMenu() {
     <button data-s="reset">Fortschritt zurücksetzen</button><button class="danger" data-s="delete">Stapel löschen</button></div>
     <button class="btn block" data-s="cancel">Abbrechen</button>`,
     async a => {
-      if (a === 'rename') askText('Stapel umbenennen', 'Name', d.name, 'Speichern', v => { d.name = v; save(); render(); });
+      if (a === 'rename') askText('Stapel umbenennen', 'Name', d.name, 'Speichern', v => { d.name = v; d.t = Date.now(); save(); render(); });
       else if (a === 'archive') {
-        closeSheet(); d.archived = !d.archived; save();
+        closeSheet(); d.archived = !d.archived; d.t = Date.now(); save();
         ui.view = d.archived ? 'home' : 'deck'; render();
         toast(d.archived ? 'Stapel archiviert – zu finden unter „Archiv“' : 'Stapel ist wieder auf der Startseite');
       }
       else if (a === 'export') { closeSheet(); exportData([d], fileName(d.name)); }
       else if (a === 'reset') {
         if (await askConfirm('Fortschritt zurücksetzen?', 'Alle Karten dieses Stapels kommen zurück in Fach 1.', 'Zurücksetzen', true)) {
-          d.cards.forEach(c => { c.box = 1; c.due = 0; c.wrong = 0; }); save(); ui.sel = null; render(); toast('Fortschritt zurückgesetzt');
+          d.cards.forEach(c => { c.box = 1; c.due = 0; c.wrong = 0; c.t = Date.now(); }); save(); ui.sel = null; render(); toast('Fortschritt zurückgesetzt');
         }
       } else if (a === 'delete') {
         if (await askConfirm('Stapel löschen?', `„${d.name}“ mit ${d.cards.length} Karten wird endgültig gelöscht. Tipp: vorher exportieren.`, 'Löschen', true)) {
-          db.decks = db.decks.filter(x => x !== d); save(); ui.view = 'home'; render(); toast('Stapel gelöscht');
+          db.decks = db.decks.filter(x => x !== d); tombDeck(d); save(); ui.view = 'home'; render(); toast('Stapel gelöscht');
         }
       }
     });
@@ -1870,6 +1928,7 @@ function rate(known) {
     const pos = Math.min(S.queue.length, 3 + Math.floor(Math.random() * 3));
     S.queue.splice(pos, 0, c.id);
   }
+  c.t = Date.now();
   save();
   const dir = known ? 1 : -1, card = $('#card');
   setHints(dir * 200);
@@ -1883,7 +1942,7 @@ function undo() {
   if (!S || S.busy || !S.hist || !S.hist.length) return;
   const h = S.hist.pop(), c = deck(S.deckId).cards.find(x => x.id === h.id);
   if (!c) { updateUndo(); return; }
-  Object.assign(c, { box: h.box, due: h.due, wrong: h.wrong });
+  Object.assign(c, { box: h.box, due: h.due, wrong: h.wrong, t: Date.now() });
   S.queue = h.queue; S.first = h.first; S.done = h.done;
   if (h.log) db.log[h.day] = h.log; else delete db.log[h.day];
   save();
@@ -1947,7 +2006,7 @@ const actions = {
     const d = makeDeck(name, []); db.decks.push(d); save(); ui.deckId = d.id; ui.sel = null; ui.search = ''; ui.view = 'deck'; render(); }); },
   'deck-menu'() { deckMenu(); },
   dir(el) { ui.dir = db.settings.dir = el.dataset.v; save(); render(); },
-  lang(el) { const d = deck(); if (d) { d.lang = el.dataset.v; save(); render(); } },
+  lang(el) { const d = deck(); if (d) { d.lang = el.dataset.v; d.t = Date.now(); save(); render(); } },
   sel(el) { ui.sel = el.dataset.v; render(); },
   start() { const d = deck(), ids = selectCards(d, ui.sel).map(c => c.id); if (ids.length) startSession(d, ids, ui.dir, ui.mode); },
   mode(el) { ui.mode = db.settings.mode = el.dataset.v; save(); render(); },
@@ -2042,8 +2101,9 @@ checkForUpdate();
 syncPull();
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') syncPull();
-  else if (db.settings.syncDirty) syncPush(true);
+  else if (db.settings.syncDirty) { clearTimeout(syncTimer); syncPush(); }
 });
+setInterval(() => { if (document.visibilityState === 'visible') syncPull(); }, 60 * 1000);
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && Date.now() - lastCheck > 15000) checkForUpdate();
 });

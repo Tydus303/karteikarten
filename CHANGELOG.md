@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.4.8** – Sync repariert: Geräte führen ihren Stand jetzt zusammen statt sich gegenseitig zu überschreiben (pro Karte gewinnt der neueste Lernstand) · App-Updates zählen nicht mehr als „neuerer Stand“ · Fortschritt wird schneller gesendet, auch beim Schließen · alle 60 s wird abgeholt · Sync-Fehler werden in den Einstellungen angezeigt
 - **1.4.7** – Zurückspulen: neuer ↶-Button oben in der Lernrunde (oder ⌫) holt die zuletzt bewertete Karte zurück – aufgedeckt zum nochmal Ansehen, Bewertung wird rückgängig gemacht und neu vergeben
 - **1.4.6** – Karten mit Bild: Text und Bild passen sich der Karte an und bleiben mittig (nichts wird mehr oben/unten abgeschnitten) · Eintippen „Umgekehrt“: größeres, mehrzeiliges Feld für Erklärungen (Shift+Enter = neue Zeile) · „cargo holds“: Antwort auf das Wesentliche gekürzt
 - **1.4.5** – Englisch: keine doppelten Karten mehr – Schiffsteile und Schiffstypen nur noch in „Ship Parts & Terms“, Firmen, Verträge, Dokumente und Sätze nur noch im „Class Test“ (bunkering dorthin verschoben)
