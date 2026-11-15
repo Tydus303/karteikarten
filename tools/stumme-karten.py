@@ -166,8 +166,34 @@ def traditionell():
     ex = {'London': 'an der Themse', 'Hamburg': 'an der Elbe', 'Bremen': 'an der Weser', 'Rotterdam': 'an der Maas', 'Antwerpen': 'an der Schelde'}
     for k, p in P.items(): card(HAFEN, k, ex[k], over=hi_point(m, *p))
 
+def ctx_rings(m, f, tol=2.0):
+    out = []
+    for closed, pts in d_parts(poly_path(m, [f], tol, 8)):
+        if len(pts) >= 3: out.append([[round(x, 1), round(y, 1)] for x, y in pts])
+    return out
+def add_context():
+    """Länder und Meere, damit das Quiz sagen kann, was man stattdessen angetippt hat."""
+    views = {'europa': (-14, 29, 62, 71), 'nordrange': (-2.2, 48.9, 11.4, 54.9), 'traditionell': (-1.6, 50.5, 10.8, 54.4)}
+    def near(f, bb):
+        c = f['geometry']['coordinates']; pts = [p for poly in (c if f['geometry']['type'] == 'MultiPolygon' else [c]) for r in poly for p in r]
+        x0, y0, x1, y1 = min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts)
+        return x1 - x0 < 180 and x1 > bb[0] - 2 and x0 < bb[2] + 2 and y1 > bb[1] - 2 and y0 < bb[3] + 2
+    for key, bb in views.items():
+        m = Map(*bb)
+        ctx = []
+        for f in load('ne_50m_admin_0_countries'):
+            if not near(f, bb): continue
+            r = ctx_rings(m, f, 2.0 if key == 'europa' else 1.2)
+            if r: ctx.append({'name': f['properties']['NAME_DE'], 'kat': 'Land', 'r': r})
+        for f in load('ne_10m_geography_marine_polys'):
+            nm = f['properties'].get('name_de') or f['properties'].get('name')
+            if not nm or not near(f, bb): continue
+            r = ctx_rings(m, f, 2.0 if key == 'europa' else 1.2)
+            if r: ctx.append({'name': nm, 'kat': 'Meer', 'r': r})
+        QUIZ[key]['ctx'] = ctx
+
 os.makedirs(OUT, exist_ok=True)
-europa(); nordrange(); traditionell()
+europa(); nordrange(); traditionell(); add_context()
 with open(os.path.join(HERE, 'stumme-karten.json'), 'w', encoding='utf-8') as f: json.dump(CARDS, f, ensure_ascii=False, indent=0)
 with open(os.path.join(OUT, 'kartenquiz.json'), 'w', encoding='utf-8') as f: json.dump(QUIZ, f, ensure_ascii=False, separators=(',', ':'))
 print('kartenquiz.json', round(os.path.getsize(os.path.join(OUT, 'kartenquiz.json')) / 1024), 'KB')

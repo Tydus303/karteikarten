@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.3** – Kartenquiz: bei falschem Tipp steht jetzt da, was du angetippt hast (z. B. „Du hast getippt: Ostsee“ oder ein Land) · Gebirge großzügiger · Updates laden Karten und Quizdaten jetzt wirklich frisch – vorher konnten alte, fehlerhafte Quizdaten im Speicher bleiben (deshalb zählten Ärmelkanal, Nordsee, Schwarzes Meer usw. manchmal nicht)
 - **1.5.2** – Kartenquiz: Karte viel größer (nutzt die ganze Bildschirmhöhe, ⤢ zeigt die ganze Karte) · Zoomen und Verschieben flüssiger · Meere und Flüsse: irgendwo drauf tippen zählt – Teilmeere wie Golfe du Lion, Große Syrte, Kieler Bucht, Belte, Rigaer Bucht gehören jetzt dazu · Tipps knapp neben Fluss, Küste oder Hafen zählen als Treffer
 - **1.5.1** – Neu: Kartenquiz (🗺 oben auf der Startseite) – Begriff wird genannt, du tippst die Stelle auf der leeren Karte an; danach siehst du die richtige Lage, die Entfernung in km und Punkte · Europa, Nordrange, Traditionelle Seehäfen · Zoomen mit zwei Fingern oder + / − · Kaspisches Meer auf der Geo-Karte jetzt richtig markiert
 - **1.5.0** – Neu: stumme Karten zum Eintragen – 3 Stapel „Geo-Karte“: Europa (8 Flüsse, 19 Meere/Meeresteile, 7 Gebirge), Nordrange (15 Häfen, 12 Wasserwege), Traditionelle Seehäfen (5) · markierte Stelle auf der Karte → Namen eintippen oder auswählen · umgekehrt: Name → richtige Stelle finden

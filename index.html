@@ -189,7 +189,8 @@ ul.info li{margin:4px 0}
 .gq-world img,.gq-world svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .gq-zoom{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px}
 .gq-zoom button{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:20px;font-weight:700;cursor:pointer;line-height:1}
-.gq-res{display:flex;justify-content:space-between;align-items:center;min-height:44px;font-weight:700;font-size:17px}
+.gq-res{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;min-height:44px;font-weight:700;font-size:17px;padding:4px 0}
+.gq-what{flex-basis:100%;font-size:15px;font-weight:500}
 .gq-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}.gq-row:last-child{border-bottom:0}
 .mc.maps button{flex-direction:column;align-items:stretch;padding:6px;gap:4px}
 .mc.maps .mc-map{width:100%}.mc.maps .mc-map img{max-height:110px}
@@ -1806,8 +1807,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.2';
+const APP_VERSION = '1.5.3';
 const CHANGELOG = [
+  ['1.5.3', 'Kartenquiz: bei falschem Tipp steht jetzt da, was du angetippt hast (z. B. „Du hast getippt: Ostsee“ oder ein Land) · Gebirge großzügiger · Updates laden Karten und Quizdaten jetzt wirklich frisch – vorher konnten alte, fehlerhafte Quizdaten im Speicher bleiben (deshalb zählten Ärmelkanal, Nordsee, Schwarzes Meer usw. manchmal nicht)'],
   ['1.5.2', 'Kartenquiz: Karte viel größer (nutzt die ganze Bildschirmhöhe, ⤢ zeigt die ganze Karte) · Zoomen und Verschieben flüssiger · Meere und Flüsse: irgendwo drauf tippen zählt – Teilmeere wie Golfe du Lion, Große Syrte, Kieler Bucht, Belte, Rigaer Bucht gehören jetzt dazu · Tipps knapp neben Fluss, Küste oder Hafen zählen als Treffer'],
   ['1.5.1', 'Neu: Kartenquiz (🗺 oben auf der Startseite) – Begriff wird genannt, du tippst die Stelle auf der leeren Karte an; danach siehst du die richtige Lage, die Entfernung in km und Punkte · Europa, Nordrange, Traditionelle Seehäfen · Zoomen mit zwei Fingern oder + / − · Kaspisches Meer auf der Geo-Karte jetzt richtig markiert'],
   ['1.5.0', 'Neu: stumme Karten zum Eintragen – 3 Stapel „Geo-Karte“: Europa (8 Flüsse, 19 Meere/Meeresteile, 7 Gebirge), Nordrange (15 Häfen, 12 Wasserwege), Traditionelle Seehäfen (5) · markierte Stelle auf der Karte → Namen eintippen oder auswählen · umgekehrt: Name → richtige Stelle finden'],
@@ -1907,6 +1909,18 @@ function gqNearest(g, p) {
   }
   return best;
 }
+/* Was wurde stattdessen angetippt? Erst Begriffe der Karte, dann Meere, dann Länder */
+function gqWhat(p, skip) {
+  const R = GQ.run, s = R.view.s;
+  const near = R.m.items.filter(it => it !== skip).map(it => ({ it, n: gqNearest(it.g, p) }))
+    .filter(x => x.n.d === 0 || (x.n.d * s <= 14 && x.n.d * R.m.kmPerPx <= R.m.tolKm * 1.5)).map(x => ({ ...x, poly: x.it.g.every(g => g[0] === 'poly') }))
+    .sort((a, b) => (a.poly - b.poly) || (a.n.d - b.n.d));
+  if (near.length) return { name: near[0].it.name, kat: near[0].it.kat };
+  const inR = r => { let ins = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++)
+    if ((r[i][1] > p[1]) !== (r[j][1] > p[1]) && p[0] < (r[j][0] - r[i][0]) * (p[1] - r[i][1]) / (r[j][1] - r[i][1]) + r[i][0]) ins = !ins; return ins; };
+  const c = (R.m.ctx || []).find(c => c.kat === 'Meer' && c.r.some(inR)) || (R.m.ctx || []).find(c => c.kat === 'Land' && c.r.some(inR));
+  return c ? { name: c.name, kat: c.kat } : null;
+}
 function gqStart(names) {
   const st = gqSet(), m = GQ.data[st.map];
   let items = m.items.filter(it => !st.cat || it.kat === st.cat);
@@ -1941,7 +1955,7 @@ function viewQuiz() {
     return `<div class="topbar"><button class="icon-btn" data-act="gq-quit" aria-label="Zurück">${ic('back')}</button><h2>Kartenquiz – Ergebnis</h2></div>
       <div class="panel score"><div class="big">${tot}</div><div class="muted small">von ${R.results.length * 1000} Punkten</div>
         <div class="score-row"><div><b class="t-good">${hits}</b><span>Treffer</span></div><div><b class="t-bad">${wrong.length}</b><span>daneben</span></div><div><b>${R.results.length}</b><span>Begriffe</span></div></div></div>
-      ${wrong.length ? `<div class="panel"><div class="panel-title">Daneben – üben!</div>${wrong.map(r => `<div class="gq-row"><span>${esc(r.name)}</span><b class="t-bad">${fmtKm(r.km)}</b></div>`).join('')}</div>` : ''}
+      ${wrong.length ? `<div class="panel"><div class="panel-title">Daneben – üben!</div>${wrong.map(r => `<div class="gq-row"><span>${esc(r.name)}${r.what ? `<br><span class="muted small">getippt: ${esc(r.what.name)}</span>` : ''}</span><b class="t-bad">${fmtKm(r.km)}</b></div>`).join('')}</div>` : ''}
       ${wrong.length ? '<button class="btn primary block" data-act="gq-wrong">Nur die Fehler nochmal</button>' : ''}
       <button class="btn block" data-act="gq-again" style="margin-top:8px">Neue Runde</button>`;
   }
@@ -1955,7 +1969,7 @@ function viewQuiz() {
       ${layers.map(l => `<img src="${esc(l)}" alt="" draggable="false">`).join('')}
       <svg viewBox="0 0 ${m.w} ${m.h}" id="gq-ov"></svg></div>
       <div class="gq-zoom"><button data-act="gq-zoom" data-v="1.6" aria-label="Vergrößern">+</button><button data-act="gq-zoom" data-v="0.625" aria-label="Verkleinern">−</button><button data-act="gq-zoom" data-v="0" aria-label="Ganze Karte">⤢</button></div></div>
-    <div class="gq-res">${res ? `<span class="${res.hit ? 't-good' : 't-bad'}">${res.hit ? '✓ Treffer!' : `✗ ${fmtKm(res.km)} daneben`}</span><span class="muted">+${res.pts} Punkte</span>` : `<span class="muted">${R.guess ? 'Passt so? Sonst nochmal tippen.' : 'Tippe auf die Karte.'}</span>`}</div>
+    <div class="gq-res">${res ? `<span class="${res.hit ? 't-good' : 't-bad'}">${res.hit ? '✓ Treffer!' : `✗ ${fmtKm(res.km)} daneben`}</span><span class="muted">+${res.pts} Punkte</span>${res.what ? `<span class="gq-what">Du hast getippt: <b>${esc(res.what.name)}</b> <span class="muted">(${esc(res.what.kat)})</span></span>` : ''}` : `<span class="muted">${R.guess ? 'Passt so? Sonst nochmal tippen.' : 'Tippe auf die Karte.'}</span>`}</div>
     ${res ? '<button class="btn primary block" data-act="gq-next">Weiter</button>' : `<button class="btn primary block" data-act="gq-go" ${R.guess ? '' : 'disabled'}>Hier!</button>`}
   </div>`;
 }
@@ -2020,7 +2034,7 @@ function bindQuiz() {
   const b = gqBox(); if (!b) return;
   const box = b.box, R = GQ.run;
   // Karte so groß wie möglich: restliche Bildschirmhöhe nutzen
-  const top = box.getBoundingClientRect().top, below = R.res ? 110 : 120;
+  const top = box.getBoundingClientRect().top, below = R.res ? (R.res.what ? 140 : 110) : 120;
   box.style.height = Math.max(260, Math.round(window.innerHeight - top - below)) + 'px';
   if (!R.view) { const s = gqCoverS(); R.view = { s, tx: (box.clientWidth - R.m.w * s) / 2, ty: (box.clientHeight - R.m.h * s) / 2 }; }
   gqDraw(); gqMarks();
@@ -2068,9 +2082,10 @@ function bindQuiz() {
 function gqGo() {
   const R = GQ.run; if (!R || !R.guess || R.res) return;
   const it = R.items[R.i], n = gqNearest(it.g, R.guess), km = n.d * R.m.kmPerPx;
-  const hit = km <= R.m.tolKm || n.d * R.view.s <= 16, pts = hit ? 1000 : Math.round(1000 * Math.exp(-(km - R.m.tolKm) / R.m.scaleKm));
-  R.res = { ...n, km, hit, pts };
-  R.results.push({ name: it.name, km: hit ? 0 : km, hit, pts });
+  const tol = R.m.tolKm * (it.kat === 'Gebirge' ? 2.5 : 1); // Gebirge sind auf der leeren Karte nicht zu sehen
+  const hit = km <= tol || n.d * R.view.s <= 16, pts = hit ? 1000 : Math.round(1000 * Math.exp(-(km - tol) / R.m.scaleKm));
+  R.res = { ...n, km, hit, pts, what: hit ? null : gqWhat(R.guess, it) };
+  R.results.push({ name: it.name, km: hit ? 0 : km, hit, pts, what: R.res.what });
   if (hit) R.res.km = 0;
   if (logAnswer(hit)) setTimeout(() => toast(`Tagesziel geschafft! 🔥 ${streakNow()} ${streakNow() === 1 ? 'Tag' : 'Tage'} am Stück`), 350);
   save();
