@@ -1825,8 +1825,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.11';
+const APP_VERSION = '1.5.12';
 const CHANGELOG = [
+  ['1.5.12', 'Kartenquiz: Karten zeigen jetzt viel mehr Land drumherum – weiter herauszoomen (zwei Finger, − oder ⤢) zeigt Nachbarländer, Nordafrika, Skandinavien usw.; am Anfang wie gewohnt der passende Ausschnitt'],
   ['1.5.11', 'Neu: Deutschland-Karte mit Flüssen und Kanälen aus „Topographie Deutschland“ – Donau, Elbe, Ems, Main, Oder, Rhein, Weser, Mittellandkanal, Elbe-Seitenkanal, Nord-Ostsee-Kanal, Main-Donau-Kanal · im Kartenquiz und als Stapel „Geo-Karte – Deutschland“'],
   ['1.5.10', 'Geo-Karte Europa / Kartenquiz: zusätzlich die Flüsse Schelde, Weser, Ems (Nordrange) und Main (Topographie Deutschland) aus OneNote – Flüsse jetzt 12'],
   ['1.5.9', 'Kartenquiz: nach dem Ergebnis bringt Enter direkt die nächste Frage'],
@@ -1944,7 +1945,8 @@ function gqWhat(p, skip) {
   if (near.length) return { name: near[0].it.name, kat: near[0].it.kat };
   const inR = r => { let ins = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++)
     if ((r[i][1] > p[1]) !== (r[j][1] > p[1]) && p[0] < (r[j][0] - r[i][0]) * (p[1] - r[i][1]) / (r[j][1] - r[i][1]) + r[i][0]) ins = !ins; return ins; };
-  const c = (R.m.ctx || []).find(c => c.kat === 'Meer' && c.r.some(inR)) || (R.m.ctx || []).find(c => c.kat === 'Land' && c.r.some(inR));
+  const ctx = Array.isArray(R.m.ctx) ? R.m.ctx : ((GQ.data[R.m.ctx] || {}).ctx || []);
+  const c = ctx.find(c => c.kat === 'Meer' && c.r.some(inR)) || ctx.find(c => c.kat === 'Land' && c.r.some(inR));
   return c ? { name: c.name, kat: c.kat } : null;
 }
 function gqStart(names) {
@@ -2005,7 +2007,7 @@ function viewQuiz() {
     <div class="gq-map" id="gq-map"><div class="gq-world" id="gq-world" style="width:${m.w}px;height:${m.h}px">
       ${layers.map(l => `<img src="${esc(l)}" alt="" draggable="false">`).join('')}
       <svg viewBox="0 0 ${m.w} ${m.h}" id="gq-ov"></svg></div>
-      <div class="gq-zoom"><button data-act="gq-zoom" data-v="1.6" aria-label="Vergrößern">+</button><button data-act="gq-zoom" data-v="0.625" aria-label="Verkleinern">−</button><button data-act="gq-zoom" data-v="0" aria-label="Ganze Karte">⤢</button></div></div>
+      <div class="gq-zoom"><button data-act="gq-zoom" data-v="1.6" aria-label="Vergrößern">+</button><button data-act="gq-zoom" data-v="0.625" aria-label="Verkleinern">−</button><button data-act="gq-zoom" data-v="0" aria-label="Ganz herauszoomen" title="Ganz herauszoomen">⤢</button></div></div>
     ${R.type ? gqTypeBox(it, res) : `<div class="gq-res">${res ? `<span class="${res.hit ? 't-good' : 't-bad'}">${res.hit ? '✓ Treffer!' : `✗ ${fmtKm(res.km)} daneben`}</span><span class="muted">+${res.pts} Punkte</span>${res.what ? `<span class="gq-what">Du hast getippt: <b>${esc(res.what.name)}</b> <span class="muted">(${esc(res.what.kat)})</span></span>` : ''}` : `<span class="muted">${R.guess ? 'Passt so? Sonst nochmal tippen.' : 'Tippe auf die Karte.'}</span>`}</div>
     ${res ? '<button class="btn primary block" data-act="gq-next">Weiter</button>' : `<button class="btn primary block" data-act="gq-go" ${R.guess ? '' : 'disabled'}>Hier!</button>`}`}
   </div>`;
@@ -2034,7 +2036,7 @@ function gqFitTarget(it) { // markierte Stelle groß ins Bild holen
     else for (const q of v) { xs.push(q[0]); ys.push(q[1]); }
   }
   const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
-  const s = Math.max(gqMinS(), Math.min(gqCoverS() * 1.4, b.W * 0.8 / Math.max(x1 - x0, 1), b.H * 0.8 / Math.max(y1 - y0, 1)));
+  const s = Math.max(gqMinS(), Math.min(gqFocusS() * 1.4, b.W * 0.8 / Math.max(x1 - x0, 1), b.H * 0.8 / Math.max(y1 - y0, 1)));
   R.view = { s, tx: b.W / 2 - (x0 + x1) / 2 * s, ty: b.H / 2 - (y0 + y1) / 2 * s };
 }
 const fmtKm = km => km < 1 ? '< 1 km' : km < 10 ? km.toFixed(1).replace('.', ',') + ' km' : Math.round(km).toLocaleString('de-DE') + ' km';
@@ -2042,9 +2044,11 @@ const fmtKm = km => km < 1 ? '< 1 km' : km < 10 ? km.toFixed(1).replace('.', ','
 function gqBox() { const box = $('#gq-map'); return box ? { box, W: box.clientWidth, H: box.clientHeight } : null; }
 function gqMinS() { const R = GQ.run, b = gqBox(); return Math.min(b.W / R.m.w, b.H / R.m.h); }      // ganze Karte sichtbar
 function gqCoverS() { const R = GQ.run, b = gqBox(); return Math.max(b.W / R.m.w, b.H / R.m.h); }    // Karte füllt die Fläche
+function gqFocusS() { const R = GQ.run, b = gqBox(), f = R.m.focus; return f ? Math.max(b.W / (f[2] - f[0]), b.H / (f[3] - f[1])) : gqCoverS(); } // gewohnter Ausschnitt füllt die Fläche
+const gqMaxS = () => gqFocusS() * 10;
 function gqClamp() {
   const R = GQ.run, b = gqBox(), v = R.view, mn = gqMinS();
-  v.s = Math.max(mn, Math.min(mn * 14, v.s));
+  v.s = Math.max(mn, Math.min(gqMaxS(), v.s));
   const cw = R.m.w * v.s, ch = R.m.h * v.s;
   v.tx = cw <= b.W ? (b.W - cw) / 2 : Math.min(0, Math.max(b.W - cw, v.tx));
   v.ty = ch <= b.H ? (b.H - ch) / 2 : Math.min(0, Math.max(b.H - ch, v.ty));
@@ -2078,7 +2082,7 @@ function gqZoom(f, cx, cy) {
   const v = R.view;
   if (!f) { v.s = gqMinS(); gqDraw(); return; }
   cx ??= b.W / 2; cy ??= b.H / 2;
-  const s2 = Math.max(gqMinS(), Math.min(gqMinS() * 14, v.s * f));
+  const s2 = Math.max(gqMinS(), Math.min(gqMaxS(), v.s * f));
   v.tx = cx - (cx - v.tx) * s2 / v.s; v.ty = cy - (cy - v.ty) * s2 / v.s; v.s = s2;
   gqApply(); gqSettle();
 }
@@ -2100,7 +2104,7 @@ function bindQuiz() {
   // Karte so groß wie möglich: restliche Bildschirmhöhe nutzen
   const top = box.getBoundingClientRect().top, below = R.type ? (R.res ? (R.res.hit ? 150 : 205) : 120) : R.res ? (R.res.what ? 140 : 110) : 120;
   box.style.height = Math.max(260, Math.round(window.innerHeight - top - below)) + 'px';
-  if (!R.view) { if (R.type) gqFitTarget(R.items[R.i]); else { const s = gqCoverS(); R.view = { s, tx: (box.clientWidth - R.m.w * s) / 2, ty: (box.clientHeight - R.m.h * s) / 2 }; } }
+  if (!R.view) { if (R.type) gqFitTarget(R.items[R.i]); else { const s = gqFocusS(), f = R.m.focus || [0, 0, R.m.w, R.m.h]; R.view = { s, tx: box.clientWidth / 2 - (f[0] + f[2]) / 2 * s, ty: box.clientHeight / 2 - (f[1] + f[3]) / 2 * s }; } }
   if (R.type && !R.res && matchMedia('(hover:hover)').matches) { const a = $('#gq-ans'); if (a) a.focus({ preventScroll: true }); }
   gqDraw(); gqMarks();
   const pts = new Map(); let st = null;
@@ -2119,7 +2123,7 @@ function bindQuiz() {
     const v = GQ.run.view;
     if (st.mode === 'pinch' && pts.size >= 2) {
       const [a, c] = [...pts.values()], d = Math.hypot(a[0] - c[0], a[1] - c[1]), mid = [(a[0] + c[0]) / 2, (a[1] + c[1]) / 2];
-      const s = Math.max(gqMinS(), Math.min(gqMinS() * 14, st.s0 * d / st.d0));
+      const s = Math.max(gqMinS(), Math.min(gqMaxS(), st.s0 * d / st.d0));
       v.tx = mid[0] - (st.m0[0] - st.tx) * s / st.s0; v.ty = mid[1] - (st.m0[1] - st.ty) * s / st.s0; v.s = s;
       gqGesture = true; gqSettle(); gqApply();
     } else if (st.mode !== 'pinch') {

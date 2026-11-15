@@ -15,6 +15,18 @@ OUT = sys.argv[2]
 CARDS = {}  # Kartenname → Liste (frage, antwort, beispiel, [ebenen])
 QUIZ = {}   # Kartenname → Daten fürs Kartenquiz (Zielgeometrie in Bildpunkten)
 GEOM = []   # Geometrie der gerade erzeugten Markierung(en)
+# Karteikarten nutzen den engen Ausschnitt (FOCUS), das Kartenquiz eine größere Karte (WIDE), damit man beim Herauszoomen mehr Land sieht
+FOCUS = {'europa': (-14, 29, 62, 71), 'nordrange': (-2.2, 48.9, 11.4, 54.9), 'traditionell': (-1.6, 50.5, 10.8, 54.4), 'deutschland': (5.4, 47.1, 15.6, 55.15)}
+WIDE = {'europa': (-32, 20, 80, 76), 'nordrange': (-8, 45.5, 17, 58.5), 'traditionell': (-8, 47, 17, 57.5), 'deutschland': (-1, 43.5, 23, 58.5)}
+QUIZRUN = False
+def mapfor(key):
+    mf = Map(*FOCUS[key])
+    if not QUIZRUN: return mf
+    t = Map(*WIDE[key]); m = Map(*WIDE[key], W=round(t.W * mf.s / t.s))  # gleicher Maßstab wie die Karteikarte
+    lo0, la0, lo1, la1 = FOCUS[key]
+    pts = [m.P(lo0 + (lo1 - lo0) * i / 20, la) for i in range(21) for la in (la0, la1)] + [m.P(lo, la0 + (la1 - la0) * i / 20) for i in range(21) for lo in (lo0, lo1)]
+    m.focus = [round(min(p[0] for p in pts)), round(min(p[1] for p in pts)), round(max(p[0] for p in pts)), round(max(p[1] for p in pts))]
+    return m
 
 def d_parts(d):
     out = []
@@ -69,6 +81,7 @@ def hi_point(m, lon, lat):
 def make(key, m, land, borders, river_names, dots, extra_base='', tol_km=50, scale_km=300):
     """Grundebenen einer Karte erzeugen; gibt eine Funktion zum Anlegen der Karten zurück."""
     sea = f'<rect width="{m.W}" height="{m.H}" fill="{SEA}"/>'
+    qk = key; key = ('q' + key) if QUIZRUN else key  # Quiz-Dateien: karte-q<karte>-…
     u_plain = svg(m, sea, f'karte-{key}-meer.svg')
     lk = [f for f in load('ne_10m_lakes') if (f['properties'].get('scalerank') or 9) <= 5]
     body = (f'<path d="{poly_path(m, load(land), 0.7)}" fill="{LAND}" stroke="#9fb9c9" stroke-width="0.8" stroke-linejoin="round"/>'
@@ -77,18 +90,18 @@ def make(key, m, land, borders, river_names, dots, extra_base='', tol_km=50, sca
             f'<path d="{line_path(m, rivers(river_names), 0.7)}" fill="none" stroke="{RIVER}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>'
             + extra_base
             + ''.join(f'<circle cx="{f1(m.P(*p)[0])}" cy="{f1(m.P(*p)[1])}" r="4" fill="#5d6b77" stroke="#fff" stroke-width="1.5"/>' for p in dots))
+    if QUIZRUN: body = body.split('<circle')[0] if dots else body  # Quiz: keine Punkte auf der Karte
     base = svg(m, body, f'karte-{key}.svg')
-    leer = svg(m, body.split('<circle')[0] if dots else body, f'karte-{key}-leer.svg') if dots else base
-    CARDS[key] = []
+    if not QUIZRUN: CARDS[qk] = []
     GEOM.clear()
-    QUIZ[key] = {'w': m.W, 'h': m.H, 'kmPerPx': round(6371 / m.s, 4), 'tolKm': tol_km, 'scaleKm': scale_km, 'sea': u_plain, 'base': leer, 'items': []}
+    if QUIZRUN: QUIZ[qk] = {'w': m.W, 'h': m.H, 'focus': m.focus, 'kmPerPx': round(6371 / m.s, 4), 'tolKm': tol_km, 'scaleKm': scale_km, 'sea': u_plain, 'base': base, 'items': []}
     KAT = {FL: 'Fluss', MEER: 'Meer / Meeresteil', GEB: 'Gebirge', HAFEN: 'Hafen', WEG: 'Wasserweg', KANAL: 'Kanal'}
     def card(frage, antwort, beispiel='', under=None, over=None):
         sid = slug(antwort.split(' (')[0])
         u = svg(m, sea + under, f'karte-{key}-u-{sid}.svg') if under else u_plain
         layers = [u, base] + ([svg(m, over, f'karte-{key}-o-{sid}.svg')] if over else [])
-        CARDS[key].append([frage, antwort, beispiel, layers])
-        QUIZ[key]['items'].append({'name': antwort, 'kat': KAT[frage], 'u': u, 'o': layers[2] if over else None, 'g': list(GEOM)})
+        if not QUIZRUN: CARDS[qk].append([frage, antwort, beispiel, layers])
+        else: QUIZ[qk]['items'].append({'name': antwort, 'kat': KAT[frage], 'u': u, 'o': layers[2] if over else None, 'g': list(GEOM)})
         GEOM.clear()
     return card
 
@@ -97,7 +110,7 @@ FL, MEER, GEB, HAFEN, WEG = 'Welcher Fluss ist markiert?', 'Welches Meer / welch
 
 # ===================== Europa =====================
 def europa():
-    m = Map(-14, 29, 62, 71)
+    m = mapfor('europa')
     RV = {'Donau': ('Donau', 'Danube'), 'Elbe': ('Elbe',), 'Guadalquivir': ('Guadalquivir',), 'Loire': ('Loire',), 'Oder': ('Oder',), 'Rhein': ('Rhein', 'Rhine'), 'Seine': ('Seine',), 'Wolga': ('Volga',),
           # zusätzlich aus OneNote: Wasserwege der Nordrange und Topographie Deutschland
           'Schelde': ('Schelde',), 'Weser': ('Weser',), 'Ems': ('Ems',), 'Main': ('Main',)}
@@ -141,7 +154,7 @@ NR_PORTS = {'Amsterdam': (4.90, 52.37), 'Antwerpen': (4.40, 51.22), 'Cuxhaven': 
             'Southampton': (-1.40, 50.90), 'Wilhelmshaven': (8.13, 53.52), 'Zeebrügge': (3.20, 51.33)}
 BREMEN, BREMERHAVEN = (8.80, 53.08), (8.58, 53.55)
 def nordrange():
-    m = Map(-2.2, 48.9, 11.4, 54.9)
+    m = mapfor('nordrange')
     RV = ('Elbe', 'Weser', 'Ems', 'Rhein', 'Rhine', 'Maas', 'Schelde', 'Seine', 'Thames', 'Ruhr')
     nsk = [(4.58, 52.47), (4.70, 52.43), (4.82, 52.41), (4.90, 52.40)]
     nww = [(4.10, 51.98), (4.22, 51.94), (4.32, 51.91), (4.42, 51.90)]
@@ -163,7 +176,8 @@ def nordrange():
     card(WEG, 'Ärmelkanal', '', under=hi_poly(m, marine('English Channel'), stroke=False))
     card(WEG, 'Straße von Dover', 'engste Stelle des Ärmelkanals', over=ellipse(m, 1.55, 51.0, 30, 16, -50))
     # Kartenquiz „Alle Häfen“: die 15 Nordrange-Häfen + London auf derselben Karte (nur Quiz, kein Karteikarten-Stapel)
-    GEOM.clear(); lo = svg(m, hi_point(m, 0.05, 51.50), 'karte-nordrange-o-london.svg'); lg = list(GEOM); GEOM.clear()
+    if not QUIZRUN: return
+    GEOM.clear(); lo = svg(m, hi_point(m, 0.05, 51.50), 'karte-qnordrange-o-london.svg'); lg = list(GEOM); GEOM.clear()
     nr = QUIZ['nordrange']
     QUIZ['haefen'] = {**{k: v for k, v in nr.items() if k != 'items'}, 'items': [i for i in nr['items'] if i['kat'] == 'Hafen'] +
                       [{'name': 'London', 'kat': 'Hafen', 'u': nr['sea'], 'o': lo, 'g': lg}]}
@@ -181,7 +195,7 @@ CANALS = {
                          'Bamberg – Kelheim, verbindet Main und Donau (Nordsee ↔ Schwarzes Meer)'),
 }
 def deutschland():
-    m = Map(5.4, 47.1, 15.6, 55.15)
+    m = mapfor('deutschland')
     RV = {'Donau': ('Donau', 'Danube'), 'Elbe': ('Elbe',), 'Ems': ('Ems',), 'Main': ('Main',), 'Oder': ('Oder',), 'Rhein': ('Rhein', 'Rhine'), 'Weser': ('Weser',)}
     extra = ''.join(f'<path d="{lonlat_path(m, pts)}" fill="none" stroke="{RIVER}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' for pts, _ in CANALS.values())
     card = make('deutschland', m, 'ne_10m_land', 'ne_10m_admin_0_boundary_lines_land', [n for v in RV.values() for n in v], [], extra, tol_km=20, scale_km=80)
@@ -192,7 +206,7 @@ def deutschland():
     for k, (pts, e) in CANALS.items(): card(KANAL, k, e, over=hi_line(m, pts=pts, w=7))
 
 def traditionell():
-    m = Map(-1.6, 50.5, 10.8, 54.4)
+    m = mapfor('traditionell')
     P = {'London': (0.05, 51.50), 'Hamburg': (9.97, 53.54), 'Bremen': BREMEN, 'Rotterdam': (4.40, 51.91), 'Antwerpen': (4.40, 51.22)}
     card = make('traditionell', m, 'ne_10m_land', 'ne_10m_admin_0_boundary_lines_land', ('Elbe', 'Weser', 'Ems', 'Rhein', 'Rhine', 'Maas', 'Schelde', 'Thames'), list(P.values()), tol_km=15, scale_km=80)
     ex = {'London': 'an der Themse', 'Hamburg': 'an der Elbe', 'Bremen': 'an der Weser', 'Rotterdam': 'an der Maas', 'Antwerpen': 'an der Schelde'}
@@ -205,27 +219,29 @@ def ctx_rings(m, f, tol=2.0):
     return out
 def add_context():
     """Länder und Meere, damit das Quiz sagen kann, was man stattdessen angetippt hat."""
-    views = {'europa': (-14, 29, 62, 71), 'nordrange': (-2.2, 48.9, 11.4, 54.9), 'traditionell': (-1.6, 50.5, 10.8, 54.4), 'haefen': (-2.2, 48.9, 11.4, 54.9), 'deutschland': (5.4, 47.1, 15.6, 55.15)}
+    views = {**WIDE, 'haefen': WIDE['nordrange']}
     def near(f, bb):
         c = f['geometry']['coordinates']; pts = [p for poly in (c if f['geometry']['type'] == 'MultiPolygon' else [c]) for r in poly for p in r]
         x0, y0, x1, y1 = min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts)
         return x1 - x0 < 180 and x1 > bb[0] - 2 and x0 < bb[2] + 2 and y1 > bb[1] - 2 and y0 < bb[3] + 2
     for key, bb in views.items():
-        m = Map(*bb)
+        m = mapfor('nordrange' if key == 'haefen' else key)
         ctx = []
         for f in load('ne_50m_admin_0_countries'):
             if not near(f, bb): continue
-            r = ctx_rings(m, f, 2.0 if key == 'europa' else 1.2)
+            r = ctx_rings(m, f, 3.5)
             if r: ctx.append({'name': f['properties']['NAME_DE'], 'kat': 'Land', 'r': r})
         for f in load('ne_10m_geography_marine_polys'):
             nm = f['properties'].get('name_de') or f['properties'].get('name')
             if not nm or not near(f, bb): continue
-            r = ctx_rings(m, f, 2.0 if key == 'europa' else 1.2)
+            r = ctx_rings(m, f, 3.5)
             if r: ctx.append({'name': nm, 'kat': 'Meer', 'r': r})
-        QUIZ[key]['ctx'] = ctx
+        QUIZ[key]['ctx'] = 'nordrange' if key == 'haefen' else ctx  # „Alle Häfen“ nutzt dieselbe Karte wie die Nordrange
 
 os.makedirs(OUT, exist_ok=True)
-europa(); nordrange(); traditionell(); deutschland(); add_context()
+europa(); nordrange(); traditionell(); deutschland()      # Karteikarten
+QUIZRUN = True
+europa(); nordrange(); traditionell(); deutschland(); add_context()  # Kartenquiz (größere Karten)
 with open(os.path.join(HERE, 'stumme-karten.json'), 'w', encoding='utf-8') as f: json.dump(CARDS, f, ensure_ascii=False, indent=0)
 with open(os.path.join(OUT, 'kartenquiz.json'), 'w', encoding='utf-8') as f: json.dump(QUIZ, f, ensure_ascii=False, separators=(',', ':'))
 print('kartenquiz.json', round(os.path.getsize(os.path.join(OUT, 'kartenquiz.json')) / 1024), 'KB')
