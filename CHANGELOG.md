@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.1** – Neu: Kartenquiz (🗺 oben auf der Startseite) – Begriff wird genannt, du tippst die Stelle auf der leeren Karte an; danach siehst du die richtige Lage, die Entfernung in km und Punkte · Europa, Nordrange, Traditionelle Seehäfen · Zoomen mit zwei Fingern oder + / − · Kaspisches Meer auf der Geo-Karte jetzt richtig markiert
 - **1.5.0** – Neu: stumme Karten zum Eintragen – 3 Stapel „Geo-Karte“: Europa (8 Flüsse, 19 Meere/Meeresteile, 7 Gebirge), Nordrange (15 Häfen, 12 Wasserwege), Traditionelle Seehäfen (5) · markierte Stelle auf der Karte → Namen eintippen oder auswählen · umgekehrt: Name → richtige Stelle finden
 - **1.4.11** – Geo: die 17 Gezeiten-Karten (Tide, Flut, Ebbe … Tiefgang Elbe) vorerst aus „Geo – Arbeit 16.11.“ genommen – sie liegen mit Fortschritt im Archiv-Stapel „Geo – Gezeiten (vorerst raus)“
 - **1.4.10** – Geo: 20 Skizzen zu Tide & Co. – Tidenkurve (Flut, Ebbe, HW, NW, Tidenhub), Flut-/Ebbstrom, Mond/Sonne (zweiter Flutberg, Spring-/Nipptide, 50 Minuten, 45 %), Sturmflut, Pegelturm, Tiefgang Elbe und Tide-/Flut-/Reede-/Dockhafen

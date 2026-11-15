@@ -13,6 +13,20 @@ Map, load, poly_path, line_path, lonlat_path, f1 = geo.Map, geo.load, geo.poly_p
 SEA, LAND, BORDER, RIVER, OR, OR_D = geo.SEA, geo.LAND, geo.BORDER, geo.RIVER, geo.OR, geo.OR_D
 OUT = sys.argv[2]
 CARDS = {}  # Kartenname → Liste (frage, antwort, beispiel, [ebenen])
+QUIZ = {}   # Kartenname → Daten fürs Kartenquiz (Zielgeometrie in Bildpunkten)
+GEOM = []   # Geometrie der gerade erzeugten Markierung(en)
+
+def d_parts(d):
+    out = []
+    for sub in d.split('M')[1:]:
+        closed = sub.endswith('Z'); sub = sub.rstrip('Z')
+        pts = [tuple(float(v) for v in xy.split(',')) for xy in sub.split('L') if xy]
+        out.append((closed, pts))
+    return out
+def reg_path(d, kind):
+    for closed, pts in d_parts(d):
+        pts = geo.dp(pts + ([pts[0]] if closed else []), 1.5)
+        if len(pts) >= 2: GEOM.append([kind, [[round(x, 1), round(y, 1)] for x, y in pts]])
 
 def svg(m, body, name):
     s = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {m.W} {m.H}">'
@@ -30,16 +44,21 @@ def region(*names): return [f for f in load('ne_10m_geography_regions_polys') if
 def ellipse(m, lon, lat, rx, ry, rot=0, fill=True):
     x, y = m.P(lon, lat)
     st = f'fill="{OR}" fill-opacity=".55" stroke="{OR_D}" stroke-width="2.5"' if fill else f'fill="none" stroke="{OR}" stroke-width="4"'
+    GEOM.append(['ell', [round(x, 1), round(y, 1), rx, ry, rot]])
     return f'<ellipse cx="{f1(x)}" cy="{f1(y)}" rx="{rx}" ry="{ry}" transform="rotate({rot} {f1(x)} {f1(y)})" {st}/>'
-def hi_poly(m, feats, tol=0.8, stroke=True): return f'<path d="{poly_path(m, feats, tol, 1)}" fill="{OR}" fill-opacity=".6"' + (f' stroke="{OR_D}" stroke-width="1.5" stroke-linejoin="round"' if stroke else '') + '/>'
+def hi_poly(m, feats, tol=0.8, stroke=True):
+    d = poly_path(m, feats, tol, 1); reg_path(d, 'poly')
+    return f'<path d="{d}" fill="{OR}" fill-opacity=".6"' + (f' stroke="{OR_D}" stroke-width="1.5" stroke-linejoin="round"' if stroke else '') + '/>'
 def hi_line(m, feats=None, pts=None, w=6):
     d = line_path(m, feats, 0.8) if feats else lonlat_path(m, pts)
+    reg_path(d, 'line')
     return f'<path d="{d}" fill="none" stroke="{OR}" stroke-width="{w}" stroke-linecap="round" stroke-linejoin="round"/>'
 def hi_point(m, lon, lat):
     x, y = m.P(lon, lat)
+    GEOM.append(['pt', [round(x, 1), round(y, 1)]])
     return f'<circle cx="{f1(x)}" cy="{f1(y)}" r="16" fill="{OR}" opacity=".3"/><circle cx="{f1(x)}" cy="{f1(y)}" r="8" fill="{OR}" stroke="#fff" stroke-width="3"/>'
 
-def make(key, m, land, borders, river_names, dots, extra_base=''):
+def make(key, m, land, borders, river_names, dots, extra_base='', tol_km=50, scale_km=300):
     """Grundebenen einer Karte erzeugen; gibt eine Funktion zum Anlegen der Karten zurück."""
     sea = f'<rect width="{m.W}" height="{m.H}" fill="{SEA}"/>'
     u_plain = svg(m, sea, f'karte-{key}-meer.svg')
@@ -51,12 +70,18 @@ def make(key, m, land, borders, river_names, dots, extra_base=''):
             + extra_base
             + ''.join(f'<circle cx="{f1(m.P(*p)[0])}" cy="{f1(m.P(*p)[1])}" r="4" fill="#5d6b77" stroke="#fff" stroke-width="1.5"/>' for p in dots))
     base = svg(m, body, f'karte-{key}.svg')
+    leer = svg(m, body.split('<circle')[0] if dots else body, f'karte-{key}-leer.svg') if dots else base
     CARDS[key] = []
+    GEOM.clear()
+    QUIZ[key] = {'w': m.W, 'h': m.H, 'kmPerPx': round(6371 / m.s, 4), 'tolKm': tol_km, 'scaleKm': scale_km, 'sea': u_plain, 'base': leer, 'items': []}
+    KAT = {FL: 'Fluss', MEER: 'Meer / Meeresteil', GEB: 'Gebirge', HAFEN: 'Hafen', WEG: 'Wasserweg'}
     def card(frage, antwort, beispiel='', under=None, over=None):
         sid = slug(antwort.split(' (')[0])
         u = svg(m, sea + under, f'karte-{key}-u-{sid}.svg') if under else u_plain
         layers = [u, base] + ([svg(m, over, f'karte-{key}-o-{sid}.svg')] if over else [])
         CARDS[key].append([frage, antwort, beispiel, layers])
+        QUIZ[key]['items'].append({'name': antwort, 'kat': KAT[frage], 'u': u, 'o': layers[2] if over else None, 'g': list(GEOM)})
+        GEOM.clear()
     return card
 
 FL, MEER, GEB, HAFEN, WEG = 'Welcher Fluss ist markiert?', 'Welches Meer / welcher Meeresteil ist markiert?', 'Welches Gebirge ist markiert?', 'Welcher Hafen ist markiert?', 'Welcher Wasserweg ist markiert?'
@@ -65,7 +90,7 @@ FL, MEER, GEB, HAFEN, WEG = 'Welcher Fluss ist markiert?', 'Welches Meer / welch
 def europa():
     m = Map(-14, 29, 62, 71)
     RV = {'Donau': ('Donau', 'Danube'), 'Elbe': ('Elbe',), 'Guadalquivir': ('Guadalquivir',), 'Loire': ('Loire',), 'Oder': ('Oder',), 'Rhein': ('Rhein', 'Rhine'), 'Seine': ('Seine',), 'Wolga': ('Volga',)}
-    card = make('europa', m, 'ne_50m_land', 'ne_50m_admin_0_boundary_lines_land', [n for v in RV.values() for n in v], [])
+    card = make('europa', m, 'ne_50m_land', 'ne_50m_admin_0_boundary_lines_land', [n for v in RV.values() for n in v], [], tol_km=60, scale_km=300)
     ex = {'Donau': 'mündet ins Schwarze Meer', 'Elbe': 'mündet bei Cuxhaven in die Nordsee', 'Guadalquivir': 'Südspanien, mündet in den Atlantik (Sevilla)',
           'Loire': 'längster Fluss Frankreichs, mündet in die Biskaya', 'Oder': 'Grenze Deutschland–Polen, mündet in die Ostsee', 'Rhein': 'mündet bei Rotterdam in die Nordsee',
           'Seine': 'Paris, mündet bei Le Havre in den Ärmelkanal', 'Wolga': 'längster Fluss Europas, mündet ins Kaspische Meer'}
@@ -81,8 +106,7 @@ def europa():
     med = [f for n in ('Mediterranean Sea', 'Adriatic Sea', 'Aegean Sea', 'Ionian Sea', 'Tyrrhenian Sea', 'Ligurian Sea', 'Balearic Sea', 'Alboran Sea') for f in marine(n)]
     card(MEER, 'Mittelmeer', 'mit Adria, Ägäis, Tyrrhenischem Meer …', under=hi_poly(m, med, stroke=False))
     card(MEER, 'Atlantik (Atlantischer Ozean)', '', under=hi_poly(m, marine('North Atlantic Ocean') + marine('Bay of Biscay'), stroke=False))
-    casp = [f for f in load('ne_10m_lakes') if f['properties'].get('name') == 'Caspian Sea']
-    card(MEER, 'Kaspisches Meer', 'größter See der Erde – Mündung der Wolga', over=hi_poly(m, casp))
+    card(MEER, 'Kaspisches Meer', 'größter See der Erde – Mündung der Wolga', under=hi_poly(m, marine('Caspian Sea'), stroke=False))
     card(MEER, 'Straße von Sizilien', 'zwischen Sizilien und Tunesien', over=ellipse(m, 11.6, 37.25, 22, 12, -30))
     # Gebirge
     sk = [(6.6, 59.0), (7.8, 60.8), (9.6, 62.2), (12.0, 63.4), (13.8, 65.0), (16.0, 67.0), (18.5, 68.6), (21.5, 69.6)]
@@ -93,6 +117,7 @@ def europa():
     for k, feats in GB.items():
         assert feats, k
         card(GEB, k, gex[k], over=hi_poly(m, feats))
+    reg_path(lonlat_path(m, sk), 'line')
     card(GEB, 'Skanden (Skandinavisches Gebirge)', 'Norwegen / Schweden', over=f'<path d="{lonlat_path(m, sk)}" fill="none" stroke="{OR}" stroke-opacity=".75" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>')
 
 # ===================== Nordrange =====================
@@ -107,7 +132,7 @@ def nordrange():
     nww = [(4.10, 51.98), (4.22, 51.94), (4.32, 51.91), (4.42, 51.90)]
     extra = (f'<path d="{lonlat_path(m, nsk)}" fill="none" stroke="{RIVER}" stroke-width="2"/>'
              f'<path d="{lonlat_path(m, nww)}" fill="none" stroke="{RIVER}" stroke-width="2"/>')
-    card = make('nordrange', m, 'ne_10m_land', 'ne_10m_admin_0_boundary_lines_land', RV, list(NR_PORTS.values()) + [BREMEN, BREMERHAVEN], extra)
+    card = make('nordrange', m, 'ne_10m_land', 'ne_10m_admin_0_boundary_lines_land', RV, list(NR_PORTS.values()) + [BREMEN, BREMERHAVEN], extra, tol_km=15, scale_km=60)
     pex = {'Amsterdam': 'am Nordseekanal', 'Antwerpen': 'an der Schelde', 'Cuxhaven': 'an der Elbmündung', 'Dover': 'Fährhafen an der Straße von Dover',
            'Duisburg': 'größter Binnenhafen, Rhein + Ruhr', 'Emden': 'an der Ems, Autoverladung', 'Felixstowe': 'größter britischer Containerhafen', 'Hamburg': 'an der Elbe',
            'Le Havre': 'an der Seinemündung', 'Rotterdam': 'Maas / Neuer Wasserweg', 'Rouen': 'an der Seine', 'Southampton': 'am Solent', 'Wilhelmshaven': 'am Jadebusen',
@@ -127,11 +152,13 @@ def nordrange():
 def traditionell():
     m = Map(-1.6, 50.5, 10.8, 54.4)
     P = {'London': (0.05, 51.50), 'Hamburg': (9.97, 53.54), 'Bremen': BREMEN, 'Rotterdam': (4.40, 51.91), 'Antwerpen': (4.40, 51.22)}
-    card = make('traditionell', m, 'ne_10m_land', 'ne_10m_admin_0_boundary_lines_land', ('Elbe', 'Weser', 'Ems', 'Rhein', 'Rhine', 'Maas', 'Schelde', 'Thames'), list(P.values()))
+    card = make('traditionell', m, 'ne_10m_land', 'ne_10m_admin_0_boundary_lines_land', ('Elbe', 'Weser', 'Ems', 'Rhein', 'Rhine', 'Maas', 'Schelde', 'Thames'), list(P.values()), tol_km=15, scale_km=80)
     ex = {'London': 'an der Themse', 'Hamburg': 'an der Elbe', 'Bremen': 'an der Weser', 'Rotterdam': 'an der Maas', 'Antwerpen': 'an der Schelde'}
     for k, p in P.items(): card(HAFEN, k, ex[k], over=hi_point(m, *p))
 
 os.makedirs(OUT, exist_ok=True)
 europa(); nordrange(); traditionell()
 with open(os.path.join(HERE, 'stumme-karten.json'), 'w', encoding='utf-8') as f: json.dump(CARDS, f, ensure_ascii=False, indent=0)
+with open(os.path.join(OUT, 'kartenquiz.json'), 'w', encoding='utf-8') as f: json.dump(QUIZ, f, ensure_ascii=False, separators=(',', ':'))
+print('kartenquiz.json', round(os.path.getsize(os.path.join(OUT, 'kartenquiz.json')) / 1024), 'KB')
 print({k: len(v) for k, v in CARDS.items()})
