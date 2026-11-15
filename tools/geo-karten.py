@@ -351,5 +351,6 @@ def bosporus():
     text(m, 27.0, 41.45, 'EUROPA', size=14, color=MUTED, weight=800, halo=False); text(m, 29.2, 40.1, 'ASIEN (Vorderasien)', size=14, color=MUTED, weight=800, halo=False)
     save(m, 'geo-bosporus-dardanellen.svg')
 
-os.makedirs(OUT, exist_ok=True)
-port_maps(); elbe_funnel(); zugspitze(); zones(); neighbours(); transit(); main_donau(); nok(); ural(); peninsulas(); gibraltar(); bosporus()
+if __name__ == '__main__':
+    os.makedirs(OUT, exist_ok=True)
+    port_maps(); elbe_funnel(); zugspitze(); zones(); neighbours(); transit(); main_donau(); nok(); ural(); peninsulas(); gibraltar(); bosporus()

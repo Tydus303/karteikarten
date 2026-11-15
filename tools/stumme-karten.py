@@ -1,0 +1,137 @@
+"""Stumme Karten (zum Eintragen) für die Geo-Karten-Stapel.
+Jede Karte besteht aus drei Ebenen mit gleicher viewBox:
+  unten  = Meer (+ markiertes Meer)      → img/karte-<karte>-u-<id>.svg  bzw. img/karte-<karte>-meer.svg
+  mitte  = Land, Flüsse, Grenzen         → img/karte-<karte>.svg (für alle Karten der Karte gleich)
+  oben   = Markierung (Fluss, Hafen …)   → img/karte-<karte>-o-<id>.svg
+Aufruf: python3 -I tools/stumme-karten.py <natural-earth-ordner> img"""
+import importlib.util, json, os, sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+spec = importlib.util.spec_from_file_location('geo', os.path.join(HERE, 'geo-karten.py'))
+geo = importlib.util.module_from_spec(spec); spec.loader.exec_module(geo)
+Map, load, poly_path, line_path, lonlat_path, f1 = geo.Map, geo.load, geo.poly_path, geo.line_path, geo.lonlat_path, geo.f1
+SEA, LAND, BORDER, RIVER, OR, OR_D = geo.SEA, geo.LAND, geo.BORDER, geo.RIVER, geo.OR, geo.OR_D
+OUT = sys.argv[2]
+CARDS = {}  # Kartenname → Liste (frage, antwort, beispiel, [ebenen])
+
+def svg(m, body, name):
+    s = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {m.W} {m.H}">'
+         f'<defs><clipPath id="r"><rect width="{m.W}" height="{m.H}" rx="18"/></clipPath></defs><g clip-path="url(#r)">{body}</g></svg>')
+    with open(os.path.join(OUT, name), 'w', encoding='utf-8') as f: f.write(s)
+    return 'img/' + name
+
+def slug(s):
+    return ''.join(ch for ch in s.lower().replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss').replace(' ', '-') if ch.isalnum() or ch == '-')
+
+def rivers(names): return [f for n in ('ne_10m_rivers_lake_centerlines', 'ne_10m_rivers_europe') for f in load(n) if (f['properties'].get('name') or '') in names]
+def marine(name): return [f for f in load('ne_10m_geography_marine_polys') if f['properties'].get('name') == name]
+def region(*names): return [f for f in load('ne_10m_geography_regions_polys') if f['properties'].get('NAME') in names]
+
+def ellipse(m, lon, lat, rx, ry, rot=0, fill=True):
+    x, y = m.P(lon, lat)
+    st = f'fill="{OR}" fill-opacity=".55" stroke="{OR_D}" stroke-width="2.5"' if fill else f'fill="none" stroke="{OR}" stroke-width="4"'
+    return f'<ellipse cx="{f1(x)}" cy="{f1(y)}" rx="{rx}" ry="{ry}" transform="rotate({rot} {f1(x)} {f1(y)})" {st}/>'
+def hi_poly(m, feats, tol=0.8, stroke=True): return f'<path d="{poly_path(m, feats, tol, 1)}" fill="{OR}" fill-opacity=".6"' + (f' stroke="{OR_D}" stroke-width="1.5" stroke-linejoin="round"' if stroke else '') + '/>'
+def hi_line(m, feats=None, pts=None, w=6):
+    d = line_path(m, feats, 0.8) if feats else lonlat_path(m, pts)
+    return f'<path d="{d}" fill="none" stroke="{OR}" stroke-width="{w}" stroke-linecap="round" stroke-linejoin="round"/>'
+def hi_point(m, lon, lat):
+    x, y = m.P(lon, lat)
+    return f'<circle cx="{f1(x)}" cy="{f1(y)}" r="16" fill="{OR}" opacity=".3"/><circle cx="{f1(x)}" cy="{f1(y)}" r="8" fill="{OR}" stroke="#fff" stroke-width="3"/>'
+
+def make(key, m, land, borders, river_names, dots, extra_base=''):
+    """Grundebenen einer Karte erzeugen; gibt eine Funktion zum Anlegen der Karten zurück."""
+    sea = f'<rect width="{m.W}" height="{m.H}" fill="{SEA}"/>'
+    u_plain = svg(m, sea, f'karte-{key}-meer.svg')
+    lk = [f for f in load('ne_10m_lakes') if (f['properties'].get('scalerank') or 9) <= 5]
+    body = (f'<path d="{poly_path(m, load(land), 0.7)}" fill="{LAND}" stroke="#9fb9c9" stroke-width="0.8" stroke-linejoin="round"/>'
+            f'<path d="{poly_path(m, lk, 0.7, 6)}" fill="{SEA}" stroke="#9fb9c9" stroke-width="0.6"/>'
+            f'<path d="{line_path(m, load(borders), 0.8)}" fill="none" stroke="{BORDER}" stroke-width="0.9" stroke-dasharray="4 3"/>'
+            f'<path d="{line_path(m, rivers(river_names), 0.7)}" fill="none" stroke="{RIVER}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>'
+            + extra_base
+            + ''.join(f'<circle cx="{f1(m.P(*p)[0])}" cy="{f1(m.P(*p)[1])}" r="4" fill="#5d6b77" stroke="#fff" stroke-width="1.5"/>' for p in dots))
+    base = svg(m, body, f'karte-{key}.svg')
+    CARDS[key] = []
+    def card(frage, antwort, beispiel='', under=None, over=None):
+        sid = slug(antwort.split(' (')[0])
+        u = svg(m, sea + under, f'karte-{key}-u-{sid}.svg') if under else u_plain
+        layers = [u, base] + ([svg(m, over, f'karte-{key}-o-{sid}.svg')] if over else [])
+        CARDS[key].append([frage, antwort, beispiel, layers])
+    return card
+
+FL, MEER, GEB, HAFEN, WEG = 'Welcher Fluss ist markiert?', 'Welches Meer / welcher Meeresteil ist markiert?', 'Welches Gebirge ist markiert?', 'Welcher Hafen ist markiert?', 'Welcher Wasserweg ist markiert?'
+
+# ===================== Europa =====================
+def europa():
+    m = Map(-14, 29, 62, 71)
+    RV = {'Donau': ('Donau', 'Danube'), 'Elbe': ('Elbe',), 'Guadalquivir': ('Guadalquivir',), 'Loire': ('Loire',), 'Oder': ('Oder',), 'Rhein': ('Rhein', 'Rhine'), 'Seine': ('Seine',), 'Wolga': ('Volga',)}
+    card = make('europa', m, 'ne_50m_land', 'ne_50m_admin_0_boundary_lines_land', [n for v in RV.values() for n in v], [])
+    ex = {'Donau': 'mündet ins Schwarze Meer', 'Elbe': 'mündet bei Cuxhaven in die Nordsee', 'Guadalquivir': 'Südspanien, mündet in den Atlantik (Sevilla)',
+          'Loire': 'längster Fluss Frankreichs, mündet in die Biskaya', 'Oder': 'Grenze Deutschland–Polen, mündet in die Ostsee', 'Rhein': 'mündet bei Rotterdam in die Nordsee',
+          'Seine': 'Paris, mündet bei Le Havre in den Ärmelkanal', 'Wolga': 'längster Fluss Europas, mündet ins Kaspische Meer'}
+    for k, names in RV.items(): card(FL, k, ex[k], over=hi_line(m, rivers(names), 5))
+    MP = {'Ägäis': 'Aegean Sea', 'Ärmelkanal': 'English Channel', 'Biskaya': 'Bay of Biscay', 'Bosporus': 'Bosporus', 'Bottnischer Meerbusen': 'Gulf of Bothnia',
+          'Dardanellen': 'Dardanelles', 'Europäisches Nordmeer (Nordmeer)': 'Norwegian Sea', 'Finnischer Meerbusen': 'Gulf of Finland', 'Kattegat': 'Kattegat', 'Marmarameer': 'Sea of Marmara',
+          'Nordsee': 'North Sea', 'Ostsee': 'Baltic Sea', 'Schwarzes Meer': 'Black Sea', 'Skagerrak': 'Skagerrak', 'Straße von Gibraltar': 'Strait of Gibraltar'}
+    small = {'Bosporus': (29.05, 41.15, 10, 18, 20), 'Dardanellen': (26.45, 40.2, 10, 18, -40), 'Straße von Gibraltar': (-5.6, 35.95, 16, 10, 0), 'Marmarameer': None, 'Kattegat': None, 'Skagerrak': None}
+    for k, en in sorted(MP.items()):
+        under = hi_poly(m, marine(en), stroke=False)
+        over = ellipse(m, *small[k], fill=False) if small.get(k) else ''
+        card(MEER, k, '', under=under, over=over or None)
+    med = [f for n in ('Mediterranean Sea', 'Adriatic Sea', 'Aegean Sea', 'Ionian Sea', 'Tyrrhenian Sea', 'Ligurian Sea', 'Balearic Sea', 'Alboran Sea') for f in marine(n)]
+    card(MEER, 'Mittelmeer', 'mit Adria, Ägäis, Tyrrhenischem Meer …', under=hi_poly(m, med, stroke=False))
+    card(MEER, 'Atlantik (Atlantischer Ozean)', '', under=hi_poly(m, marine('North Atlantic Ocean') + marine('Bay of Biscay'), stroke=False))
+    casp = [f for f in load('ne_10m_lakes') if f['properties'].get('name') == 'Caspian Sea']
+    card(MEER, 'Kaspisches Meer', 'größter See der Erde – Mündung der Wolga', over=hi_poly(m, casp))
+    card(MEER, 'Straße von Sizilien', 'zwischen Sizilien und Tunesien', over=ellipse(m, 11.6, 37.25, 22, 12, -30))
+    # Gebirge
+    sk = [(6.6, 59.0), (7.8, 60.8), (9.6, 62.2), (12.0, 63.4), (13.8, 65.0), (16.0, 67.0), (18.5, 68.6), (21.5, 69.6)]
+    GB = {'Alpen': region('ALPS'), 'Atlas': region('ATLAS MOUNTAINS', 'HAUT ATLAS', 'Moyen Atlas', 'Anti Atlas', 'Atlas Tellien', 'ATLAS SAHARIEN'),
+          'Karpaten': region('CARPATHIAN MOUNTAINS', 'Transylvanian Alps'), 'Kaukasus': region('CAUCASUS MTS.'), 'Pyrenäen': region('PYRENEES'), 'Ural': region('URAL MOUNTAINS')}
+    gex = {'Alpen': 'höchstes Gebirge Europas', 'Atlas': 'Nordwestafrika (Marokko, Algerien)', 'Karpaten': 'Bogen um Ungarn/Rumänien', 'Kaukasus': 'zwischen Schwarzem und Kaspischem Meer',
+           'Pyrenäen': 'Grenze Spanien–Frankreich', 'Ural': 'Grenze Europa–Asien', 'Skanden': 'Skandinavisches Gebirge, Norwegen/Schweden'}
+    for k, feats in GB.items():
+        assert feats, k
+        card(GEB, k, gex[k], over=hi_poly(m, feats))
+    card(GEB, 'Skanden (Skandinavisches Gebirge)', 'Norwegen / Schweden', over=f'<path d="{lonlat_path(m, sk)}" fill="none" stroke="{OR}" stroke-opacity=".75" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>')
+
+# ===================== Nordrange =====================
+NR_PORTS = {'Amsterdam': (4.90, 52.37), 'Antwerpen': (4.40, 51.22), 'Cuxhaven': (8.70, 53.87), 'Dover': (1.32, 51.12), 'Duisburg': (6.76, 51.43),
+            'Emden': (7.20, 53.36), 'Felixstowe': (1.33, 51.96), 'Hamburg': (9.97, 53.54), 'Le Havre': (0.11, 49.49), 'Rotterdam': (4.15, 51.95), 'Rouen': (1.09, 49.44),
+            'Southampton': (-1.40, 50.90), 'Wilhelmshaven': (8.13, 53.52), 'Zeebrügge': (3.20, 51.33)}
+BREMEN, BREMERHAVEN = (8.80, 53.08), (8.58, 53.55)
+def nordrange():
+    m = Map(-2.2, 48.9, 11.4, 54.9)
+    RV = ('Elbe', 'Weser', 'Ems', 'Rhein', 'Rhine', 'Maas', 'Schelde', 'Seine', 'Thames', 'Ruhr')
+    nsk = [(4.58, 52.47), (4.70, 52.43), (4.82, 52.41), (4.90, 52.40)]
+    nww = [(4.10, 51.98), (4.22, 51.94), (4.32, 51.91), (4.42, 51.90)]
+    extra = (f'<path d="{lonlat_path(m, nsk)}" fill="none" stroke="{RIVER}" stroke-width="2"/>'
+             f'<path d="{lonlat_path(m, nww)}" fill="none" stroke="{RIVER}" stroke-width="2"/>')
+    card = make('nordrange', m, 'ne_10m_land', 'ne_10m_admin_0_boundary_lines_land', RV, list(NR_PORTS.values()) + [BREMEN, BREMERHAVEN], extra)
+    pex = {'Amsterdam': 'am Nordseekanal', 'Antwerpen': 'an der Schelde', 'Cuxhaven': 'an der Elbmündung', 'Dover': 'Fährhafen an der Straße von Dover',
+           'Duisburg': 'größter Binnenhafen, Rhein + Ruhr', 'Emden': 'an der Ems, Autoverladung', 'Felixstowe': 'größter britischer Containerhafen', 'Hamburg': 'an der Elbe',
+           'Le Havre': 'an der Seinemündung', 'Rotterdam': 'Maas / Neuer Wasserweg', 'Rouen': 'an der Seine', 'Southampton': 'am Solent', 'Wilhelmshaven': 'am Jadebusen',
+           'Zeebrügge': 'Belgien, gehört zu Port of Antwerp-Bruges'}
+    for k, p in NR_PORTS.items(): card(HAFEN, k, pex[k], over=hi_point(m, *p))
+    card(HAFEN, 'Bremische Häfen (Bremen / Bremerhaven)', 'an der Weser', over=hi_point(m, *BREMEN) + hi_point(m, *BREMERHAVEN))
+    WY = {'Elbe': ('Elbe',), 'Ems': ('Ems',), 'Weser': ('Weser',), 'Rhein': ('Rhein', 'Rhine'), 'Seine': ('Seine',), 'Schelde': ('Schelde',)}
+    for k, names in WY.items(): card(WEG, k, '', over=hi_line(m, rivers(names), 6))
+    card(WEG, 'Jadebusen', 'Bucht bei Wilhelmshaven', over=ellipse(m, 8.20, 53.45, 13, 17))
+    card(WEG, 'Nordseekanal', 'IJmuiden – Amsterdam', over=hi_line(m, pts=nsk, w=7))
+    card(WEG, 'Neuer Wasserweg', 'Zufahrt von der Nordsee nach Rotterdam', over=hi_line(m, pts=nww, w=7))
+    card(WEG, 'Nordsee', '', under=hi_poly(m, marine('North Sea') + marine('Waddenzee'), stroke=False))
+    card(WEG, 'Ärmelkanal', '', under=hi_poly(m, marine('English Channel'), stroke=False))
+    card(WEG, 'Straße von Dover', 'engste Stelle des Ärmelkanals', over=ellipse(m, 1.55, 51.0, 30, 16, -50))
+
+# ===================== Traditionelle Seehäfen =====================
+def traditionell():
+    m = Map(-1.6, 50.5, 10.8, 54.4)
+    P = {'London': (0.05, 51.50), 'Hamburg': (9.97, 53.54), 'Bremen': BREMEN, 'Rotterdam': (4.40, 51.91), 'Antwerpen': (4.40, 51.22)}
+    card = make('traditionell', m, 'ne_10m_land', 'ne_10m_admin_0_boundary_lines_land', ('Elbe', 'Weser', 'Ems', 'Rhein', 'Rhine', 'Maas', 'Schelde', 'Thames'), list(P.values()))
+    ex = {'London': 'an der Themse', 'Hamburg': 'an der Elbe', 'Bremen': 'an der Weser', 'Rotterdam': 'an der Maas', 'Antwerpen': 'an der Schelde'}
+    for k, p in P.items(): card(HAFEN, k, ex[k], over=hi_point(m, *p))
+
+os.makedirs(OUT, exist_ok=True)
+europa(); nordrange(); traditionell()
+with open(os.path.join(HERE, 'stumme-karten.json'), 'w', encoding='utf-8') as f: json.dump(CARDS, f, ensure_ascii=False, indent=0)
+print({k: len(v) for k, v in CARDS.items()})

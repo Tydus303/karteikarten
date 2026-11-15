@@ -1,0 +1,652 @@
+{
+"europa": [
+[
+"Welcher Fluss ist markiert?",
+"Donau",
+"mündet ins Schwarze Meer",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-donau.svg"
+]
+],
+[
+"Welcher Fluss ist markiert?",
+"Elbe",
+"mündet bei Cuxhaven in die Nordsee",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-elbe.svg"
+]
+],
+[
+"Welcher Fluss ist markiert?",
+"Guadalquivir",
+"Südspanien, mündet in den Atlantik (Sevilla)",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-guadalquivir.svg"
+]
+],
+[
+"Welcher Fluss ist markiert?",
+"Loire",
+"längster Fluss Frankreichs, mündet in die Biskaya",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-loire.svg"
+]
+],
+[
+"Welcher Fluss ist markiert?",
+"Oder",
+"Grenze Deutschland–Polen, mündet in die Ostsee",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-oder.svg"
+]
+],
+[
+"Welcher Fluss ist markiert?",
+"Rhein",
+"mündet bei Rotterdam in die Nordsee",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-rhein.svg"
+]
+],
+[
+"Welcher Fluss ist markiert?",
+"Seine",
+"Paris, mündet bei Le Havre in den Ärmelkanal",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-seine.svg"
+]
+],
+[
+"Welcher Fluss ist markiert?",
+"Wolga",
+"längster Fluss Europas, mündet ins Kaspische Meer",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-wolga.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Biskaya",
+"",
+[
+"img/karte-europa-u-biskaya.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Bosporus",
+"",
+[
+"img/karte-europa-u-bosporus.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-bosporus.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Bottnischer Meerbusen",
+"",
+[
+"img/karte-europa-u-bottnischer-meerbusen.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Dardanellen",
+"",
+[
+"img/karte-europa-u-dardanellen.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-dardanellen.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Europäisches Nordmeer (Nordmeer)",
+"",
+[
+"img/karte-europa-u-europaeisches-nordmeer.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Finnischer Meerbusen",
+"",
+[
+"img/karte-europa-u-finnischer-meerbusen.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Kattegat",
+"",
+[
+"img/karte-europa-u-kattegat.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Marmarameer",
+"",
+[
+"img/karte-europa-u-marmarameer.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Nordsee",
+"",
+[
+"img/karte-europa-u-nordsee.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Ostsee",
+"",
+[
+"img/karte-europa-u-ostsee.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Schwarzes Meer",
+"",
+[
+"img/karte-europa-u-schwarzes-meer.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Skagerrak",
+"",
+[
+"img/karte-europa-u-skagerrak.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Straße von Gibraltar",
+"",
+[
+"img/karte-europa-u-strasse-von-gibraltar.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-strasse-von-gibraltar.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Ägäis",
+"",
+[
+"img/karte-europa-u-aegaeis.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Ärmelkanal",
+"",
+[
+"img/karte-europa-u-aermelkanal.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Mittelmeer",
+"mit Adria, Ägäis, Tyrrhenischem Meer …",
+[
+"img/karte-europa-u-mittelmeer.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Atlantik (Atlantischer Ozean)",
+"",
+[
+"img/karte-europa-u-atlantik.svg",
+"img/karte-europa.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Kaspisches Meer",
+"größter See der Erde – Mündung der Wolga",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-kaspisches-meer.svg"
+]
+],
+[
+"Welches Meer / welcher Meeresteil ist markiert?",
+"Straße von Sizilien",
+"zwischen Sizilien und Tunesien",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-strasse-von-sizilien.svg"
+]
+],
+[
+"Welches Gebirge ist markiert?",
+"Alpen",
+"höchstes Gebirge Europas",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-alpen.svg"
+]
+],
+[
+"Welches Gebirge ist markiert?",
+"Atlas",
+"Nordwestafrika (Marokko, Algerien)",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-atlas.svg"
+]
+],
+[
+"Welches Gebirge ist markiert?",
+"Karpaten",
+"Bogen um Ungarn/Rumänien",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-karpaten.svg"
+]
+],
+[
+"Welches Gebirge ist markiert?",
+"Kaukasus",
+"zwischen Schwarzem und Kaspischem Meer",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-kaukasus.svg"
+]
+],
+[
+"Welches Gebirge ist markiert?",
+"Pyrenäen",
+"Grenze Spanien–Frankreich",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-pyrenaeen.svg"
+]
+],
+[
+"Welches Gebirge ist markiert?",
+"Ural",
+"Grenze Europa–Asien",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-ural.svg"
+]
+],
+[
+"Welches Gebirge ist markiert?",
+"Skanden (Skandinavisches Gebirge)",
+"Norwegen / Schweden",
+[
+"img/karte-europa-meer.svg",
+"img/karte-europa.svg",
+"img/karte-europa-o-skanden.svg"
+]
+]
+],
+"nordrange": [
+[
+"Welcher Hafen ist markiert?",
+"Amsterdam",
+"am Nordseekanal",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-amsterdam.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Antwerpen",
+"an der Schelde",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-antwerpen.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Cuxhaven",
+"an der Elbmündung",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-cuxhaven.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Dover",
+"Fährhafen an der Straße von Dover",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-dover.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Duisburg",
+"größter Binnenhafen, Rhein + Ruhr",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-duisburg.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Emden",
+"an der Ems, Autoverladung",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-emden.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Felixstowe",
+"größter britischer Containerhafen",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-felixstowe.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Hamburg",
+"an der Elbe",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-hamburg.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Le Havre",
+"an der Seinemündung",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-le-havre.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Rotterdam",
+"Maas / Neuer Wasserweg",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-rotterdam.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Rouen",
+"an der Seine",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-rouen.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Southampton",
+"am Solent",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-southampton.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Wilhelmshaven",
+"am Jadebusen",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-wilhelmshaven.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Zeebrügge",
+"Belgien, gehört zu Port of Antwerp-Bruges",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-zeebruegge.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Bremische Häfen (Bremen / Bremerhaven)",
+"an der Weser",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-bremische-haefen.svg"
+]
+],
+[
+"Welcher Wasserweg ist markiert?",
+"Elbe",
+"",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-elbe.svg"
+]
+],
+[
+"Welcher Wasserweg ist markiert?",
+"Ems",
+"",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-ems.svg"
+]
+],
+[
+"Welcher Wasserweg ist markiert?",
+"Weser",
+"",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-weser.svg"
+]
+],
+[
+"Welcher Wasserweg ist markiert?",
+"Rhein",
+"",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-rhein.svg"
+]
+],
+[
+"Welcher Wasserweg ist markiert?",
+"Seine",
+"",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-seine.svg"
+]
+],
+[
+"Welcher Wasserweg ist markiert?",
+"Schelde",
+"",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-schelde.svg"
+]
+],
+[
+"Welcher Wasserweg ist markiert?",
+"Jadebusen",
+"Bucht bei Wilhelmshaven",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-jadebusen.svg"
+]
+],
+[
+"Welcher Wasserweg ist markiert?",
+"Nordseekanal",
+"IJmuiden – Amsterdam",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-nordseekanal.svg"
+]
+],
+[
+"Welcher Wasserweg ist markiert?",
+"Neuer Wasserweg",
+"Zufahrt von der Nordsee nach Rotterdam",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-neuer-wasserweg.svg"
+]
+],
+[
+"Welcher Wasserweg ist markiert?",
+"Nordsee",
+"",
+[
+"img/karte-nordrange-u-nordsee.svg",
+"img/karte-nordrange.svg"
+]
+],
+[
+"Welcher Wasserweg ist markiert?",
+"Ärmelkanal",
+"",
+[
+"img/karte-nordrange-u-aermelkanal.svg",
+"img/karte-nordrange.svg"
+]
+],
+[
+"Welcher Wasserweg ist markiert?",
+"Straße von Dover",
+"engste Stelle des Ärmelkanals",
+[
+"img/karte-nordrange-meer.svg",
+"img/karte-nordrange.svg",
+"img/karte-nordrange-o-strasse-von-dover.svg"
+]
+]
+],
+"traditionell": [
+[
+"Welcher Hafen ist markiert?",
+"London",
+"an der Themse",
+[
+"img/karte-traditionell-meer.svg",
+"img/karte-traditionell.svg",
+"img/karte-traditionell-o-london.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Hamburg",
+"an der Elbe",
+[
+"img/karte-traditionell-meer.svg",
+"img/karte-traditionell.svg",
+"img/karte-traditionell-o-hamburg.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Bremen",
+"an der Weser",
+[
+"img/karte-traditionell-meer.svg",
+"img/karte-traditionell.svg",
+"img/karte-traditionell-o-bremen.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Rotterdam",
+"an der Maas",
+[
+"img/karte-traditionell-meer.svg",
+"img/karte-traditionell.svg",
+"img/karte-traditionell-o-rotterdam.svg"
+]
+],
+[
+"Welcher Hafen ist markiert?",
+"Antwerpen",
+"an der Schelde",
+[
+"img/karte-traditionell-meer.svg",
+"img/karte-traditionell.svg",
+"img/karte-traditionell-o-antwerpen.svg"
+]
+]
+]
+}

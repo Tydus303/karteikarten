@@ -174,6 +174,16 @@ ul.info li{margin:4px 0}
 .speak{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;margin-left:10px;vertical-align:middle;border-radius:50%;border:1px solid var(--border);background:var(--surface2);font-size:19px;line-height:1;cursor:pointer;padding:0}
 .en-term{margin-top:10px;font-size:17px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap}.en-term b{color:var(--text)}
 .zoom-img{display:block;width:100%;height:auto;border-radius:14px}
+.map-stack{position:relative;max-height:none;min-height:0;flex:none;object-fit:unset}
+.map-stack img{display:block;width:100%;height:auto;max-height:min(30vh,220px);object-fit:contain}
+.map-stack img+img{position:absolute;left:0;top:0;height:100%}
+.zoom-map img{max-height:none}
+.front-text+.map-stack{margin-top:12px}
+.face.front .map-stack img{max-height:min(26vh,190px)}
+.mc.maps{display:grid;grid-template-columns:1fr 1fr}
+.mc.maps button{flex-direction:column;align-items:stretch;padding:6px;gap:4px}
+.mc.maps .mc-map{width:100%}.mc.maps .mc-map img{max-height:110px}
+.mc.maps .mc-next{grid-column:1/-1}
 .example{margin-top:22px;font-size:17px;line-height:1.45;color:var(--muted);max-width:30em}
 .example b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
 .swipe-hint{position:absolute;top:18px;z-index:3;font-weight:800;font-size:14px;letter-spacing:.06em;padding:6px 12px;border-radius:10px;border:2.5px solid currentColor;background:var(--surface);opacity:0;pointer-events:none}
@@ -760,7 +770,7 @@ const SEED_X4 = { name: "LF4 – Arbeit 04.12.", cards: [
  ["Kredit der Bank, der durch das Schiff abgesichert ist", "Schiffshypothek", ""],
  ["Geld, das der Inhaber selbst ins Unternehmen einbringt", "Eigenkapital", ""]
 ]};
-const seedDeck = sd => ({ name: sd.name, ...(sd.archived ? { archived: true } : {}), cards: sd.cards.map(([front, back, example, img, de]) => Object.assign({ front, back, example }, img ? { img } : {}, de ? { de } : {})) });
+const seedDeck = sd => ({ name: sd.name, ...(sd.archived ? { archived: true } : {}), cards: sd.cards.map(([front, back, example, img, de, map]) => Object.assign({ front, back, example }, img ? { img } : {}, de ? { de } : {}, map ? { map } : {})) });
 
 const PROMPT = `Erstelle Karteikarten für meine Ausbildung zum Schifffahrtskaufmann (Berufsschule).
 Thema: [THEMA / LERNFELD HIER EINTRAGEN]
@@ -1028,10 +1038,83 @@ const DE_EN3 = {
 SEED_EN3.cards.forEach(c => { if (DE_EN3[c[1]]) c[4] = DE_EN3[c[1]]; });
 function makeCard(o) {
   return { id: uid(), front: String(o.front).trim(), back: String(o.back).trim(), example: String(o.example || '').trim(), ...(o.img ? { img: String(o.img) } : {}), ...(Array.isArray(o.de) && o.de[0] && o.de[1] ? { de: o.de.slice(0, 3).map(x => String(x || '')) } : {}),
-    box: Math.min(5, Math.max(1, parseInt(o.box) || 1)), due: Number(o.due) || 0, wrong: Number(o.wrong) || 0, ...(o.t ? { t: Number(o.t) } : {}) };
+    box: Math.min(5, Math.max(1, parseInt(o.box) || 1)), due: Number(o.due) || 0, wrong: Number(o.wrong) || 0, ...(o.t ? { t: Number(o.t) } : {}), ...(Array.isArray(o.map) && o.map.length ? { map: o.map.map(String) } : {}) };
 }
 function makeDeck(name, cards) { return { id: uid(), name: name.trim(), cards: cards.map(makeCard) }; }
-const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4];
+// Stumme Karten zum Eintragen (Ebenen: Meer, Land, Markierung – erzeugt mit tools/stumme-karten.py)
+const SEED_M1 = { name: "Geo-Karte – Europa (Flüsse, Meere, Gebirge)", cards: [
+ ["Welcher Fluss ist markiert?", "Donau", "mündet ins Schwarze Meer", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-donau.svg"]],
+ ["Welcher Fluss ist markiert?", "Elbe", "mündet bei Cuxhaven in die Nordsee", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-elbe.svg"]],
+ ["Welcher Fluss ist markiert?", "Guadalquivir", "Südspanien, mündet in den Atlantik (Sevilla)", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-guadalquivir.svg"]],
+ ["Welcher Fluss ist markiert?", "Loire", "längster Fluss Frankreichs, mündet in die Biskaya", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-loire.svg"]],
+ ["Welcher Fluss ist markiert?", "Oder", "Grenze Deutschland–Polen, mündet in die Ostsee", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-oder.svg"]],
+ ["Welcher Fluss ist markiert?", "Rhein", "mündet bei Rotterdam in die Nordsee", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-rhein.svg"]],
+ ["Welcher Fluss ist markiert?", "Seine", "Paris, mündet bei Le Havre in den Ärmelkanal", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-seine.svg"]],
+ ["Welcher Fluss ist markiert?", "Wolga", "längster Fluss Europas, mündet ins Kaspische Meer", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-wolga.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Biskaya", "", null, null, ["img/karte-europa-u-biskaya.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Bosporus", "", null, null, ["img/karte-europa-u-bosporus.svg", "img/karte-europa.svg", "img/karte-europa-o-bosporus.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Bottnischer Meerbusen", "", null, null, ["img/karte-europa-u-bottnischer-meerbusen.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Dardanellen", "", null, null, ["img/karte-europa-u-dardanellen.svg", "img/karte-europa.svg", "img/karte-europa-o-dardanellen.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Europäisches Nordmeer (Nordmeer)", "", null, null, ["img/karte-europa-u-europaeisches-nordmeer.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Finnischer Meerbusen", "", null, null, ["img/karte-europa-u-finnischer-meerbusen.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Kattegat", "", null, null, ["img/karte-europa-u-kattegat.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Marmarameer", "", null, null, ["img/karte-europa-u-marmarameer.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Nordsee", "", null, null, ["img/karte-europa-u-nordsee.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Ostsee", "", null, null, ["img/karte-europa-u-ostsee.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Schwarzes Meer", "", null, null, ["img/karte-europa-u-schwarzes-meer.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Skagerrak", "", null, null, ["img/karte-europa-u-skagerrak.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Straße von Gibraltar", "", null, null, ["img/karte-europa-u-strasse-von-gibraltar.svg", "img/karte-europa.svg", "img/karte-europa-o-strasse-von-gibraltar.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Ägäis", "", null, null, ["img/karte-europa-u-aegaeis.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Ärmelkanal", "", null, null, ["img/karte-europa-u-aermelkanal.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Mittelmeer", "mit Adria, Ägäis, Tyrrhenischem Meer …", null, null, ["img/karte-europa-u-mittelmeer.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Atlantik (Atlantischer Ozean)", "", null, null, ["img/karte-europa-u-atlantik.svg", "img/karte-europa.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Kaspisches Meer", "größter See der Erde – Mündung der Wolga", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-kaspisches-meer.svg"]],
+ ["Welches Meer / welcher Meeresteil ist markiert?", "Straße von Sizilien", "zwischen Sizilien und Tunesien", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-strasse-von-sizilien.svg"]],
+ ["Welches Gebirge ist markiert?", "Alpen", "höchstes Gebirge Europas", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-alpen.svg"]],
+ ["Welches Gebirge ist markiert?", "Atlas", "Nordwestafrika (Marokko, Algerien)", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-atlas.svg"]],
+ ["Welches Gebirge ist markiert?", "Karpaten", "Bogen um Ungarn/Rumänien", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-karpaten.svg"]],
+ ["Welches Gebirge ist markiert?", "Kaukasus", "zwischen Schwarzem und Kaspischem Meer", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-kaukasus.svg"]],
+ ["Welches Gebirge ist markiert?", "Pyrenäen", "Grenze Spanien–Frankreich", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-pyrenaeen.svg"]],
+ ["Welches Gebirge ist markiert?", "Ural", "Grenze Europa–Asien", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-ural.svg"]],
+ ["Welches Gebirge ist markiert?", "Skanden (Skandinavisches Gebirge)", "Norwegen / Schweden", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-skanden.svg"]]
+]};
+const SEED_M2 = { name: "Geo-Karte – Nordrange (Häfen, Wasserwege)", cards: [
+ ["Welcher Hafen ist markiert?", "Amsterdam", "am Nordseekanal", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-amsterdam.svg"]],
+ ["Welcher Hafen ist markiert?", "Antwerpen", "an der Schelde", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-antwerpen.svg"]],
+ ["Welcher Hafen ist markiert?", "Cuxhaven", "an der Elbmündung", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-cuxhaven.svg"]],
+ ["Welcher Hafen ist markiert?", "Dover", "Fährhafen an der Straße von Dover", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-dover.svg"]],
+ ["Welcher Hafen ist markiert?", "Duisburg", "größter Binnenhafen, Rhein + Ruhr", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-duisburg.svg"]],
+ ["Welcher Hafen ist markiert?", "Emden", "an der Ems, Autoverladung", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-emden.svg"]],
+ ["Welcher Hafen ist markiert?", "Felixstowe", "größter britischer Containerhafen", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-felixstowe.svg"]],
+ ["Welcher Hafen ist markiert?", "Hamburg", "an der Elbe", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-hamburg.svg"]],
+ ["Welcher Hafen ist markiert?", "Le Havre", "an der Seinemündung", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-le-havre.svg"]],
+ ["Welcher Hafen ist markiert?", "Rotterdam", "Maas / Neuer Wasserweg", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-rotterdam.svg"]],
+ ["Welcher Hafen ist markiert?", "Rouen", "an der Seine", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-rouen.svg"]],
+ ["Welcher Hafen ist markiert?", "Southampton", "am Solent", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-southampton.svg"]],
+ ["Welcher Hafen ist markiert?", "Wilhelmshaven", "am Jadebusen", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-wilhelmshaven.svg"]],
+ ["Welcher Hafen ist markiert?", "Zeebrügge", "Belgien, gehört zu Port of Antwerp-Bruges", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-zeebruegge.svg"]],
+ ["Welcher Hafen ist markiert?", "Bremische Häfen (Bremen / Bremerhaven)", "an der Weser", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-bremische-haefen.svg"]],
+ ["Welcher Wasserweg ist markiert?", "Elbe", "", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-elbe.svg"]],
+ ["Welcher Wasserweg ist markiert?", "Ems", "", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-ems.svg"]],
+ ["Welcher Wasserweg ist markiert?", "Weser", "", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-weser.svg"]],
+ ["Welcher Wasserweg ist markiert?", "Rhein", "", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-rhein.svg"]],
+ ["Welcher Wasserweg ist markiert?", "Seine", "", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-seine.svg"]],
+ ["Welcher Wasserweg ist markiert?", "Schelde", "", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-schelde.svg"]],
+ ["Welcher Wasserweg ist markiert?", "Jadebusen", "Bucht bei Wilhelmshaven", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-jadebusen.svg"]],
+ ["Welcher Wasserweg ist markiert?", "Nordseekanal", "IJmuiden – Amsterdam", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-nordseekanal.svg"]],
+ ["Welcher Wasserweg ist markiert?", "Neuer Wasserweg", "Zufahrt von der Nordsee nach Rotterdam", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-neuer-wasserweg.svg"]],
+ ["Welcher Wasserweg ist markiert?", "Nordsee", "", null, null, ["img/karte-nordrange-u-nordsee.svg", "img/karte-nordrange.svg"]],
+ ["Welcher Wasserweg ist markiert?", "Ärmelkanal", "", null, null, ["img/karte-nordrange-u-aermelkanal.svg", "img/karte-nordrange.svg"]],
+ ["Welcher Wasserweg ist markiert?", "Straße von Dover", "engste Stelle des Ärmelkanals", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-strasse-von-dover.svg"]]
+]};
+const SEED_M3 = { name: "Geo-Karte – Traditionelle Seehäfen", cards: [
+ ["Welcher Hafen ist markiert?", "London", "an der Themse", null, null, ["img/karte-traditionell-meer.svg", "img/karte-traditionell.svg", "img/karte-traditionell-o-london.svg"]],
+ ["Welcher Hafen ist markiert?", "Hamburg", "an der Elbe", null, null, ["img/karte-traditionell-meer.svg", "img/karte-traditionell.svg", "img/karte-traditionell-o-hamburg.svg"]],
+ ["Welcher Hafen ist markiert?", "Bremen", "an der Weser", null, null, ["img/karte-traditionell-meer.svg", "img/karte-traditionell.svg", "img/karte-traditionell-o-bremen.svg"]],
+ ["Welcher Hafen ist markiert?", "Rotterdam", "an der Maas", null, null, ["img/karte-traditionell-meer.svg", "img/karte-traditionell.svg", "img/karte-traditionell-o-rotterdam.svg"]],
+ ["Welcher Hafen ist markiert?", "Antwerpen", "an der Schelde", null, null, ["img/karte-traditionell-meer.svg", "img/karte-traditionell.svg", "img/karte-traditionell-o-antwerpen.svg"]]
+]};
+const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4, SEED_M1, SEED_M2, SEED_M3];
 function freshDb() {
   return { decks: SEEDS_ALL().map(sd => { const x = seedDeck(sd); return Object.assign(makeDeck(x.name, x.cards), x.archived ? { archived: true } : {}); }), settings: { theme: 'auto', dir: 'normal' }, log: {} };
 }
@@ -1067,7 +1150,7 @@ const DUP_REMOVED = {
   [SEED_EN2.name]: ["Containerschiff","Vollcontainerschiff","Mehrzweckschiff","Schwergutschiff","Massengutfrachter","Rohöltanker","Flüssiggastanker","Chemietanker","RoRo-Schiff","Tiefgang","Breite (eines Schiffs)","Bug / Heck","Propeller / Schiffsschraube","Ruder","Hauptmaschine","Hilfsdiesel / Hilfsmaschine","Laderaum","Zellgerüst / Führungsschienen für Container","Zwischendeck","Schott","Lukendeckel","Laschstangen und Twistlocks","Brücke","Brückennock","Wohnbereich der Besatzung","Doppelboden","Ballasttanks","Anker","Bugstrahlruder","Aufbauten","ohne eigenes Ladegeschirr","Freifall-Rettungsboot","Kai"],
   [SEED_EN3.name]: ["Provides marketing and sales, canvasses and books cargo, maintains contact with shippers, consignees and forwarders","Arranges berthing, bunkering, repairs, crew changes, ship's stores and spare parts for a vessel in port","Mediates between ship owners and charterers","Brokers the sale and purchase of ships","Manages vessels (crew, technical matters) on behalf of the owner","The company who really owns the ship, with the help of financers (banks) or own money","A company that offers transport services for cargo with own or chartered vessels","Any person or organisation paying for its cargo to be shipped from one place to another","The person or company that receives the cargo at the destination","The party that hires a vessel from the ship owner","Umbrella term for all contracts for the carriage of goods by sea","Liner contract between carrier and shipper; freight paid per container/unit","A vessel is hired for one voyage; freight is paid per ton of cargo","A vessel is hired for a period of time; the charterer pays hire per day","The daily payment for a vessel under a time charter","Document of title and receipt for the cargo shipped","Internationally standardised delivery terms in a sales contract","Taking on fuel for the ship","To put a ship into a dock out of the water for repairs","Department that plans voyages, coordinates port calls and links ship and shore"]
 };
-const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4];
+const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4, SEED_M1, SEED_M2, SEED_M3];
 const SEED_HASH = hashStr(JSON.stringify(SEEDS));
 if (db.settings.seedHash !== SEED_HASH) {
   syncApplying = true; // kein „neuerer Stand“ – sonst gewinnt das Gerät, das zuerst das Update bekommt
@@ -1075,7 +1158,7 @@ if (db.settings.seedHash !== SEED_HASH) {
   importDecks(SEEDS.map(seedDeck));
   // Bilder auch an bereits vorhandene Karten hängen
   SEEDS.forEach(sd => { const dk = db.decks.find(x => x.name.toLowerCase() === sd.name.toLowerCase()); if (!dk) return;
-    sd.cards.forEach(([f, b, , img, de]) => { if (!img && !de) return; const c = dk.cards.find(x => x.front === f && x.back === b); if (!c) return; if (img) c.img = img; if (de) c.de = de; }); });
+    sd.cards.forEach(([f, b, , img, de, map]) => { if (!img && !de && !map) return; const c = dk.cards.find(x => x.front === f && x.back === b); if (!c) return; if (img) c.img = img; if (de) c.de = de; if (map) c.map = map; }); });
   // Dopplungen entfernen: Schiffsteile/-typen nur in „Ship Parts & Terms“, alles andere nur im „Class Test“
   Object.entries(DUP_REMOVED).forEach(([name, fronts]) => { const dk = db.decks.find(x => x.name === name); if (dk) dk.cards = dk.cards.filter(c => !fronts.includes(c.front)); });
   // Gekürzte Antworttexte auch in gespeicherte Karten übernehmen (nur wenn noch der alte Text drinsteht)
@@ -1712,8 +1795,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.4.11';
+const APP_VERSION = '1.5.0';
 const CHANGELOG = [
+  ['1.5.0', 'Neu: stumme Karten zum Eintragen – 3 Stapel „Geo-Karte“: Europa (8 Flüsse, 19 Meere/Meeresteile, 7 Gebirge), Nordrange (15 Häfen, 12 Wasserwege), Traditionelle Seehäfen (5) · markierte Stelle auf der Karte → Namen eintippen oder auswählen · umgekehrt: Name → richtige Stelle finden'],
   ['1.4.11', 'Geo: die 17 Gezeiten-Karten (Tide, Flut, Ebbe … Tiefgang Elbe) vorerst aus „Geo – Arbeit 16.11.“ genommen – sie liegen mit Fortschritt im Archiv-Stapel „Geo – Gezeiten (vorerst raus)“'],
   ['1.4.10', 'Geo: 20 Skizzen zu Tide & Co. – Tidenkurve (Flut, Ebbe, HW, NW, Tidenhub), Flut-/Ebbstrom, Mond/Sonne (zweiter Flutberg, Spring-/Nipptide, 50 Minuten, 45 %), Sturmflut, Pegelturm, Tiefgang Elbe und Tide-/Flut-/Reede-/Dockhafen'],
   ['1.4.9', 'Geo: 26 Lagekarten – Häfen (Hamburg, Rotterdam, Antwerpen … Nordrange), Elbmündung, Zugspitze, Landschaftszonen, Nachbarländer, Kanäle, Ural, Gibraltar, Bosporus/Dardanellen – das Gesuchte ist orange markiert'],
@@ -1864,11 +1948,12 @@ function showNext() {
   const spk = S.en ? `<button type="button" class="speak" data-say="${esc(c.back)}" aria-label="Aussprache anhören" title="Aussprache anhören">🔊</button>` : '';
   const ex = E ? `<div class="example"><b>Beispiel</b>${esc(E)}</div>` : '';
   const term = `<div class="term ${sizeCls(B, 18, 30)}">${esc(B)}${de ? '' : spk}</div>`;
-  const desc = `<div class="front-text ${sizeCls(F, 70, 130)}">${esc(F)}</div>`;
+  const desc = `<div class="front-text ${c.map ? 's' : sizeCls(F, 70, 130)}">${esc(F)}</div>`;
   const enLine = de ? `<div class="en-term">EN: <b>${esc(c.back)}</b>${spk}</div>` : '';
-  $('#cf').innerHTML = S.dir === 'normal' ? desc : term;
+  const mapH = c.map ? mapStack(c.map) : '';
+  $('#cf').innerHTML = S.dir === 'normal' ? desc + mapH : term;
   const pic = c.img ? `<img class="card-img" src="${esc(c.img)}" alt="Bild zur Lösung" draggable="false"><div class="img-hint">🔍 Bild antippen zum Vergrößern</div>` : '';
-  $('#cb').innerHTML = (S.dir === 'normal' ? term : desc) + enLine + pic + ex;
+  $('#cb').innerHTML = (S.dir === 'normal' ? term : desc) + enLine + pic + (mapH ? mapH + '<div class="img-hint">🔍 Karte antippen zum Vergrößern</div>' : '') + ex;
   const again = S.first.has(c.id);
   const tag = `<span class="dot b${c.box}"></span>Fach ${c.box}${again ? ' · Wiederholung' : ''}`;
   $('#tag-f').innerHTML = tag; $('#tag-b').innerHTML = tag;
@@ -1897,7 +1982,7 @@ const normA = s => String(s || '').toLowerCase().replace(/ä/g, 'ae').replace(/�
   .replace(/[^a-z0-9& ]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/^(der|die|das|ein|eine) /, '');
 function variants(term) {
   const v = new Set([term, ...term.split(/\s+\/\s+/)]), m = term.match(/^(.*?)(\S+)\s*\(([^)]+)\)(.*)$/);
-  if (m) { v.add(m[1] + m[2] + m[4]); v.add(m[1] + m[3] + m[4]); v.add(m[3]); }
+  if (m) { v.add(m[1] + m[2] + m[4]); v.add(m[1] + m[3] + m[4]); v.add(m[3]); m[3].split(/\s*\/\s*/).forEach(x => v.add(x)); }
   return [...v].map(normA).filter(Boolean);
 }
 function lev(a, b) {
@@ -1952,8 +2037,18 @@ function checkAnswer() {
 /* Auswahl-Modus */
 function renderMc(d, c) {
   const ans = x => S.dir === 'normal' ? cardB(x) : cardF(x);
+  // Ablenker möglichst aus derselben Kategorie (z. B. nur Flüsse, nur Häfen)
+  const same = d.cards.filter(x => x.id !== c.id && cardF(x) === cardF(c)), others = same.length >= 3 ? same : d.cards.filter(x => x.id !== c.id);
+  if (S.dir !== 'normal' && c.map) { // umgekehrt: die richtige Karte unter vier Karten finden
+    const opts = shuffle([c, ...shuffle(others.filter(x => x.map)).slice(0, 3)]);
+    S.mcOpts = opts.map(x => x.id); S.mcRight = opts.indexOf(c);
+    $('#mc').classList.add('maps');
+    $('#mc').innerHTML = opts.map((x, i) => `<button data-act="mc" data-i="${i}"><span class="k">${i + 1}</span>${mapStack(x.map, 'mc-map')}</button>`).join('');
+    return;
+  }
+  $('#mc').classList.remove('maps');
   const right = ans(c), seen = new Set([normA(right)]);
-  const pool = shuffle(d.cards.filter(x => x.id !== c.id)).map(ans).filter(a => { const k = normA(a); if (!k || seen.has(k)) return false; seen.add(k); return true; });
+  const pool = shuffle(others).map(ans).filter(a => { const k = normA(a); if (!k || seen.has(k)) return false; seen.add(k); return true; });
   S.mcOpts = shuffle([right, ...pool.slice(0, 3)]);
   S.mcRight = S.mcOpts.indexOf(right);
   $('#mc').innerHTML = S.mcOpts.map((o, i) => `<button data-act="mc" data-i="${i}"><span class="k">${i + 1}</span><span>${esc(o.length > 160 ? o.slice(0, 157) + '…' : o)}</span></button>`).join('');
@@ -2048,10 +2143,15 @@ function bindCard() {
   const snap = () => { card.style.transition = 'transform .25s cubic-bezier(.2,.8,.2,1)'; card.style.transform = ''; setHints(0); };
   card.addEventListener('pointerup', () => {
     if (!st) return; const s = st; st = null;
-    if (!s.moved) { if (s.spk) { speak(s.spk.dataset.say); return; } if (s.img && S.flipped) { zoomImg(s.img.getAttribute('src')); return; } flip(); return; }
+    if (!s.moved) { if (s.spk) { speak(s.spk.dataset.say); return; } if (s.img && S.flipped) { if (s.img.dataset.map) zoomMap(s.img.dataset.map.split('|')); else zoomImg(s.img.getAttribute('src')); return; } flip(); return; }
     if (S.revealed && Math.abs(s.dx) > 90) rate(s.dx > 0); else snap();
   });
   card.addEventListener('pointercancel', () => { st = null; snap(); });
+}
+/* Stumme Karte: mehrere gleich große SVG-Ebenen übereinander */
+const mapStack = (layers, cls = 'card-img') => `<div class="${cls} map-stack" data-map="${esc(layers.join('|'))}">${layers.map(l => `<img src="${esc(l)}" alt="" draggable="false">`).join('')}</div>`;
+function zoomMap(layers) {
+  openSheet(`${mapStack(layers, 'zoom-map')}<div class="sheet-actions"><button class="btn primary" data-s="cancel">Schließen</button></div>`);
 }
 function zoomImg(src) {
   openSheet(`<img class="zoom-img" src="${esc(src)}" alt="Bild zur Lösung"><div class="sheet-actions"><button class="btn primary" data-s="cancel">Schließen</button></div>`);
