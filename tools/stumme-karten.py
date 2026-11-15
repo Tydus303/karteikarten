@@ -97,11 +97,15 @@ FL, MEER, GEB, HAFEN, WEG = 'Welcher Fluss ist markiert?', 'Welches Meer / welch
 # ===================== Europa =====================
 def europa():
     m = Map(-14, 29, 62, 71)
-    RV = {'Donau': ('Donau', 'Danube'), 'Elbe': ('Elbe',), 'Guadalquivir': ('Guadalquivir',), 'Loire': ('Loire',), 'Oder': ('Oder',), 'Rhein': ('Rhein', 'Rhine'), 'Seine': ('Seine',), 'Wolga': ('Volga',)}
+    RV = {'Donau': ('Donau', 'Danube'), 'Elbe': ('Elbe',), 'Guadalquivir': ('Guadalquivir',), 'Loire': ('Loire',), 'Oder': ('Oder',), 'Rhein': ('Rhein', 'Rhine'), 'Seine': ('Seine',), 'Wolga': ('Volga',),
+          # zusätzlich aus OneNote: Wasserwege der Nordrange und Topographie Deutschland
+          'Schelde': ('Schelde',), 'Weser': ('Weser',), 'Ems': ('Ems',), 'Main': ('Main',)}
     card = make('europa', m, 'ne_50m_land', 'ne_50m_admin_0_boundary_lines_land', [n for v in RV.values() for n in v], [], tol_km=60, scale_km=300)
     ex = {'Donau': 'mündet ins Schwarze Meer', 'Elbe': 'mündet bei Cuxhaven in die Nordsee', 'Guadalquivir': 'Südspanien, mündet in den Atlantik (Sevilla)',
           'Loire': 'längster Fluss Frankreichs, mündet in die Biskaya', 'Oder': 'Grenze Deutschland–Polen, mündet in die Ostsee', 'Rhein': 'mündet bei Rotterdam in die Nordsee',
-          'Seine': 'Paris, mündet bei Le Havre in den Ärmelkanal', 'Wolga': 'längster Fluss Europas, mündet ins Kaspische Meer'}
+          'Seine': 'Paris, mündet bei Le Havre in den Ärmelkanal', 'Wolga': 'längster Fluss Europas, mündet ins Kaspische Meer',
+          'Schelde': 'Antwerpen – Zufahrt über die Westerschelde (Nordrange)', 'Weser': 'Bremen / Bremerhaven (Nordrange)', 'Ems': 'Emden (Nordrange)',
+          'Main': 'mündet bei Mainz in den Rhein (Topographie Deutschland)'}
     for k, names in RV.items(): card(FL, k, ex[k], over=hi_line(m, rivers(names), 5))
     MP = {'Ägäis': 'Aegean Sea', 'Ärmelkanal': 'English Channel', 'Biskaya': 'Bay of Biscay', 'Bosporus': 'Bosporus', 'Bottnischer Meerbusen': 'Gulf of Bothnia',
           'Dardanellen': 'Dardanelles', 'Europäisches Nordmeer (Nordmeer)': 'Norwegian Sea', 'Finnischer Meerbusen': 'Gulf of Finland', 'Kattegat': 'Kattegat', 'Marmarameer': 'Sea of Marmara',
