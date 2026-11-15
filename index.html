@@ -1808,8 +1808,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.8';
+const APP_VERSION = '1.5.9';
 const CHANGELOG = [
+  ['1.5.9', 'Kartenquiz: nach dem Ergebnis bringt Enter direkt die nächste Frage'],
   ['1.5.8', 'Kartenquiz: neuer Modus „⌨️ Eintippen“ (beim Start einschaltbar) – eine Stelle ist orange markiert, ohne Beschriftung, und du schreibst selbst, was dort liegt (kleine Tippfehler werden toleriert, „Doch gewusst“ möglich)'],
   ['1.5.7', 'Kartenquiz: „Los geht’s“ ging bei „Alle Häfen“ nicht, wenn noch alte Quizdaten im Speicher waren – die Daten werden jetzt pro Version frisch geladen und notfalls automatisch nachgeladen'],
   ['1.5.6', 'Kartenquiz: neue Runde „Alle Häfen (16)“ – die 15 Nordrange-Häfen plus London auf einer Karte'],
@@ -2479,7 +2480,7 @@ const actions = {
   'gq-mode'(el) { gqSet().mode = el.dataset.v; save(); render(); },
   'gq-override'() { const R = GQ.run; if (!R || !R.res || R.res.hit) return; const last = R.results[R.results.length - 1];
     R.res.hit = last.hit = true; R.res.pts = last.pts = 1000; R.res.r = 'typo'; render(); },
-  'gq-next'() { const R = GQ.run; if (!R) return; R.i++; R.guess = null; R.res = null; R.view = null; render(); },
+  'gq-next'() { const R = GQ.run; if (!R || !R.res) return; R.i++; R.guess = null; R.res = null; R.view = null; render(); },
   'gq-zoom'(el) { gqZoom(+el.dataset.v); },
   'gq-quit'() { const R = GQ.run; if (R && R.results.length && R.i < R.items.length) { R.items = R.items.slice(0, R.i + (R.res ? 1 : 0)); R.i = R.items.length; render(); return; } GQ.run = null; render(); },
   'gq-again'() { GQ.run = null; gqStart(); },
@@ -2532,6 +2533,8 @@ $('#app').addEventListener('change', async e => {
 document.addEventListener('keydown', e => {
   if (e.target.id === 'ans' && e.target.tagName === 'TEXTAREA' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); checkAnswer(); return; }
   if (sheetEl) { if (e.key === 'Escape') closeSheet(); return; }
+  // Kartenquiz: nach dem Ergebnis bringt Enter die nächste Frage (Knöpfe lösen selbst aus)
+  if (ui.view === 'quiz' && GQ.run && GQ.run.res && e.key === 'Enter' && !e.target.matches('button, input, textarea')) { e.preventDefault(); actions['gq-next'](); return; }
   if (ui.view !== 'learn' || !S || e.target.matches('input, textarea')) return;
   if (e.key === 'Backspace' || (e.key === 'z' && (e.metaKey || e.ctrlKey))) { e.preventDefault(); undo(); return; }
   if (S.write && e.key === 'Enter') { e.preventDefault(); if (!S.checked || S.dir === 'normal') checkAnswer(); return; }
