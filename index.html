@@ -182,7 +182,7 @@ ul.info li{margin:4px 0}
 .face.front .map-stack img{max-height:min(26vh,190px)}
 .mc.maps{display:grid;grid-template-columns:1fr 1fr}
 /* Kartenquiz */
-.seg.wrap{flex-wrap:wrap}.seg.wrap button{flex:1 1 auto}
+.seg.wrap{flex-wrap:wrap}.seg.wrap button{flex:1 1 40%}
 .gq-ask{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:2px 0 10px}.gq-ask b{font-size:24px;font-weight:800;letter-spacing:-.01em}
 .gq-map{position:relative;width:100%;height:60vh;contain:strict;overflow:hidden;border-radius:16px;border:1px solid var(--border);touch-action:none;user-select:none;-webkit-user-select:none;cursor:crosshair;background:#cfe5f2}
 .gq-world{position:absolute;left:0;top:0;transform-origin:0 0;backface-visibility:hidden}
@@ -1807,8 +1807,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.5';
+const APP_VERSION = '1.5.6';
 const CHANGELOG = [
+  ['1.5.6', 'Kartenquiz: neue Runde „Alle Häfen (16)“ – die 15 Nordrange-Häfen plus London auf einer Karte'],
   ['1.5.5', 'Kartenquiz: irgendwo ins orange Feld tippen zählt jetzt immer – auch der ganze Kreis bei Häfen, der ganze Strich bei Flüssen und Kanälen und der Rand bei Meerengen (alle 66 Begriffe Punkt für Punkt geprüft)'],
   ['1.5.4', 'Fehlerbehebung: Offline-Speicher (Service Worker) aus 1.5.3 lief nicht – jetzt werden Updates wirklich frisch geladen'],
   ['1.5.3', 'Kartenquiz: bei falschem Tipp steht jetzt da, was du angetippt hast (z. B. „Du hast getippt: Ostsee“ oder ein Land) · Gebirge großzügiger · Updates laden Karten und Quizdaten jetzt wirklich frisch – vorher konnten alte, fehlerhafte Quizdaten im Speicher bleiben (deshalb zählten Ärmelkanal, Nordsee, Schwarzes Meer usw. manchmal nicht)'],
@@ -1879,7 +1880,7 @@ document.addEventListener('touchend', e => {
 });
 /* ---------- Kartenquiz (Begriff auf der leeren Karte finden) ---------- */
 let GQ = { data: null, run: null }, gqLoading = null;
-const GQ_MAPS = { europa: 'Europa', nordrange: 'Nordrange', traditionell: 'Traditionelle Seehäfen' };
+const GQ_MAPS = { europa: 'Europa', nordrange: 'Nordrange', haefen: 'Alle Häfen (16)', traditionell: 'Traditionelle Seehäfen' };
 function gqLoad() {
   if (GQ.data) return Promise.resolve(GQ.data);
   return gqLoading ||= fetch('img/kartenquiz.json').then(r => { if (!r.ok) throw 0; return r.json(); })
@@ -1942,7 +1943,7 @@ function viewQuiz() {
     return `<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Zurück">${ic('back')}</button><h2>Kartenquiz</h2></div>
       <div class="panel"><div class="panel-title">So geht’s</div><p class="muted small" style="margin:0">Ein Begriff wird genannt – tippe auf der leeren Karte die Stelle an, wo er liegt. Danach siehst du die richtige Lage und wie weit du daneben lagst. Zoomen: zwei Finger oder + / −.</p></div>
       <div class="panel"><div class="panel-title">Karte</div>
-        <div class="seg">${Object.entries(GQ_MAPS).map(([k, l]) => b('gq-map', k, st.map === k, l)).join('')}</div>
+        <div class="seg wrap">${Object.entries(GQ_MAPS).map(([k, l]) => b('gq-map', k, st.map === k, l)).join('')}</div>
         <div class="panel-title" style="margin-top:6px">Was abfragen?</div>
         <div class="seg wrap">${b('gq-cat', '', !st.cat, 'Alles')}${cats.map(c => b('gq-cat', c, st.cat === c, c)).join('')}</div>
         <div class="panel-title" style="margin-top:6px">Wie viele?</div>
@@ -2090,6 +2091,8 @@ function gqGo() {
   if (logAnswer(hit)) setTimeout(() => toast(`Tagesziel geschafft! 🔥 ${streakNow()} ${streakNow() === 1 ? 'Tag' : 'Tage'} am Stück`), 350);
   save();
   if (n.d > 0) gqFit(R.guess, n.q);
+  else { const b = gqBox(), v = R.view, x = R.guess[0] * v.s + v.tx, y = R.guess[1] * v.s + v.ty; // Treffer außerhalb des Bildausschnitts → hinschieben
+    if (x < 20 || y < 20 || x > b.W - 20 || y > b.H - 20) gqFit(R.guess, R.guess); }
   render();
 }
 

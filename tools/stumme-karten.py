@@ -157,6 +157,11 @@ def nordrange():
     card(WEG, 'Nordsee', '', under=hi_poly(m, marine('North Sea') + marine('Waddenzee'), stroke=False))
     card(WEG, 'Ärmelkanal', '', under=hi_poly(m, marine('English Channel'), stroke=False))
     card(WEG, 'Straße von Dover', 'engste Stelle des Ärmelkanals', over=ellipse(m, 1.55, 51.0, 30, 16, -50))
+    # Kartenquiz „Alle Häfen“: die 15 Nordrange-Häfen + London auf derselben Karte (nur Quiz, kein Karteikarten-Stapel)
+    GEOM.clear(); lo = svg(m, hi_point(m, 0.05, 51.50), 'karte-nordrange-o-london.svg'); lg = list(GEOM); GEOM.clear()
+    nr = QUIZ['nordrange']
+    QUIZ['haefen'] = {**{k: v for k, v in nr.items() if k != 'items'}, 'items': [i for i in nr['items'] if i['kat'] == 'Hafen'] +
+                      [{'name': 'London', 'kat': 'Hafen', 'u': nr['sea'], 'o': lo, 'g': lg}]}
 
 # ===================== Traditionelle Seehäfen =====================
 def traditionell():
@@ -173,7 +178,7 @@ def ctx_rings(m, f, tol=2.0):
     return out
 def add_context():
     """Länder und Meere, damit das Quiz sagen kann, was man stattdessen angetippt hat."""
-    views = {'europa': (-14, 29, 62, 71), 'nordrange': (-2.2, 48.9, 11.4, 54.9), 'traditionell': (-1.6, 50.5, 10.8, 54.4)}
+    views = {'europa': (-14, 29, 62, 71), 'nordrange': (-2.2, 48.9, 11.4, 54.9), 'traditionell': (-1.6, 50.5, 10.8, 54.4), 'haefen': (-2.2, 48.9, 11.4, 54.9)}
     def near(f, bb):
         c = f['geometry']['coordinates']; pts = [p for poly in (c if f['geometry']['type'] == 'MultiPolygon' else [c]) for r in poly for p in r]
         x0, y0, x1, y1 = min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts)
