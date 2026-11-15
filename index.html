@@ -760,7 +760,7 @@ const SEED_X4 = { name: "LF4 – Arbeit 04.12.", cards: [
  ["Kredit der Bank, der durch das Schiff abgesichert ist", "Schiffshypothek", ""],
  ["Geld, das der Inhaber selbst ins Unternehmen einbringt", "Eigenkapital", ""]
 ]};
-const seedDeck = sd => ({ name: sd.name, cards: sd.cards.map(([front, back, example, img, de]) => Object.assign({ front, back, example }, img ? { img } : {}, de ? { de } : {})) });
+const seedDeck = sd => ({ name: sd.name, ...(sd.archived ? { archived: true } : {}), cards: sd.cards.map(([front, back, example, img, de]) => Object.assign({ front, back, example }, img ? { img } : {}, de ? { de } : {})) });
 
 const PROMPT = `Erstelle Karteikarten für meine Ausbildung zum Schifffahrtskaufmann (Berufsschule).
 Thema: [THEMA / LERNFELD HIER EINTRAGEN]
@@ -910,6 +910,23 @@ Object.assign(GEO_IMG, {
   "Dockhafen (Schleusenhafen)": "img/hafen-dockhafen.svg"
 });
 SEED_X1.cards.forEach(c => { if (!c[3] && GEO_IMG[c[1]]) c[3] = GEO_IMG[c[1]]; });
+// Gezeiten-Karten vorerst aus dem Geo-Stapel genommen – liegen (mit Fortschritt) im Archiv-Stapel
+const GEZEITEN = ["Tide", "Flut", "Ebbe", "Hochwasser", "Niedrigwasser", "Tidenhub", "Flutstrom", "Ebbstrom", "ca. 50 Minuten", "Die Erde wird stärker vom Mond angezogen als das Wasser dort – das Wasser „bleibt zurück“", "Springtide", "Nipptide", "ca. 45 % der Mondwirkung", "Trichtermündung", "Sturmflut", "Pegelturm", "13,80 m"];
+const SEED_X1B = { name: 'Geo – Gezeiten (vorerst raus)', archived: true, cards: SEED_X1.cards.filter(c => GEZEITEN.includes(c[1])) };
+SEED_X1.cards = SEED_X1.cards.filter(c => !GEZEITEN.includes(c[1]));
+const MOVED_CARDS = [{ from: SEED_X1.name, to: SEED_X1B.name, backs: GEZEITEN }];
+// Verschobene Karten mitsamt Fortschritt umziehen (auch nach dem Sync, falls ein anderes Gerät sie noch im alten Stapel hat)
+function applyMoves() {
+  const key = c => (c.front + '|' + c.back).toLowerCase().replace(/\s+/g, ' ').trim();
+  MOVED_CARDS.forEach(mv => {
+    const src = db.decks.find(d => d.name === mv.from); if (!src) return;
+    const moving = src.cards.filter(c => mv.backs.includes(c.back)); if (!moving.length) return;
+    let dst = db.decks.find(d => d.name === mv.to);
+    if (!dst) { dst = makeDeck(mv.to, []); dst.archived = true; db.decks.push(dst); }
+    moving.forEach(c => { const i = dst.cards.findIndex(x => key(x) === key(c)); if (i < 0) dst.cards.push(c); else if ((c.t || 0) > (dst.cards[i].t || 0)) dst.cards[i] = c; });
+    src.cards = src.cards.filter(c => !moving.includes(c));
+  });
+}
 // Deutsche Fassung des Stapels „Englisch – Ship Parts & Terms (EN)“ (Schlüssel = englischer Fachbegriff)
 const DE_EN3 = {
  "cargo holds": ["Wo liegen die Laderäume eines Schiffs – und was sind sie?", "Laderäume", "Große Räume unter dem Hauptdeck, zwischen Bug und Maschinenraum – zum Stauen der Ladung."],
@@ -1014,9 +1031,9 @@ function makeCard(o) {
     box: Math.min(5, Math.max(1, parseInt(o.box) || 1)), due: Number(o.due) || 0, wrong: Number(o.wrong) || 0, ...(o.t ? { t: Number(o.t) } : {}) };
 }
 function makeDeck(name, cards) { return { id: uid(), name: name.trim(), cards: cards.map(makeCard) }; }
-const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X2, SEED_X3, SEED_X4];
+const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4];
 function freshDb() {
-  return { decks: SEEDS_ALL().map(sd => { const x = seedDeck(sd); return makeDeck(x.name, x.cards); }), settings: { theme: 'auto', dir: 'normal' }, log: {} };
+  return { decks: SEEDS_ALL().map(sd => { const x = seedDeck(sd); return Object.assign(makeDeck(x.name, x.cards), x.archived ? { archived: true } : {}); }), settings: { theme: 'auto', dir: 'normal' }, log: {} };
 }
 function load() {
   try {
@@ -1050,10 +1067,11 @@ const DUP_REMOVED = {
   [SEED_EN2.name]: ["Containerschiff","Vollcontainerschiff","Mehrzweckschiff","Schwergutschiff","Massengutfrachter","Rohöltanker","Flüssiggastanker","Chemietanker","RoRo-Schiff","Tiefgang","Breite (eines Schiffs)","Bug / Heck","Propeller / Schiffsschraube","Ruder","Hauptmaschine","Hilfsdiesel / Hilfsmaschine","Laderaum","Zellgerüst / Führungsschienen für Container","Zwischendeck","Schott","Lukendeckel","Laschstangen und Twistlocks","Brücke","Brückennock","Wohnbereich der Besatzung","Doppelboden","Ballasttanks","Anker","Bugstrahlruder","Aufbauten","ohne eigenes Ladegeschirr","Freifall-Rettungsboot","Kai"],
   [SEED_EN3.name]: ["Provides marketing and sales, canvasses and books cargo, maintains contact with shippers, consignees and forwarders","Arranges berthing, bunkering, repairs, crew changes, ship's stores and spare parts for a vessel in port","Mediates between ship owners and charterers","Brokers the sale and purchase of ships","Manages vessels (crew, technical matters) on behalf of the owner","The company who really owns the ship, with the help of financers (banks) or own money","A company that offers transport services for cargo with own or chartered vessels","Any person or organisation paying for its cargo to be shipped from one place to another","The person or company that receives the cargo at the destination","The party that hires a vessel from the ship owner","Umbrella term for all contracts for the carriage of goods by sea","Liner contract between carrier and shipper; freight paid per container/unit","A vessel is hired for one voyage; freight is paid per ton of cargo","A vessel is hired for a period of time; the charterer pays hire per day","The daily payment for a vessel under a time charter","Document of title and receipt for the cargo shipped","Internationally standardised delivery terms in a sales contract","Taking on fuel for the ship","To put a ship into a dock out of the water for repairs","Department that plans voyages, coordinates port calls and links ship and shore"]
 };
-const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X2, SEED_X3, SEED_X4];
+const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4];
 const SEED_HASH = hashStr(JSON.stringify(SEEDS));
 if (db.settings.seedHash !== SEED_HASH) {
   syncApplying = true; // kein „neuerer Stand“ – sonst gewinnt das Gerät, das zuerst das Update bekommt
+  applyMoves();
   importDecks(SEEDS.map(seedDeck));
   // Bilder auch an bereits vorhandene Karten hängen
   SEEDS.forEach(sd => { const dk = db.decks.find(x => x.name.toLowerCase() === sd.name.toLowerCase()); if (!dk) return;
@@ -1264,6 +1282,7 @@ function applyRemote(r) {
     db.log = mergeLog(db.log, r.log);
     db.tomb = r.tomb || {};
     if (r.dailyGoal) db.settings.dailyGoal = r.dailyGoal;
+    applyMoves();
     db.settings.localSavedAt = r.savedAt; db.settings.syncDirty = false; db.settings.lastSync = Date.now();
     save();
   } finally { syncApplying = false; }
@@ -1299,6 +1318,7 @@ function mergeRemote(r) {
   if (curName && !deck()) { const d = db.decks.find(x => x.name === curName); if (d) ui.deckId = d.id; }
   if (rNewer) { if (Array.isArray(r.exams)) db.exams = r.exams; if (r.examColors) db.settings.examColors = r.examColors; if (r.dailyGoal) db.settings.dailyGoal = r.dailyGoal; }
   db.log = mergeLog(db.log, r.log);
+  applyMoves();
   db.settings.localSavedAt = Math.max(r.savedAt || 0, db.settings.localSavedAt || 0);
 }
 const syncCore = p => JSON.stringify([p.decks, p.exams, p.log, p.tomb || {}]);
@@ -1692,8 +1712,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.4.10';
+const APP_VERSION = '1.4.11';
 const CHANGELOG = [
+  ['1.4.11', 'Geo: die 17 Gezeiten-Karten (Tide, Flut, Ebbe … Tiefgang Elbe) vorerst aus „Geo – Arbeit 16.11.“ genommen – sie liegen mit Fortschritt im Archiv-Stapel „Geo – Gezeiten (vorerst raus)“'],
   ['1.4.10', 'Geo: 20 Skizzen zu Tide & Co. – Tidenkurve (Flut, Ebbe, HW, NW, Tidenhub), Flut-/Ebbstrom, Mond/Sonne (zweiter Flutberg, Spring-/Nipptide, 50 Minuten, 45 %), Sturmflut, Pegelturm, Tiefgang Elbe und Tide-/Flut-/Reede-/Dockhafen'],
   ['1.4.9', 'Geo: 26 Lagekarten – Häfen (Hamburg, Rotterdam, Antwerpen … Nordrange), Elbmündung, Zugspitze, Landschaftszonen, Nachbarländer, Kanäle, Ural, Gibraltar, Bosporus/Dardanellen – das Gesuchte ist orange markiert'],
   ['1.4.8', 'Sync repariert: Geräte führen ihren Stand jetzt zusammen statt sich gegenseitig zu überschreiben (pro Karte gewinnt der neueste Lernstand) · App-Updates zählen nicht mehr als „neuerer Stand“ · Fortschritt wird schneller gesendet, auch beim Schließen · alle 60 s wird abgeholt · Sync-Fehler werden in den Einstellungen angezeigt'],
