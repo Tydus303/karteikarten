@@ -191,6 +191,7 @@ ul.info li{margin:4px 0}
 .gq-zoom button{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:20px;font-weight:700;cursor:pointer;line-height:1}
 .gq-res{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;min-height:44px;font-weight:700;font-size:17px;padding:4px 0}
 .gq-what{flex-basis:100%;font-size:15px;font-weight:500}
+.gq-form{margin-top:10px}
 .gq-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}.gq-row:last-child{border-bottom:0}
 .mc.maps button{flex-direction:column;align-items:stretch;padding:6px;gap:4px}
 .mc.maps .mc-map{width:100%}.mc.maps .mc-map img{max-height:110px}
@@ -1807,8 +1808,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.7';
+const APP_VERSION = '1.5.8';
 const CHANGELOG = [
+  ['1.5.8', 'Kartenquiz: neuer Modus „⌨️ Eintippen“ (beim Start einschaltbar) – eine Stelle ist orange markiert, ohne Beschriftung, und du schreibst selbst, was dort liegt (kleine Tippfehler werden toleriert, „Doch gewusst“ möglich)'],
   ['1.5.7', 'Kartenquiz: „Los geht’s“ ging bei „Alle Häfen“ nicht, wenn noch alte Quizdaten im Speicher waren – die Daten werden jetzt pro Version frisch geladen und notfalls automatisch nachgeladen'],
   ['1.5.6', 'Kartenquiz: neue Runde „Alle Häfen (16)“ – die 15 Nordrange-Häfen plus London auf einer Karte'],
   ['1.5.5', 'Kartenquiz: irgendwo ins orange Feld tippen zählt jetzt immer – auch der ganze Kreis bei Häfen, der ganze Strich bei Flüssen und Kanälen und der Rand bei Meerengen (alle 66 Begriffe Punkt für Punkt geprüft)'],
@@ -1889,7 +1891,7 @@ function gqLoad(fresh) {
   return gqLoading ||= get(`img/kartenquiz.json?v=${APP_VERSION}`).catch(() => get('img/kartenquiz.json'))
     .then(d => { gqLoading = null; return (GQ.data = d); }).catch(() => { gqLoading = null; toast('Karten konnten nicht geladen werden'); });
 }
-const gqSet = () => (db.settings.quiz ||= { map: 'europa', cat: '', n: 10 });
+const gqSet = () => (db.settings.quiz ||= { map: 'europa', cat: '', n: 10, mode: 'tap' });
 /* Abstand Tipp → Ziel in Bildpunkten, plus nächster Punkt des Ziels */
 function gqNearest(g, p) {
   // Abstand zum Rand der orangen Markierung (0 = irgendwo auf der Markierung getroffen)
@@ -1937,7 +1939,7 @@ function gqStart(names) {
   items = shuffle(items.slice());
   if (!names && st.n) items = items.slice(0, st.n);
   if (!items.length) { toast('Keine Begriffe in dieser Auswahl'); return; }
-  GQ.run = { key: st.map, m, items, i: 0, guess: null, res: null, results: [], view: null };
+  GQ.run = { key: st.map, m, items, i: 0, guess: null, res: null, results: [], view: null, type: st.mode === 'type' };
   render();
 }
 function viewQuiz() {
@@ -1957,6 +1959,9 @@ function viewQuiz() {
         <div class="seg wrap">${b('gq-cat', '', !st.cat, 'Alles')}${cats.map(c => b('gq-cat', c, st.cat === c, c)).join('')}</div>
         <div class="panel-title" style="margin-top:6px">Wie viele?</div>
         <div class="seg">${b('gq-n', 10, st.n === 10, '10')}${b('gq-n', 0, !st.n, `Alle (${n})`)}</div>
+        <div class="panel-title" style="margin-top:6px">Modus</div>
+        <div class="seg">${b('gq-mode', 'tap', st.mode !== 'type', '👆 Antippen')}${b('gq-mode', 'type', st.mode === 'type', '⌨️ Eintippen')}</div>
+        <div class="seg-caption">${st.mode === 'type' ? 'Eine Stelle ist markiert – du schreibst, was dort liegt' : 'Ein Begriff wird genannt – du tippst auf die Stelle'}</div>
         <button class="btn primary block" data-act="gq-start">Los geht’s</button></div>`;
   }
   if (R.i >= R.items.length) {
@@ -1965,23 +1970,52 @@ function viewQuiz() {
     return `<div class="topbar"><button class="icon-btn" data-act="gq-quit" aria-label="Zurück">${ic('back')}</button><h2>Kartenquiz – Ergebnis</h2></div>
       <div class="panel score"><div class="big">${tot}</div><div class="muted small">von ${R.results.length * 1000} Punkten</div>
         <div class="score-row"><div><b class="t-good">${hits}</b><span>Treffer</span></div><div><b class="t-bad">${wrong.length}</b><span>daneben</span></div><div><b>${R.results.length}</b><span>Begriffe</span></div></div></div>
-      ${wrong.length ? `<div class="panel"><div class="panel-title">Daneben – üben!</div>${wrong.map(r => `<div class="gq-row"><span>${esc(r.name)}${r.what ? `<br><span class="muted small">getippt: ${esc(r.what.name)}</span>` : ''}</span><b class="t-bad">${fmtKm(r.km)}</b></div>`).join('')}</div>` : ''}
+      ${wrong.length ? `<div class="panel"><div class="panel-title">Daneben – üben!</div>${wrong.map(r => `<div class="gq-row"><span>${esc(r.name)}${r.what ? `<br><span class="muted small">getippt: ${esc(r.what.name)}</span>` : ''}${r.typed != null ? `<br><span class="muted small">geschrieben: ${esc(r.typed || '–')}</span>` : ''}</span>${r.typed != null ? '<b class="t-bad">✗</b>' : `<b class="t-bad">${fmtKm(r.km)}</b>`}</div>`).join('')}</div>` : ''}
       ${wrong.length ? '<button class="btn primary block" data-act="gq-wrong">Nur die Fehler nochmal</button>' : ''}
       <button class="btn block" data-act="gq-again" style="margin-top:8px">Neue Runde</button>`;
   }
   const it = R.items[R.i], res = R.res, m = R.m;
-  const layers = [res ? it.u : m.sea, m.base, ...(res && it.o ? [it.o] : [])];
+  const show = res || R.type; // im Eintipp-Modus ist die Stelle von Anfang an markiert
+  const layers = [show ? it.u : m.sea, m.base, ...(show && it.o ? [it.o] : [])];
   return `<div class="gq">
     <div class="topbar"><button class="icon-btn" data-act="gq-quit" aria-label="Runde beenden">${ic('close')}</button>
       <div class="lp"><div class="lp-bar"><span style="width:${R.i / R.items.length * 100}%"></span></div><div class="lp-text"><span>${R.i + 1} / ${R.items.length}</span><span>${R.results.reduce((a, r) => a + r.pts, 0)} Punkte</span></div></div></div>
-    <div class="gq-ask"><span class="muted small">Wo liegt …</span><b>${esc(it.name)}</b><span class="pill">${esc(it.kat)}</span></div>
+    ${R.type ? `<div class="gq-ask"><span class="muted small">Was ist hier markiert?</span><span class="pill">${esc(it.kat)}</span></div>`
+      : `<div class="gq-ask"><span class="muted small">Wo liegt …</span><b>${esc(it.name)}</b><span class="pill">${esc(it.kat)}</span></div>`}
     <div class="gq-map" id="gq-map"><div class="gq-world" id="gq-world" style="width:${m.w}px;height:${m.h}px">
       ${layers.map(l => `<img src="${esc(l)}" alt="" draggable="false">`).join('')}
       <svg viewBox="0 0 ${m.w} ${m.h}" id="gq-ov"></svg></div>
       <div class="gq-zoom"><button data-act="gq-zoom" data-v="1.6" aria-label="Vergrößern">+</button><button data-act="gq-zoom" data-v="0.625" aria-label="Verkleinern">−</button><button data-act="gq-zoom" data-v="0" aria-label="Ganze Karte">⤢</button></div></div>
-    <div class="gq-res">${res ? `<span class="${res.hit ? 't-good' : 't-bad'}">${res.hit ? '✓ Treffer!' : `✗ ${fmtKm(res.km)} daneben`}</span><span class="muted">+${res.pts} Punkte</span>${res.what ? `<span class="gq-what">Du hast getippt: <b>${esc(res.what.name)}</b> <span class="muted">(${esc(res.what.kat)})</span></span>` : ''}` : `<span class="muted">${R.guess ? 'Passt so? Sonst nochmal tippen.' : 'Tippe auf die Karte.'}</span>`}</div>
-    ${res ? '<button class="btn primary block" data-act="gq-next">Weiter</button>' : `<button class="btn primary block" data-act="gq-go" ${R.guess ? '' : 'disabled'}>Hier!</button>`}
+    ${R.type ? gqTypeBox(it, res) : `<div class="gq-res">${res ? `<span class="${res.hit ? 't-good' : 't-bad'}">${res.hit ? '✓ Treffer!' : `✗ ${fmtKm(res.km)} daneben`}</span><span class="muted">+${res.pts} Punkte</span>${res.what ? `<span class="gq-what">Du hast getippt: <b>${esc(res.what.name)}</b> <span class="muted">(${esc(res.what.kat)})</span></span>` : ''}` : `<span class="muted">${R.guess ? 'Passt so? Sonst nochmal tippen.' : 'Tippe auf die Karte.'}</span>`}</div>
+    ${res ? '<button class="btn primary block" data-act="gq-next">Weiter</button>' : `<button class="btn primary block" data-act="gq-go" ${R.guess ? '' : 'disabled'}>Hier!</button>`}`}
   </div>`;
+}
+function gqTypeBox(it, res) {
+  if (!res) return `<form class="answer gq-form" id="gq-form" autocomplete="off"><input id="gq-ans" type="text" placeholder="Namen eintippen …" autocapitalize="words" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="btn primary">Prüfen</button></form>`;
+  const txt = res.r === 'right' ? '✓ Richtig!' : res.r === 'typo' ? '✓ Fast richtig – Schreibweise prüfen' : '✗ Leider falsch';
+  return `<div class="gq-res"><span class="${res.hit ? 't-good' : 't-bad'}">${txt}</span><span class="muted">+${res.pts} Punkte</span>
+    <span class="gq-what">Richtig: <b>${esc(it.name)}</b>${res.r !== 'right' ? `<br><span class="muted">Du hast geschrieben: ${esc(res.typed || '–')}</span>` : ''}</span></div>
+    ${res.hit ? '' : '<button type="button" class="btn sm" data-act="gq-override" style="margin-bottom:8px">Doch gewusst</button>'}
+    <button class="btn primary block" data-act="gq-next">Weiter</button>`;
+}
+function gqCheck() {
+  const R = GQ.run; if (!R || !R.type || R.res) return;
+  const it = R.items[R.i], typed = ($('#gq-ans').value || '').trim(), r = judge(typed, it.name), hit = r !== 'wrong';
+  R.res = { r, hit, pts: hit ? 1000 : 0, typed };
+  R.results.push({ name: it.name, hit, pts: R.res.pts, typed });
+  if (logAnswer(hit)) setTimeout(() => toast(`Tagesziel geschafft! 🔥 ${streakNow()} ${streakNow() === 1 ? 'Tag' : 'Tage'} am Stück`), 350);
+  save(); render();
+}
+function gqFitTarget(it) { // markierte Stelle groß ins Bild holen
+  const R = GQ.run, b = gqBox(), xs = [], ys = [];
+  for (const [k, v] of it.g) {
+    if (k === 'pt') { xs.push(v[0] - 120, v[0] + 120); ys.push(v[1] - 120, v[1] + 120); }
+    else if (k === 'ell') { xs.push(v[0] - 60, v[0] + 60); ys.push(v[1] - 60, v[1] + 60); }
+    else for (const q of v) { xs.push(q[0]); ys.push(q[1]); }
+  }
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const s = Math.max(gqMinS(), Math.min(gqCoverS() * 1.4, b.W * 0.8 / Math.max(x1 - x0, 1), b.H * 0.8 / Math.max(y1 - y0, 1)));
+  R.view = { s, tx: b.W / 2 - (x0 + x1) / 2 * s, ty: b.H / 2 - (y0 + y1) / 2 * s };
 }
 const fmtKm = km => km < 1 ? '< 1 km' : km < 10 ? km.toFixed(1).replace('.', ',') + ' km' : Math.round(km).toLocaleString('de-DE') + ' km';
 /* Ansicht: Welt = Karte in Bildpunkten (m.w × m.h), Darstellung über eine einzige Transformation */
@@ -2044,9 +2078,10 @@ function bindQuiz() {
   const b = gqBox(); if (!b) return;
   const box = b.box, R = GQ.run;
   // Karte so groß wie möglich: restliche Bildschirmhöhe nutzen
-  const top = box.getBoundingClientRect().top, below = R.res ? (R.res.what ? 140 : 110) : 120;
+  const top = box.getBoundingClientRect().top, below = R.type ? (R.res ? (R.res.hit ? 150 : 205) : 120) : R.res ? (R.res.what ? 140 : 110) : 120;
   box.style.height = Math.max(260, Math.round(window.innerHeight - top - below)) + 'px';
-  if (!R.view) { const s = gqCoverS(); R.view = { s, tx: (box.clientWidth - R.m.w * s) / 2, ty: (box.clientHeight - R.m.h * s) / 2 }; }
+  if (!R.view) { if (R.type) gqFitTarget(R.items[R.i]); else { const s = gqCoverS(); R.view = { s, tx: (box.clientWidth - R.m.w * s) / 2, ty: (box.clientHeight - R.m.h * s) / 2 }; } }
+  if (R.type && !R.res && matchMedia('(hover:hover)').matches) { const a = $('#gq-ans'); if (a) a.focus({ preventScroll: true }); }
   gqDraw(); gqMarks();
   const pts = new Map(); let st = null;
   const local = e => { const r = box.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
@@ -2077,7 +2112,7 @@ function bindQuiz() {
     if (!pts.has(e.pointerId)) return;
     const p = pts.get(e.pointerId); pts.delete(e.pointerId);
     const R = GQ.run;
-    if (st && st.mode === 'tap' && !R.res) {
+    if (st && st.mode === 'tap' && !R.res && !R.type) {
       const v = R.view;
       R.guess = [(p[0] - v.tx) / v.s, (p[1] - v.ty) / v.s];
       gqMarks();
@@ -2441,6 +2476,9 @@ const actions = {
   'gq-n'(el) { gqSet().n = +el.dataset.v; save(); render(); },
   'gq-start'() { gqStart(); },
   'gq-go'() { gqGo(); },
+  'gq-mode'(el) { gqSet().mode = el.dataset.v; save(); render(); },
+  'gq-override'() { const R = GQ.run; if (!R || !R.res || R.res.hit) return; const last = R.results[R.results.length - 1];
+    R.res.hit = last.hit = true; R.res.pts = last.pts = 1000; R.res.r = 'typo'; render(); },
   'gq-next'() { const R = GQ.run; if (!R) return; R.i++; R.guess = null; R.res = null; R.view = null; render(); },
   'gq-zoom'(el) { gqZoom(+el.dataset.v); },
   'gq-quit'() { const R = GQ.run; if (R && R.results.length && R.i < R.items.length) { R.items = R.items.slice(0, R.i + (R.res ? 1 : 0)); R.i = R.items.length; render(); return; } GQ.run = null; render(); },
@@ -2484,7 +2522,7 @@ $('#app').addEventListener('input', e => {
   if (e.target.id === 'ans' && e.target.tagName === 'TEXTAREA') { e.target.style.height = ''; e.target.style.height = Math.min(e.target.scrollHeight + 2, 150) + 'px'; }
   if (e.target.id === 'search') { ui.search = e.target.value; const d = deck(); if (d) $('#card-list').innerHTML = cardListHtml(d); }
 });
-$('#app').addEventListener('submit', e => { e.preventDefault(); checkAnswer(); });
+$('#app').addEventListener('submit', e => { e.preventDefault(); if (e.target.id === 'gq-form') gqCheck(); else checkAnswer(); });
 $('#app').addEventListener('change', async e => {
   if (e.target.id === 'file' && e.target.files[0]) {
     const text = await e.target.files[0].text(); e.target.value = '';

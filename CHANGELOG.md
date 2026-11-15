@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.8** – Kartenquiz: neuer Modus „⌨️ Eintippen“ (beim Start einschaltbar) – eine Stelle ist orange markiert, ohne Beschriftung, und du schreibst selbst, was dort liegt (kleine Tippfehler werden toleriert, „Doch gewusst“ möglich)
 - **1.5.7** – Kartenquiz: „Los geht’s“ ging bei „Alle Häfen“ nicht, wenn noch alte Quizdaten im Speicher waren – die Daten werden jetzt pro Version frisch geladen und notfalls automatisch nachgeladen
 - **1.5.6** – Kartenquiz: neue Runde „Alle Häfen (16)“ – die 15 Nordrange-Häfen plus London auf einer Karte
 - **1.5.5** – Kartenquiz: irgendwo ins orange Feld tippen zählt jetzt immer – auch der ganze Kreis bei Häfen, der ganze Strich bei Flüssen und Kanälen und der Rand bei Meerengen (alle 66 Begriffe Punkt für Punkt geprüft)
