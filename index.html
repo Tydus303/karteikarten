@@ -1807,8 +1807,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.4';
+const APP_VERSION = '1.5.5';
 const CHANGELOG = [
+  ['1.5.5', 'Kartenquiz: irgendwo ins orange Feld tippen zählt jetzt immer – auch der ganze Kreis bei Häfen, der ganze Strich bei Flüssen und Kanälen und der Rand bei Meerengen (alle 66 Begriffe Punkt für Punkt geprüft)'],
   ['1.5.4', 'Fehlerbehebung: Offline-Speicher (Service Worker) aus 1.5.3 lief nicht – jetzt werden Updates wirklich frisch geladen'],
   ['1.5.3', 'Kartenquiz: bei falschem Tipp steht jetzt da, was du angetippt hast (z. B. „Du hast getippt: Ostsee“ oder ein Land) · Gebirge großzügiger · Updates laden Karten und Quizdaten jetzt wirklich frisch – vorher konnten alte, fehlerhafte Quizdaten im Speicher bleiben (deshalb zählten Ärmelkanal, Nordsee, Schwarzes Meer usw. manchmal nicht)'],
   ['1.5.2', 'Kartenquiz: Karte viel größer (nutzt die ganze Bildschirmhöhe, ⤢ zeigt die ganze Karte) · Zoomen und Verschieben flüssiger · Meere und Flüsse: irgendwo drauf tippen zählt – Teilmeere wie Golfe du Lion, Große Syrte, Kieler Bucht, Belte, Rigaer Bucht gehören jetzt dazu · Tipps knapp neben Fluss, Küste oder Hafen zählen als Treffer'],
@@ -1887,25 +1888,23 @@ function gqLoad() {
 const gqSet = () => (db.settings.quiz ||= { map: 'europa', cat: '', n: 10 });
 /* Abstand Tipp → Ziel in Bildpunkten, plus nächster Punkt des Ziels */
 function gqNearest(g, p) {
-  let best = { d: Infinity, q: p };
-  const seg = (a, b) => {
-    const dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy;
-    const t = L ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L)) : 0;
-    const q = [a[0] + t * dx, a[1] + t * dy], d = Math.hypot(p[0] - q[0], p[1] - q[1]);
-    if (d < best.d) best = { d, q };
-  };
+  // Abstand zum Rand der orangen Markierung (0 = irgendwo auf der Markierung getroffen)
+  const R_PT = 16, R_LINE = 7; // Radius des orangen Hafenkreises, halbe Breite des orangen Fluss-/Kanalstrichs
+  const segQ = (a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy;
+    const t = L ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L)) : 0; return [a[0] + t * dx, a[1] + t * dy]; };
   const inRing = r => { let ins = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++)
     if ((r[i][1] > p[1]) !== (r[j][1] > p[1]) && p[0] < (r[j][0] - r[i][0]) * (p[1] - r[i][1]) / (r[j][1] - r[i][1]) + r[i][0]) ins = !ins; return ins; };
-  if (g.some(([k, r]) => k === 'poly' && inRing(r))) return { d: 0, q: p }; // irgendwo im Meer = richtig
+  let best = { d: Infinity, q: p };
+  const take = (q, rad) => { const d = Math.max(0, Math.hypot(p[0] - q[0], p[1] - q[1]) - rad); if (d < best.d) best = { d, q: d ? q : p }; };
   for (const [k, v] of g) {
-    if (k === 'pt') { const d = Math.hypot(p[0] - v[0], p[1] - v[1]); if (d < best.d) best = { d, q: v }; }
-    else if (k === 'line' || k === 'poly') { for (let i = 1; i < v.length; i++) seg(v[i - 1], v[i]); if (k === 'poly') seg(v[v.length - 1], v[0]); }
+    if (k === 'pt') take(v, R_PT);
+    else if (k === 'line') for (let i = 1; i < v.length; i++) take(segQ(v[i - 1], v[i]), R_LINE);
+    else if (k === 'poly') { if (inRing(v)) return { d: 0, q: p }; for (let i = 0; i < v.length; i++) take(segQ(v[i ? i - 1 : v.length - 1], v[i]), 2); } // inkl. Randlinie
     else if (k === 'ell') {
       const [cx, cy, rx, ry, rot] = v, a = -rot * Math.PI / 180, dx = p[0] - cx, dy = p[1] - cy;
       const x = dx * Math.cos(a) - dy * Math.sin(a), y = dx * Math.sin(a) + dy * Math.cos(a), r = Math.hypot(x / rx, y / ry);
       if (r <= 1) return { d: 0, q: p };
-      const d = Math.hypot(dx, dy) * (1 - 1 / r);
-      if (d < best.d) best = { d, q: [cx + dx / r, cy + dy / r] };
+      take([cx + dx / r, cy + dy / r], 3); // inkl. orangem Ellipsenrand (Strichbreite 4)
     }
   }
   return best;

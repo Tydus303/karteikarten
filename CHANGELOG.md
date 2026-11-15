@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.5** – Kartenquiz: irgendwo ins orange Feld tippen zählt jetzt immer – auch der ganze Kreis bei Häfen, der ganze Strich bei Flüssen und Kanälen und der Rand bei Meerengen (alle 66 Begriffe Punkt für Punkt geprüft)
 - **1.5.4** – Fehlerbehebung: Offline-Speicher (Service Worker) aus 1.5.3 lief nicht – jetzt werden Updates wirklich frisch geladen
 - **1.5.3** – Kartenquiz: bei falschem Tipp steht jetzt da, was du angetippt hast (z. B. „Du hast getippt: Ostsee“ oder ein Land) · Gebirge großzügiger · Updates laden Karten und Quizdaten jetzt wirklich frisch – vorher konnten alte, fehlerhafte Quizdaten im Speicher bleiben (deshalb zählten Ärmelkanal, Nordsee, Schwarzes Meer usw. manchmal nicht)
 - **1.5.2** – Kartenquiz: Karte viel größer (nutzt die ganze Bildschirmhöhe, ⤢ zeigt die ganze Karte) · Zoomen und Verschieben flüssiger · Meere und Flüsse: irgendwo drauf tippen zählt – Teilmeere wie Golfe du Lion, Große Syrte, Kieler Bucht, Belte, Rigaer Bucht gehören jetzt dazu · Tipps knapp neben Fluss, Küste oder Hafen zählen als Treffer
