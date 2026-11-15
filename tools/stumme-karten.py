@@ -25,7 +25,10 @@ def d_parts(d):
     return out
 def reg_path(d, kind):
     for closed, pts in d_parts(d):
-        pts = geo.dp(pts + ([pts[0]] if closed else []), 1.5)
+        if closed and len(pts) > 3:  # Ring am entferntesten Punkt teilen, sonst fällt er bei der Vereinfachung zusammen
+            h = max(range(len(pts)), key=lambda i: (pts[i][0] - pts[0][0]) ** 2 + (pts[i][1] - pts[0][1]) ** 2)
+            pts = geo.dp(pts[:h + 1], 1.5)[:-1] + geo.dp(pts[h:] + [pts[0]], 1.5)[:-1]
+        else: pts = geo.dp(pts, 1.5)
         if len(pts) >= 2: GEOM.append([kind, [[round(x, 1), round(y, 1)] for x, y in pts]])
 
 def svg(m, body, name):
@@ -39,6 +42,11 @@ def slug(s):
 
 def rivers(names): return [f for n in ('ne_10m_rivers_lake_centerlines', 'ne_10m_rivers_europe') for f in load(n) if (f['properties'].get('name') or '') in names]
 def marine(name): return [f for f in load('ne_10m_geography_marine_polys') if f['properties'].get('name') == name]
+def belts():  # namenlose Fläche der Beltsee (Kieler Bucht, Großer/Kleiner Belt)
+    def inbox(f):
+        c = f['geometry']['coordinates']; pts = [p for poly in (c if f['geometry']['type'] == 'MultiPolygon' else [c]) for r in poly for p in r]
+        return all(8.5 <= p[0] <= 12.8 and 53.8 <= p[1] <= 56.6 for p in pts)
+    return [f for f in load('ne_10m_geography_marine_polys') if not f['properties'].get('name') and inbox(f)]
 def region(*names): return [f for f in load('ne_10m_geography_regions_polys') if f['properties'].get('NAME') in names]
 
 def ellipse(m, lon, lat, rx, ry, rot=0, fill=True):
@@ -100,12 +108,14 @@ def europa():
           'Nordsee': 'North Sea', 'Ostsee': 'Baltic Sea', 'Schwarzes Meer': 'Black Sea', 'Skagerrak': 'Skagerrak', 'Straße von Gibraltar': 'Strait of Gibraltar'}
     small = {'Bosporus': (29.05, 41.15, 10, 18, 20), 'Dardanellen': (26.45, 40.2, 10, 18, -40), 'Straße von Gibraltar': (-5.6, 35.95, 16, 10, 0), 'Marmarameer': None, 'Kattegat': None, 'Skagerrak': None}
     for k, en in sorted(MP.items()):
-        under = hi_poly(m, marine(en), stroke=False)
+        extra = {'Ostsee': ['Gulf of Riga', 'Mecklenburger Bucht', 'None', 'Øresund', 'Kaliningrad'], 'Nordsee': ['Waddenzee'], 'Schwarzes Meer': ['Sea of Azov'],
+                 'Europäisches Nordmeer (Nordmeer)': ['Vestfjorden', 'Trondheimsfjorden']}.get(k, [])
+        under = hi_poly(m, marine(en) + [f for n in extra if n != 'None' for f in marine(n)] + (belts() if 'None' in extra else []), stroke=False)
         over = ellipse(m, *small[k], fill=False) if small.get(k) else ''
         card(MEER, k, '', under=under, over=over or None)
-    med = [f for n in ('Mediterranean Sea', 'Adriatic Sea', 'Aegean Sea', 'Ionian Sea', 'Tyrrhenian Sea', 'Ligurian Sea', 'Balearic Sea', 'Alboran Sea') for f in marine(n)]
+    med = [f for n in ('Mediterranean Sea', 'Adriatic Sea', 'Aegean Sea', 'Ionian Sea', 'Tyrrhenian Sea', 'Ligurian Sea', 'Balearic Sea', 'Alboran Sea', 'Golfe du Lion', 'Gulf of Sidra', 'Sea of Crete', 'Gulf of Gabès') for f in marine(n)]
     card(MEER, 'Mittelmeer', 'mit Adria, Ägäis, Tyrrhenischem Meer …', under=hi_poly(m, med, stroke=False))
-    card(MEER, 'Atlantik (Atlantischer Ozean)', '', under=hi_poly(m, marine('North Atlantic Ocean') + marine('Bay of Biscay'), stroke=False))
+    card(MEER, 'Atlantik (Atlantischer Ozean)', '', under=hi_poly(m, marine('North Atlantic Ocean') + marine('Bay of Biscay') + marine('Irish Sea') + marine('Bristol Channel') + marine('Inner Seas'), stroke=False))
     card(MEER, 'Kaspisches Meer', 'größter See der Erde – Mündung der Wolga', under=hi_poly(m, marine('Caspian Sea'), stroke=False))
     card(MEER, 'Straße von Sizilien', 'zwischen Sizilien und Tunesien', over=ellipse(m, 11.6, 37.25, 22, 12, -30))
     # Gebirge

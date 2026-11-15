@@ -184,8 +184,8 @@ ul.info li{margin:4px 0}
 /* Kartenquiz */
 .seg.wrap{flex-wrap:wrap}.seg.wrap button{flex:1 1 auto}
 .gq-ask{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:2px 0 10px}.gq-ask b{font-size:24px;font-weight:800;letter-spacing:-.01em}
-.gq-map{position:relative;width:100%;overflow:hidden;border-radius:16px;border:1px solid var(--border);touch-action:none;user-select:none;-webkit-user-select:none;cursor:crosshair;background:#cfe5f2}
-.gq-world{position:absolute;inset:0;transform-origin:0 0}
+.gq-map{position:relative;width:100%;height:60vh;contain:strict;overflow:hidden;border-radius:16px;border:1px solid var(--border);touch-action:none;user-select:none;-webkit-user-select:none;cursor:crosshair;background:#cfe5f2}
+.gq-world{position:absolute;left:0;top:0;transform-origin:0 0;backface-visibility:hidden}
 .gq-world img,.gq-world svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .gq-zoom{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px}
 .gq-zoom button{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:20px;font-weight:700;cursor:pointer;line-height:1}
@@ -1806,8 +1806,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.1';
+const APP_VERSION = '1.5.2';
 const CHANGELOG = [
+  ['1.5.2', 'Kartenquiz: Karte viel größer (nutzt die ganze Bildschirmhöhe, ⤢ zeigt die ganze Karte) · Zoomen und Verschieben flüssiger · Meere und Flüsse: irgendwo drauf tippen zählt – Teilmeere wie Golfe du Lion, Große Syrte, Kieler Bucht, Belte, Rigaer Bucht gehören jetzt dazu · Tipps knapp neben Fluss, Küste oder Hafen zählen als Treffer'],
   ['1.5.1', 'Neu: Kartenquiz (🗺 oben auf der Startseite) – Begriff wird genannt, du tippst die Stelle auf der leeren Karte an; danach siehst du die richtige Lage, die Entfernung in km und Punkte · Europa, Nordrange, Traditionelle Seehäfen · Zoomen mit zwei Fingern oder + / − · Kaspisches Meer auf der Geo-Karte jetzt richtig markiert'],
   ['1.5.0', 'Neu: stumme Karten zum Eintragen – 3 Stapel „Geo-Karte“: Europa (8 Flüsse, 19 Meere/Meeresteile, 7 Gebirge), Nordrange (15 Häfen, 12 Wasserwege), Traditionelle Seehäfen (5) · markierte Stelle auf der Karte → Namen eintippen oder auswählen · umgekehrt: Name → richtige Stelle finden'],
   ['1.4.11', 'Geo: die 17 Gezeiten-Karten (Tide, Flut, Ebbe … Tiefgang Elbe) vorerst aus „Geo – Arbeit 16.11.“ genommen – sie liegen mit Fortschritt im Archiv-Stapel „Geo – Gezeiten (vorerst raus)“'],
@@ -1890,12 +1891,9 @@ function gqNearest(g, p) {
     const q = [a[0] + t * dx, a[1] + t * dy], d = Math.hypot(p[0] - q[0], p[1] - q[1]);
     if (d < best.d) best = { d, q };
   };
-  const polys = g.filter(s => s[0] === 'poly');
-  let inside = false;
-  for (const [, r] of polys) for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
-    if ((r[i][1] > p[1]) !== (r[j][1] > p[1]) && p[0] < (r[j][0] - r[i][0]) * (p[1] - r[i][1]) / (r[j][1] - r[i][1]) + r[i][0]) inside = !inside;
-  }
-  if (inside) return { d: 0, q: p };
+  const inRing = r => { let ins = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++)
+    if ((r[i][1] > p[1]) !== (r[j][1] > p[1]) && p[0] < (r[j][0] - r[i][0]) * (p[1] - r[i][1]) / (r[j][1] - r[i][1]) + r[i][0]) ins = !ins; return ins; };
+  if (g.some(([k, r]) => k === 'poly' && inRing(r))) return { d: 0, q: p }; // irgendwo im Meer = richtig
   for (const [k, v] of g) {
     if (k === 'pt') { const d = Math.hypot(p[0] - v[0], p[1] - v[1]); if (d < best.d) best = { d, q: v }; }
     else if (k === 'line' || k === 'poly') { for (let i = 1; i < v.length; i++) seg(v[i - 1], v[i]); if (k === 'poly') seg(v[v.length - 1], v[0]); }
@@ -1916,7 +1914,7 @@ function gqStart(names) {
   items = shuffle(items.slice());
   if (!names && st.n) items = items.slice(0, st.n);
   if (!items.length) { toast('Keine Begriffe in dieser Auswahl'); return; }
-  GQ.run = { key: st.map, m, items, i: 0, guess: null, res: null, results: [], view: { s: 1, tx: 0, ty: 0 } };
+  GQ.run = { key: st.map, m, items, i: 0, guess: null, res: null, results: [], view: null };
   render();
 }
 function viewQuiz() {
@@ -1953,7 +1951,7 @@ function viewQuiz() {
     <div class="topbar"><button class="icon-btn" data-act="gq-quit" aria-label="Runde beenden">${ic('close')}</button>
       <div class="lp"><div class="lp-bar"><span style="width:${R.i / R.items.length * 100}%"></span></div><div class="lp-text"><span>${R.i + 1} / ${R.items.length}</span><span>${R.results.reduce((a, r) => a + r.pts, 0)} Punkte</span></div></div></div>
     <div class="gq-ask"><span class="muted small">Wo liegt …</span><b>${esc(it.name)}</b><span class="pill">${esc(it.kat)}</span></div>
-    <div class="gq-map" id="gq-map" style="aspect-ratio:${m.w}/${m.h};max-width:calc(62vh * ${m.w / m.h});margin:0 auto"><div class="gq-world" id="gq-world">
+    <div class="gq-map" id="gq-map"><div class="gq-world" id="gq-world" style="width:${m.w}px;height:${m.h}px">
       ${layers.map(l => `<img src="${esc(l)}" alt="" draggable="false">`).join('')}
       <svg viewBox="0 0 ${m.w} ${m.h}" id="gq-ov"></svg></div>
       <div class="gq-zoom"><button data-act="gq-zoom" data-v="1.6" aria-label="Vergrößern">+</button><button data-act="gq-zoom" data-v="0.625" aria-label="Verkleinern">−</button><button data-act="gq-zoom" data-v="0" aria-label="Ganze Karte">⤢</button></div></div>
@@ -1962,12 +1960,32 @@ function viewQuiz() {
   </div>`;
 }
 const fmtKm = km => km < 1 ? '< 1 km' : km < 10 ? km.toFixed(1).replace('.', ',') + ' km' : Math.round(km).toLocaleString('de-DE') + ' km';
+/* Ansicht: Welt = Karte in Bildpunkten (m.w × m.h), Darstellung über eine einzige Transformation */
+function gqBox() { const box = $('#gq-map'); return box ? { box, W: box.clientWidth, H: box.clientHeight } : null; }
+function gqMinS() { const R = GQ.run, b = gqBox(); return Math.min(b.W / R.m.w, b.H / R.m.h); }      // ganze Karte sichtbar
+function gqCoverS() { const R = GQ.run, b = gqBox(); return Math.max(b.W / R.m.w, b.H / R.m.h); }    // Karte füllt die Fläche
+function gqClamp() {
+  const R = GQ.run, b = gqBox(), v = R.view, mn = gqMinS();
+  v.s = Math.max(mn, Math.min(mn * 14, v.s));
+  const cw = R.m.w * v.s, ch = R.m.h * v.s;
+  v.tx = cw <= b.W ? (b.W - cw) / 2 : Math.min(0, Math.max(b.W - cw, v.tx));
+  v.ty = ch <= b.H ? (b.H - ch) / 2 : Math.min(0, Math.max(b.H - ch, v.ty));
+}
+let gqFrame = 0, gqMarkS = 0;
 function gqApply() {
-  const R = GQ.run, w = $('#gq-world'), box = $('#gq-map'); if (!R || !w) return;
-  const v = R.view, W = box.clientWidth, H = box.clientHeight;
-  v.s = Math.max(1, Math.min(10, v.s)); v.tx = Math.min(0, Math.max(W - W * v.s, v.tx)); v.ty = Math.min(0, Math.max(H - H * v.s, v.ty));
-  w.style.transform = `translate(${v.tx}px,${v.ty}px) scale(${v.s})`;
-  const k = R.m.w / W / v.s, ov = $('#gq-ov'); // 1 Bildschirmpixel in Kartenpunkten
+  if (gqFrame) return;
+  gqFrame = requestAnimationFrame(() => { gqFrame = 0; gqDraw(); });
+}
+function gqDraw() {
+  const R = GQ.run, w = $('#gq-world'); if (!R || !w) return;
+  gqClamp();
+  const v = R.view;
+  w.style.transform = `translate3d(${v.tx}px,${v.ty}px,0) scale(${v.s})`;
+  if (gqMarkS !== v.s || !gqGesture) gqMarks();
+}
+function gqMarks() { // Pin & Linie in konstanter Bildschirmgröße
+  const R = GQ.run, ov = $('#gq-ov'); if (!R || !ov) return;
+  gqMarkS = R.view.s; const k = 1 / R.view.s;
   let h = '';
   if (R.res) {
     const q = R.res.q;
@@ -1978,44 +1996,57 @@ function gqApply() {
   ov.innerHTML = h;
 }
 function gqZoom(f, cx, cy) {
-  const R = GQ.run, box = $('#gq-map'); if (!R || !box) return;
-  const v = R.view, W = box.clientWidth, H = box.clientHeight;
-  if (!f) { v.s = 1; v.tx = 0; v.ty = 0; gqApply(); return; }
-  cx ??= W / 2; cy ??= H / 2;
-  const s2 = Math.max(1, Math.min(10, v.s * f));
+  const R = GQ.run, b = gqBox(); if (!R || !b) return;
+  const v = R.view;
+  if (!f) { v.s = gqMinS(); gqDraw(); return; }
+  cx ??= b.W / 2; cy ??= b.H / 2;
+  const s2 = Math.max(gqMinS(), Math.min(gqMinS() * 14, v.s * f));
   v.tx = cx - (cx - v.tx) * s2 / v.s; v.ty = cy - (cy - v.ty) * s2 / v.s; v.s = s2;
-  gqApply();
+  gqApply(); gqSettle();
 }
-function gqFit(a, b) { // beide Punkte sichtbar machen
-  const R = GQ.run, box = $('#gq-map'), W = box.clientWidth, H = box.clientHeight, k = W / R.m.w;
-  const x0 = Math.min(a[0], b[0]) * k, x1 = Math.max(a[0], b[0]) * k, y0 = Math.min(a[1], b[1]) * k, y1 = Math.max(a[1], b[1]) * k;
-  const s = Math.max(1, Math.min(R.view.s, W * 0.7 / Math.max(x1 - x0, 1), H * 0.7 / Math.max(y1 - y0, 1)));
-  R.view = { s, tx: W / 2 - (x0 + x1) / 2 * s, ty: H / 2 - (y0 + y1) / 2 * s };
+function gqFit(a, c) { // Tipp und Ziel beide sichtbar machen
+  const R = GQ.run, b = gqBox(), v = R.view;
+  const x0 = Math.min(a[0], c[0]), x1 = Math.max(a[0], c[0]), y0 = Math.min(a[1], c[1]), y1 = Math.max(a[1], c[1]);
+  v.s = Math.max(gqMinS(), Math.min(v.s, b.W * 0.75 / Math.max(x1 - x0, 1), b.H * 0.7 / Math.max(y1 - y0, 1)));
+  v.tx = b.W / 2 - (x0 + x1) / 2 * v.s; v.ty = b.H / 2 - (y0 + y1) / 2 * v.s;
+}
+let gqGesture = false, gqSettleT = 0;
+function gqSettle() { // während der Geste als Bild skalieren (flüssig), danach scharf neu zeichnen
+  const w = $('#gq-world'); if (!w) return;
+  w.style.willChange = 'transform'; clearTimeout(gqSettleT);
+  gqSettleT = setTimeout(() => { if (!gqGesture && w.isConnected) { w.style.willChange = 'auto'; gqMarks(); } }, 220);
 }
 function bindQuiz() {
-  const box = $('#gq-map'); if (!box) return;
-  gqApply();
+  const b = gqBox(); if (!b) return;
+  const box = b.box, R = GQ.run;
+  // Karte so groß wie möglich: restliche Bildschirmhöhe nutzen
+  const top = box.getBoundingClientRect().top, below = R.res ? 110 : 120;
+  box.style.height = Math.max(260, Math.round(window.innerHeight - top - below)) + 'px';
+  if (!R.view) { const s = gqCoverS(); R.view = { s, tx: (box.clientWidth - R.m.w * s) / 2, ty: (box.clientHeight - R.m.h * s) / 2 }; }
+  gqDraw(); gqMarks();
   const pts = new Map(); let st = null;
   const local = e => { const r = box.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
   box.addEventListener('pointerdown', e => {
     if (e.target.closest('.gq-zoom')) return;
-    box.setPointerCapture(e.pointerId); pts.set(e.pointerId, local(e));
+    try { box.setPointerCapture(e.pointerId); } catch (_) {}
+    pts.set(e.pointerId, local(e));
     const v = GQ.run.view;
     if (pts.size === 1) st = { mode: 'tap', p0: local(e), tx: v.tx, ty: v.ty };
-    else if (pts.size === 2) { const [a, b] = [...pts.values()]; st = { mode: 'pinch', d0: Math.hypot(a[0] - b[0], a[1] - b[1]), s0: v.s, tx: v.tx, ty: v.ty, m0: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] }; }
+    else if (pts.size === 2) { const [a, c] = [...pts.values()]; st = { mode: 'pinch', d0: Math.hypot(a[0] - c[0], a[1] - c[1]) || 1, s0: v.s, tx: v.tx, ty: v.ty, m0: [(a[0] + c[0]) / 2, (a[1] + c[1]) / 2] }; }
   });
   box.addEventListener('pointermove', e => {
     if (!pts.has(e.pointerId) || !st) return;
     pts.set(e.pointerId, local(e));
     const v = GQ.run.view;
     if (st.mode === 'pinch' && pts.size >= 2) {
-      const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]), m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-      const s = Math.max(1, Math.min(10, st.s0 * d / st.d0));
-      v.tx = m[0] - (st.m0[0] - st.tx) * s / st.s0; v.ty = m[1] - (st.m0[1] - st.ty) * s / st.s0; v.s = s; gqApply();
+      const [a, c] = [...pts.values()], d = Math.hypot(a[0] - c[0], a[1] - c[1]), mid = [(a[0] + c[0]) / 2, (a[1] + c[1]) / 2];
+      const s = Math.max(gqMinS(), Math.min(gqMinS() * 14, st.s0 * d / st.d0));
+      v.tx = mid[0] - (st.m0[0] - st.tx) * s / st.s0; v.ty = mid[1] - (st.m0[1] - st.ty) * s / st.s0; v.s = s;
+      gqGesture = true; gqSettle(); gqApply();
     } else if (st.mode !== 'pinch') {
       const p = local(e), dx = p[0] - st.p0[0], dy = p[1] - st.p0[1];
       if (st.mode === 'tap' && Math.hypot(dx, dy) > 8) st.mode = 'pan';
-      if (st.mode === 'pan') { v.tx = st.tx + dx; v.ty = st.ty + dy; gqApply(); }
+      if (st.mode === 'pan') { v.tx = st.tx + dx; v.ty = st.ty + dy; gqGesture = true; gqSettle(); gqApply(); }
     }
   });
   const up = e => {
@@ -2023,22 +2054,24 @@ function bindQuiz() {
     const p = pts.get(e.pointerId); pts.delete(e.pointerId);
     const R = GQ.run;
     if (st && st.mode === 'tap' && !R.res) {
-      const v = R.view, k = R.m.w / box.clientWidth;
-      R.guess = [((p[0] - v.tx) / v.s) * k, ((p[1] - v.ty) / v.s) * k];
-      gqApply(); const btn = $('[data-act="gq-go"]'); if (btn) btn.disabled = false;
+      const v = R.view;
+      R.guess = [(p[0] - v.tx) / v.s, (p[1] - v.ty) / v.s];
+      gqMarks();
+      const btn = $('[data-act="gq-go"]'); if (btn) btn.disabled = false;
       const t = $('.gq-res'); if (t) t.innerHTML = '<span class="muted">Passt so? Sonst nochmal tippen.</span>';
     }
-    if (!pts.size) st = null; else if (st && st.mode === 'pinch') st = null;
+    if (!pts.size) { st = null; gqGesture = false; gqSettle(); } else if (st && st.mode === 'pinch') st = null;
   };
   box.addEventListener('pointerup', up); box.addEventListener('pointercancel', up);
-  box.addEventListener('wheel', e => { e.preventDefault(); const p = local(e); gqZoom(e.deltaY < 0 ? 1.25 : 0.8, p[0], p[1]); }, { passive: false });
+  box.addEventListener('wheel', e => { e.preventDefault(); const p = local(e); gqZoom(e.deltaY < 0 ? 1.2 : 1 / 1.2, p[0], p[1]); }, { passive: false });
 }
 function gqGo() {
   const R = GQ.run; if (!R || !R.guess || R.res) return;
   const it = R.items[R.i], n = gqNearest(it.g, R.guess), km = n.d * R.m.kmPerPx;
-  const hit = km <= R.m.tolKm, pts = hit ? 1000 : Math.round(1000 * Math.exp(-(km - R.m.tolKm) / R.m.scaleKm));
+  const hit = km <= R.m.tolKm || n.d * R.view.s <= 16, pts = hit ? 1000 : Math.round(1000 * Math.exp(-(km - R.m.tolKm) / R.m.scaleKm));
   R.res = { ...n, km, hit, pts };
-  R.results.push({ name: it.name, km, hit, pts });
+  R.results.push({ name: it.name, km: hit ? 0 : km, hit, pts });
+  if (hit) R.res.km = 0;
   if (logAnswer(hit)) setTimeout(() => toast(`Tagesziel geschafft! 🔥 ${streakNow()} ${streakNow() === 1 ? 'Tag' : 'Tage'} am Stück`), 350);
   save();
   if (n.d > 0) gqFit(R.guess, n.q);
@@ -2381,7 +2414,7 @@ const actions = {
   'gq-n'(el) { gqSet().n = +el.dataset.v; save(); render(); },
   'gq-start'() { gqStart(); },
   'gq-go'() { gqGo(); },
-  'gq-next'() { const R = GQ.run; if (!R) return; R.i++; R.guess = null; R.res = null; R.view = { s: 1, tx: 0, ty: 0 }; render(); },
+  'gq-next'() { const R = GQ.run; if (!R) return; R.i++; R.guess = null; R.res = null; R.view = null; render(); },
   'gq-zoom'(el) { gqZoom(+el.dataset.v); },
   'gq-quit'() { const R = GQ.run; if (R && R.results.length && R.i < R.items.length) { R.items = R.items.slice(0, R.i + (R.res ? 1 : 0)); R.i = R.items.length; render(); return; } GQ.run = null; render(); },
   'gq-again'() { GQ.run = null; gqStart(); },
