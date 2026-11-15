@@ -1130,7 +1130,20 @@ const SEED_M3 = { name: "Geo-Karte – Traditionelle Seehäfen", cards: [
  ["Welcher Hafen ist markiert?", "Rotterdam", "an der Maas", null, null, ["img/karte-traditionell-meer.svg", "img/karte-traditionell.svg", "img/karte-traditionell-o-rotterdam.svg"]],
  ["Welcher Hafen ist markiert?", "Antwerpen", "an der Schelde", null, null, ["img/karte-traditionell-meer.svg", "img/karte-traditionell.svg", "img/karte-traditionell-o-antwerpen.svg"]]
 ]};
-const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4, SEED_M1, SEED_M2, SEED_M3];
+const SEED_M4 = { name: "Geo-Karte – Deutschland (Flüsse, Kanäle)", cards: [
+ ["Welcher Fluss ist markiert?", "Donau", "fließt nach Osten ins Schwarze Meer, Südgrenze der Mittelgebirgszone", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-donau.svg"]],
+ ["Welcher Fluss ist markiert?", "Elbe", "Hamburg, mündet bei Cuxhaven in die Nordsee", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-elbe.svg"]],
+ ["Welcher Fluss ist markiert?", "Ems", "Emden, mündet in die Nordsee", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-ems.svg"]],
+ ["Welcher Fluss ist markiert?", "Main", "Frankfurt, mündet bei Mainz in den Rhein", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-main.svg"]],
+ ["Welcher Fluss ist markiert?", "Oder", "Grenze zu Polen, mündet in die Ostsee", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-oder.svg"]],
+ ["Welcher Fluss ist markiert?", "Rhein", "Köln, Duisburg – wichtigste Binnenwasserstraße", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-rhein.svg"]],
+ ["Welcher Fluss ist markiert?", "Weser", "Bremen / Bremerhaven, mündet in die Nordsee", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-weser.svg"]],
+ ["Welcher Kanal ist markiert?", "Mittellandkanal", "West-Ost-Verbindung vom Dortmund-Ems-Kanal bis zur Elbe bei Magdeburg", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-mittellandkanal.svg"]],
+ ["Welcher Kanal ist markiert?", "Elbe-Seitenkanal", "verbindet den Mittellandkanal mit der Elbe (Richtung Hamburg)", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-elbe-seitenkanal.svg"]],
+ ["Welcher Kanal ist markiert?", "Nord-Ostsee-Kanal", "Brunsbüttel – Kiel, verbindet Nord- und Ostsee", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-nord-ostsee-kanal.svg"]],
+ ["Welcher Kanal ist markiert?", "Main-Donau-Kanal", "Bamberg – Kelheim, verbindet Main und Donau (Nordsee ↔ Schwarzes Meer)", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-main-donau-kanal.svg"]]
+]};
+const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4, SEED_M1, SEED_M2, SEED_M3, SEED_M4];
 function freshDb() {
   return { decks: SEEDS_ALL().map(sd => { const x = seedDeck(sd); return Object.assign(makeDeck(x.name, x.cards), x.archived ? { archived: true } : {}); }), settings: { theme: 'auto', dir: 'normal' }, log: {} };
 }
@@ -1166,7 +1179,7 @@ const DUP_REMOVED = {
   [SEED_EN2.name]: ["Containerschiff","Vollcontainerschiff","Mehrzweckschiff","Schwergutschiff","Massengutfrachter","Rohöltanker","Flüssiggastanker","Chemietanker","RoRo-Schiff","Tiefgang","Breite (eines Schiffs)","Bug / Heck","Propeller / Schiffsschraube","Ruder","Hauptmaschine","Hilfsdiesel / Hilfsmaschine","Laderaum","Zellgerüst / Führungsschienen für Container","Zwischendeck","Schott","Lukendeckel","Laschstangen und Twistlocks","Brücke","Brückennock","Wohnbereich der Besatzung","Doppelboden","Ballasttanks","Anker","Bugstrahlruder","Aufbauten","ohne eigenes Ladegeschirr","Freifall-Rettungsboot","Kai"],
   [SEED_EN3.name]: ["Provides marketing and sales, canvasses and books cargo, maintains contact with shippers, consignees and forwarders","Arranges berthing, bunkering, repairs, crew changes, ship's stores and spare parts for a vessel in port","Mediates between ship owners and charterers","Brokers the sale and purchase of ships","Manages vessels (crew, technical matters) on behalf of the owner","The company who really owns the ship, with the help of financers (banks) or own money","A company that offers transport services for cargo with own or chartered vessels","Any person or organisation paying for its cargo to be shipped from one place to another","The person or company that receives the cargo at the destination","The party that hires a vessel from the ship owner","Umbrella term for all contracts for the carriage of goods by sea","Liner contract between carrier and shipper; freight paid per container/unit","A vessel is hired for one voyage; freight is paid per ton of cargo","A vessel is hired for a period of time; the charterer pays hire per day","The daily payment for a vessel under a time charter","Document of title and receipt for the cargo shipped","Internationally standardised delivery terms in a sales contract","Taking on fuel for the ship","To put a ship into a dock out of the water for repairs","Department that plans voyages, coordinates port calls and links ship and shore"]
 };
-const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4, SEED_M1, SEED_M2, SEED_M3];
+const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4, SEED_M1, SEED_M2, SEED_M3, SEED_M4];
 const SEED_HASH = hashStr(JSON.stringify(SEEDS));
 if (db.settings.seedHash !== SEED_HASH) {
   syncApplying = true; // kein „neuerer Stand“ – sonst gewinnt das Gerät, das zuerst das Update bekommt
@@ -1812,8 +1825,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.10';
+const APP_VERSION = '1.5.11';
 const CHANGELOG = [
+  ['1.5.11', 'Neu: Deutschland-Karte mit Flüssen und Kanälen aus „Topographie Deutschland“ – Donau, Elbe, Ems, Main, Oder, Rhein, Weser, Mittellandkanal, Elbe-Seitenkanal, Nord-Ostsee-Kanal, Main-Donau-Kanal · im Kartenquiz und als Stapel „Geo-Karte – Deutschland“'],
   ['1.5.10', 'Geo-Karte Europa / Kartenquiz: zusätzlich die Flüsse Schelde, Weser, Ems (Nordrange) und Main (Topographie Deutschland) aus OneNote – Flüsse jetzt 12'],
   ['1.5.9', 'Kartenquiz: nach dem Ergebnis bringt Enter direkt die nächste Frage'],
   ['1.5.8', 'Kartenquiz: neuer Modus „⌨️ Eintippen“ (beim Start einschaltbar) – eine Stelle ist orange markiert, ohne Beschriftung, und du schreibst selbst, was dort liegt (kleine Tippfehler werden toleriert, „Doch gewusst“ möglich)'],
@@ -1889,7 +1903,7 @@ document.addEventListener('touchend', e => {
 });
 /* ---------- Kartenquiz (Begriff auf der leeren Karte finden) ---------- */
 let GQ = { data: null, run: null }, gqLoading = null;
-const GQ_MAPS = { europa: 'Europa', nordrange: 'Nordrange', haefen: 'Alle Häfen (16)', traditionell: 'Traditionelle Seehäfen' };
+const GQ_MAPS = { europa: 'Europa', nordrange: 'Nordrange', haefen: 'Alle Häfen (16)', traditionell: 'Traditionelle Seehäfen', deutschland: 'Deutschland (Flüsse, Kanäle)' };
 function gqLoad(fresh) {
   if (GQ.data && !fresh) return Promise.resolve(GQ.data);
   // Mit Versionsnummer laden, damit nie alte Quizdaten aus dem Speicher kommen; offline: gespeicherte Fassung

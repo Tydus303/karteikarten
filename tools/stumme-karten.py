@@ -82,7 +82,7 @@ def make(key, m, land, borders, river_names, dots, extra_base='', tol_km=50, sca
     CARDS[key] = []
     GEOM.clear()
     QUIZ[key] = {'w': m.W, 'h': m.H, 'kmPerPx': round(6371 / m.s, 4), 'tolKm': tol_km, 'scaleKm': scale_km, 'sea': u_plain, 'base': leer, 'items': []}
-    KAT = {FL: 'Fluss', MEER: 'Meer / Meeresteil', GEB: 'Gebirge', HAFEN: 'Hafen', WEG: 'Wasserweg'}
+    KAT = {FL: 'Fluss', MEER: 'Meer / Meeresteil', GEB: 'Gebirge', HAFEN: 'Hafen', WEG: 'Wasserweg', KANAL: 'Kanal'}
     def card(frage, antwort, beispiel='', under=None, over=None):
         sid = slug(antwort.split(' (')[0])
         u = svg(m, sea + under, f'karte-{key}-u-{sid}.svg') if under else u_plain
@@ -92,6 +92,7 @@ def make(key, m, land, borders, river_names, dots, extra_base='', tol_km=50, sca
         GEOM.clear()
     return card
 
+KANAL = 'Welcher Kanal ist markiert?'
 FL, MEER, GEB, HAFEN, WEG = 'Welcher Fluss ist markiert?', 'Welches Meer / welcher Meeresteil ist markiert?', 'Welches Gebirge ist markiert?', 'Welcher Hafen ist markiert?', 'Welcher Wasserweg ist markiert?'
 
 # ===================== Europa =====================
@@ -168,6 +169,28 @@ def nordrange():
                       [{'name': 'London', 'kat': 'Hafen', 'u': nr['sea'], 'o': lo, 'g': lg}]}
 
 # ===================== Traditionelle Seehäfen =====================
+# ===================== Deutschland: Flüsse und Kanäle (Topographie Deutschland, Aufgabe 4) =====================
+CANALS = {
+    'Mittellandkanal': ([(7.62, 52.30), (7.98, 52.41), (8.40, 52.36), (8.92, 52.30), (9.30, 52.38), (9.73, 52.42), (10.23, 52.33), (10.53, 52.37),
+                         (10.78, 52.43), (11.10, 52.38), (11.40, 52.29), (11.70, 52.23)], 'West-Ost-Verbindung vom Dortmund-Ems-Kanal bis zur Elbe bei Magdeburg'),
+    'Elbe-Seitenkanal': ([(10.60, 52.43), (10.58, 52.62), (10.55, 52.80), (10.57, 52.96), (10.53, 53.15), (10.52, 53.29), (10.48, 53.37)],
+                         'verbindet den Mittellandkanal mit der Elbe (Richtung Hamburg)'),
+    'Nord-Ostsee-Kanal': ([(9.14, 53.89), (9.27, 54.0), (9.29, 54.06), (9.40, 54.12), (9.52, 54.2), (9.62, 54.29), (9.72, 54.30), (9.86, 54.33), (10.0, 54.36), (10.15, 54.37)],
+                          'Brunsbüttel – Kiel, verbindet Nord- und Ostsee'),
+    'Main-Donau-Kanal': ([(10.89, 49.89), (11.0, 49.6), (11.05, 49.43), (11.19, 49.19), (11.47, 49.03), (11.59, 49.04), (11.88, 48.92)],
+                         'Bamberg – Kelheim, verbindet Main und Donau (Nordsee ↔ Schwarzes Meer)'),
+}
+def deutschland():
+    m = Map(5.4, 47.1, 15.6, 55.15)
+    RV = {'Donau': ('Donau', 'Danube'), 'Elbe': ('Elbe',), 'Ems': ('Ems',), 'Main': ('Main',), 'Oder': ('Oder',), 'Rhein': ('Rhein', 'Rhine'), 'Weser': ('Weser',)}
+    extra = ''.join(f'<path d="{lonlat_path(m, pts)}" fill="none" stroke="{RIVER}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' for pts, _ in CANALS.values())
+    card = make('deutschland', m, 'ne_10m_land', 'ne_10m_admin_0_boundary_lines_land', [n for v in RV.values() for n in v], [], extra, tol_km=20, scale_km=80)
+    ex = {'Donau': 'fließt nach Osten ins Schwarze Meer, Südgrenze der Mittelgebirgszone', 'Elbe': 'Hamburg, mündet bei Cuxhaven in die Nordsee',
+          'Ems': 'Emden, mündet in die Nordsee', 'Main': 'Frankfurt, mündet bei Mainz in den Rhein', 'Oder': 'Grenze zu Polen, mündet in die Ostsee',
+          'Rhein': 'Köln, Duisburg – wichtigste Binnenwasserstraße', 'Weser': 'Bremen / Bremerhaven, mündet in die Nordsee'}
+    for k, names in RV.items(): card(FL, k, ex[k], over=hi_line(m, rivers(names), 6))
+    for k, (pts, e) in CANALS.items(): card(KANAL, k, e, over=hi_line(m, pts=pts, w=7))
+
 def traditionell():
     m = Map(-1.6, 50.5, 10.8, 54.4)
     P = {'London': (0.05, 51.50), 'Hamburg': (9.97, 53.54), 'Bremen': BREMEN, 'Rotterdam': (4.40, 51.91), 'Antwerpen': (4.40, 51.22)}
@@ -182,7 +205,7 @@ def ctx_rings(m, f, tol=2.0):
     return out
 def add_context():
     """Länder und Meere, damit das Quiz sagen kann, was man stattdessen angetippt hat."""
-    views = {'europa': (-14, 29, 62, 71), 'nordrange': (-2.2, 48.9, 11.4, 54.9), 'traditionell': (-1.6, 50.5, 10.8, 54.4), 'haefen': (-2.2, 48.9, 11.4, 54.9)}
+    views = {'europa': (-14, 29, 62, 71), 'nordrange': (-2.2, 48.9, 11.4, 54.9), 'traditionell': (-1.6, 50.5, 10.8, 54.4), 'haefen': (-2.2, 48.9, 11.4, 54.9), 'deutschland': (5.4, 47.1, 15.6, 55.15)}
     def near(f, bb):
         c = f['geometry']['coordinates']; pts = [p for poly in (c if f['geometry']['type'] == 'MultiPolygon' else [c]) for r in poly for p in r]
         x0, y0, x1, y1 = min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts)
@@ -202,7 +225,7 @@ def add_context():
         QUIZ[key]['ctx'] = ctx
 
 os.makedirs(OUT, exist_ok=True)
-europa(); nordrange(); traditionell(); add_context()
+europa(); nordrange(); traditionell(); deutschland(); add_context()
 with open(os.path.join(HERE, 'stumme-karten.json'), 'w', encoding='utf-8') as f: json.dump(CARDS, f, ensure_ascii=False, indent=0)
 with open(os.path.join(OUT, 'kartenquiz.json'), 'w', encoding='utf-8') as f: json.dump(QUIZ, f, ensure_ascii=False, separators=(',', ':'))
 print('kartenquiz.json', round(os.path.getsize(os.path.join(OUT, 'kartenquiz.json')) / 1024), 'KB')

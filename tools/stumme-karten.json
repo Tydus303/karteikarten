@@ -687,5 +687,117 @@
 "img/karte-traditionell-o-antwerpen.svg"
 ]
 ]
+],
+"deutschland": [
+[
+"Welcher Fluss ist markiert?",
+"Donau",
+"fließt nach Osten ins Schwarze Meer, Südgrenze der Mittelgebirgszone",
+[
+"img/karte-deutschland-meer.svg",
+"img/karte-deutschland.svg",
+"img/karte-deutschland-o-donau.svg"
+]
+],
+[
+"Welcher Fluss ist markiert?",
+"Elbe",
+"Hamburg, mündet bei Cuxhaven in die Nordsee",
+[
+"img/karte-deutschland-meer.svg",
+"img/karte-deutschland.svg",
+"img/karte-deutschland-o-elbe.svg"
+]
+],
+[
+"Welcher Fluss ist markiert?",
+"Ems",
+"Emden, mündet in die Nordsee",
+[
+"img/karte-deutschland-meer.svg",
+"img/karte-deutschland.svg",
+"img/karte-deutschland-o-ems.svg"
+]
+],
+[
+"Welcher Fluss ist markiert?",
+"Main",
+"Frankfurt, mündet bei Mainz in den Rhein",
+[
+"img/karte-deutschland-meer.svg",
+"img/karte-deutschland.svg",
+"img/karte-deutschland-o-main.svg"
+]
+],
+[
+"Welcher Fluss ist markiert?",
+"Oder",
+"Grenze zu Polen, mündet in die Ostsee",
+[
+"img/karte-deutschland-meer.svg",
+"img/karte-deutschland.svg",
+"img/karte-deutschland-o-oder.svg"
+]
+],
+[
+"Welcher Fluss ist markiert?",
+"Rhein",
+"Köln, Duisburg – wichtigste Binnenwasserstraße",
+[
+"img/karte-deutschland-meer.svg",
+"img/karte-deutschland.svg",
+"img/karte-deutschland-o-rhein.svg"
+]
+],
+[
+"Welcher Fluss ist markiert?",
+"Weser",
+"Bremen / Bremerhaven, mündet in die Nordsee",
+[
+"img/karte-deutschland-meer.svg",
+"img/karte-deutschland.svg",
+"img/karte-deutschland-o-weser.svg"
+]
+],
+[
+"Welcher Kanal ist markiert?",
+"Mittellandkanal",
+"West-Ost-Verbindung vom Dortmund-Ems-Kanal bis zur Elbe bei Magdeburg",
+[
+"img/karte-deutschland-meer.svg",
+"img/karte-deutschland.svg",
+"img/karte-deutschland-o-mittellandkanal.svg"
+]
+],
+[
+"Welcher Kanal ist markiert?",
+"Elbe-Seitenkanal",
+"verbindet den Mittellandkanal mit der Elbe (Richtung Hamburg)",
+[
+"img/karte-deutschland-meer.svg",
+"img/karte-deutschland.svg",
+"img/karte-deutschland-o-elbe-seitenkanal.svg"
+]
+],
+[
+"Welcher Kanal ist markiert?",
+"Nord-Ostsee-Kanal",
+"Brunsbüttel – Kiel, verbindet Nord- und Ostsee",
+[
+"img/karte-deutschland-meer.svg",
+"img/karte-deutschland.svg",
+"img/karte-deutschland-o-nord-ostsee-kanal.svg"
+]
+],
+[
+"Welcher Kanal ist markiert?",
+"Main-Donau-Kanal",
+"Bamberg – Kelheim, verbindet Main und Donau (Nordsee ↔ Schwarzes Meer)",
+[
+"img/karte-deutschland-meer.svg",
+"img/karte-deutschland.svg",
+"img/karte-deutschland-o-main-donau-kanal.svg"
+]
+]
 ]
 }

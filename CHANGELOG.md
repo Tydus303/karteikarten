@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.11** – Neu: Deutschland-Karte mit Flüssen und Kanälen aus „Topographie Deutschland“ – Donau, Elbe, Ems, Main, Oder, Rhein, Weser, Mittellandkanal, Elbe-Seitenkanal, Nord-Ostsee-Kanal, Main-Donau-Kanal · im Kartenquiz und als Stapel „Geo-Karte – Deutschland“
 - **1.5.10** – Geo-Karte Europa / Kartenquiz: zusätzlich die Flüsse Schelde, Weser, Ems (Nordrange) und Main (Topographie Deutschland) aus OneNote – Flüsse jetzt 12
 - **1.5.9** – Kartenquiz: nach dem Ergebnis bringt Enter direkt die nächste Frage
 - **1.5.8** – Kartenquiz: neuer Modus „⌨️ Eintippen“ (beim Start einschaltbar) – eine Stelle ist orange markiert, ohne Beschriftung, und du schreibst selbst, was dort liegt (kleine Tippfehler werden toleriert, „Doch gewusst“ möglich)
