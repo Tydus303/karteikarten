@@ -1807,8 +1807,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.6';
+const APP_VERSION = '1.5.7';
 const CHANGELOG = [
+  ['1.5.7', 'Kartenquiz: „Los geht’s“ ging bei „Alle Häfen“ nicht, wenn noch alte Quizdaten im Speicher waren – die Daten werden jetzt pro Version frisch geladen und notfalls automatisch nachgeladen'],
   ['1.5.6', 'Kartenquiz: neue Runde „Alle Häfen (16)“ – die 15 Nordrange-Häfen plus London auf einer Karte'],
   ['1.5.5', 'Kartenquiz: irgendwo ins orange Feld tippen zählt jetzt immer – auch der ganze Kreis bei Häfen, der ganze Strich bei Flüssen und Kanälen und der Rand bei Meerengen (alle 66 Begriffe Punkt für Punkt geprüft)'],
   ['1.5.4', 'Fehlerbehebung: Offline-Speicher (Service Worker) aus 1.5.3 lief nicht – jetzt werden Updates wirklich frisch geladen'],
@@ -1881,10 +1882,12 @@ document.addEventListener('touchend', e => {
 /* ---------- Kartenquiz (Begriff auf der leeren Karte finden) ---------- */
 let GQ = { data: null, run: null }, gqLoading = null;
 const GQ_MAPS = { europa: 'Europa', nordrange: 'Nordrange', haefen: 'Alle Häfen (16)', traditionell: 'Traditionelle Seehäfen' };
-function gqLoad() {
-  if (GQ.data) return Promise.resolve(GQ.data);
-  return gqLoading ||= fetch('img/kartenquiz.json').then(r => { if (!r.ok) throw 0; return r.json(); })
-    .then(d => (GQ.data = d)).catch(() => { gqLoading = null; toast('Karten konnten nicht geladen werden'); });
+function gqLoad(fresh) {
+  if (GQ.data && !fresh) return Promise.resolve(GQ.data);
+  // Mit Versionsnummer laden, damit nie alte Quizdaten aus dem Speicher kommen; offline: gespeicherte Fassung
+  const get = u => fetch(u, fresh ? { cache: 'reload' } : {}).then(r => { if (!r.ok) throw 0; return r.json(); });
+  return gqLoading ||= get(`img/kartenquiz.json?v=${APP_VERSION}`).catch(() => get('img/kartenquiz.json'))
+    .then(d => { gqLoading = null; return (GQ.data = d); }).catch(() => { gqLoading = null; toast('Karten konnten nicht geladen werden'); });
 }
 const gqSet = () => (db.settings.quiz ||= { map: 'europa', cat: '', n: 10 });
 /* Abstand Tipp → Ziel in Bildpunkten, plus nächster Punkt des Ziels */
@@ -1923,7 +1926,12 @@ function gqWhat(p, skip) {
   return c ? { name: c.name, kat: c.kat } : null;
 }
 function gqStart(names) {
-  const st = gqSet(), m = GQ.data[st.map];
+  const st = gqSet(), m = GQ.data && GQ.data[st.map];
+  if (!m) { // Karte fehlt in den geladenen Daten (veraltet) → frisch laden und nochmal versuchen
+    if (names === 'retry') { toast('Diese Karte ist noch nicht geladen – bitte App neu öffnen'); return; }
+    toast('Karten werden aktualisiert …'); gqLoad(true).then(() => gqStart('retry')); return;
+  }
+  if (names === 'retry') names = undefined;
   let items = m.items.filter(it => !st.cat || it.kat === st.cat);
   if (names) items = m.items.filter(it => names.includes(it.name));
   items = shuffle(items.slice());
@@ -1937,6 +1945,7 @@ function viewQuiz() {
   const R = GQ.run;
   if (!R) {
     const st = gqSet(), m = GQ.data[st.map] || GQ.data.europa, cats = [...new Set(m.items.map(i => i.kat))];
+    if (!GQ.data[st.map] && !GQ.refreshed) { GQ.refreshed = true; gqLoad(true).then(() => { if (ui.view === 'quiz') render(); }); } // veraltete Daten
     if (st.cat && !cats.includes(st.cat)) st.cat = '';
     const n = st.cat ? m.items.filter(i => i.kat === st.cat).length : m.items.length;
     const b = (act, v, on, label) => `<button class="${on ? 'on' : ''}" data-act="${act}" data-v="${esc(v)}">${label}</button>`;
