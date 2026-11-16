@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.13** – Sync: „Anderen Code verwenden“ in den Einstellungen – beim Verbinden mit einem Code wird der Fortschritt jetzt zusammengeführt statt ersetzt (z. B. um zwei Codes von Handy und Laptop zu einem zu machen)
 - **1.5.12** – Kartenquiz: Karten zeigen jetzt viel mehr Land drumherum – weiter herauszoomen (zwei Finger, − oder ⤢) zeigt Nachbarländer, Nordafrika, Skandinavien usw.; am Anfang wie gewohnt der passende Ausschnitt
 - **1.5.11** – Neu: Deutschland-Karte mit Flüssen und Kanälen aus „Topographie Deutschland“ – Donau, Elbe, Ems, Main, Oder, Rhein, Weser, Mittellandkanal, Elbe-Seitenkanal, Nord-Ostsee-Kanal, Main-Donau-Kanal · im Kartenquiz und als Stapel „Geo-Karte – Deutschland“
 - **1.5.10** – Geo-Karte Europa / Kartenquiz: zusätzlich die Flüsse Schelde, Weser, Ems (Nordrange) und Main (Topographie Deutschland) aus OneNote – Flüsse jetzt 12
