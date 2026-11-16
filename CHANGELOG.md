@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.15** – Englisch – Class Test: die 9 Vergleichs-Ausdrücke (Im Vergleich zu, Anders als, Im Gegensatz zu, Während, Ähnlich wie, Genauso wie, vergleichbar mit, Gemeinsamkeit, Beim Vergleich) entfernt
 - **1.5.14** – Anonyme Nutzungszählung: jedes Gerät meldet höchstens alle 20 Minuten eine Zufallsnummer, die App-Version und die Zahl der heute gelernten Karten – keine Namen, keine Karteninhalte, der Sync-Code nur verschlüsselt (Hash)
 - **1.5.13** – Sync: „Anderen Code verwenden“ in den Einstellungen – beim Verbinden mit einem Code wird der Fortschritt jetzt zusammengeführt statt ersetzt (z. B. um zwei Codes von Handy und Laptop zu einem zu machen)
 - **1.5.12** – Kartenquiz: Karten zeigen jetzt viel mehr Land drumherum – weiter herauszoomen (zwei Finger, − oder ⤢) zeigt Nachbarländer, Nordafrika, Skandinavien usw.; am Anfang wie gewohnt der passende Ausschnitt

@@ -443,16 +443,7 @@ const SEED_EN2 = { name: 'Englisch – Class Test 17.11.', cards: [
  ["Ein Rohöltanker wird gelöscht.", "A crude oil tanker gets discharged.", ""],
  ["Ein Flüssiggastanker legt am Liegeplatz an.", "An LNG carrier moors at a berth.", ""],
  ["Ein Chemietanker nutzt eine Schleuse.", "A chemical tanker uses a lock.", ""],
- ["ein RoRo-Schiff im Hafen manövrieren", "to maneuver a RoRo vessel in the port", ""],
- ["Im Vergleich zu …", "In comparison to … / Compared to …", ""],
- ["Anders als …", "Unlike …", ""],
- ["Im Gegensatz zu …", "In contrast to …", ""],
- ["Während … (Gegensatz)", "whereas … / while …", ""],
- ["Ähnlich wie …", "Similar to …", ""],
- ["Genauso wie …", "Just like …", ""],
- ["… ist vergleichbar mit …", "… is comparable to …", ""],
- ["Eine Gemeinsamkeit von X und Y ist …", "One thing X and Y have in common is …", ""],
- ["Beim Vergleich von X mit Y fällt auf, dass …", "When comparing X with Y, it becomes clear that …", ""]
+ ["ein RoRo-Schiff im Hafen manövrieren", "to maneuver a RoRo vessel in the port", ""]
 ]};
 const IMG_HOLDS = 'img/cargo-holds.svg';
 const SEED_EN3 = { name: 'Englisch – Ship Parts & Terms (EN)', cards: [
@@ -1176,7 +1167,7 @@ if (!localStorage.getItem(KEY)) save();
 const hashStr = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = (h * 33 + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
 // Doppelte Karten, die aus dem jeweiligen Stapel entfernt wurden (auch aus gespeicherten Daten)
 const DUP_REMOVED = {
-  [SEED_EN2.name]: ["Containerschiff","Vollcontainerschiff","Mehrzweckschiff","Schwergutschiff","Massengutfrachter","Rohöltanker","Flüssiggastanker","Chemietanker","RoRo-Schiff","Tiefgang","Breite (eines Schiffs)","Bug / Heck","Propeller / Schiffsschraube","Ruder","Hauptmaschine","Hilfsdiesel / Hilfsmaschine","Laderaum","Zellgerüst / Führungsschienen für Container","Zwischendeck","Schott","Lukendeckel","Laschstangen und Twistlocks","Brücke","Brückennock","Wohnbereich der Besatzung","Doppelboden","Ballasttanks","Anker","Bugstrahlruder","Aufbauten","ohne eigenes Ladegeschirr","Freifall-Rettungsboot","Kai"],
+  [SEED_EN2.name]: ["Im Vergleich zu …","Anders als …","Im Gegensatz zu …","Während … (Gegensatz)","Ähnlich wie …","Genauso wie …","… ist vergleichbar mit …","Eine Gemeinsamkeit von X und Y ist …","Beim Vergleich von X mit Y fällt auf, dass …","Containerschiff","Vollcontainerschiff","Mehrzweckschiff","Schwergutschiff","Massengutfrachter","Rohöltanker","Flüssiggastanker","Chemietanker","RoRo-Schiff","Tiefgang","Breite (eines Schiffs)","Bug / Heck","Propeller / Schiffsschraube","Ruder","Hauptmaschine","Hilfsdiesel / Hilfsmaschine","Laderaum","Zellgerüst / Führungsschienen für Container","Zwischendeck","Schott","Lukendeckel","Laschstangen und Twistlocks","Brücke","Brückennock","Wohnbereich der Besatzung","Doppelboden","Ballasttanks","Anker","Bugstrahlruder","Aufbauten","ohne eigenes Ladegeschirr","Freifall-Rettungsboot","Kai"],
   [SEED_EN3.name]: ["Provides marketing and sales, canvasses and books cargo, maintains contact with shippers, consignees and forwarders","Arranges berthing, bunkering, repairs, crew changes, ship's stores and spare parts for a vessel in port","Mediates between ship owners and charterers","Brokers the sale and purchase of ships","Manages vessels (crew, technical matters) on behalf of the owner","The company who really owns the ship, with the help of financers (banks) or own money","A company that offers transport services for cargo with own or chartered vessels","Any person or organisation paying for its cargo to be shipped from one place to another","The person or company that receives the cargo at the destination","The party that hires a vessel from the ship owner","Umbrella term for all contracts for the carriage of goods by sea","Liner contract between carrier and shipper; freight paid per container/unit","A vessel is hired for one voyage; freight is paid per ton of cargo","A vessel is hired for a period of time; the charterer pays hire per day","The daily payment for a vessel under a time charter","Document of title and receipt for the cargo shipped","Internationally standardised delivery terms in a sales contract","Taking on fuel for the ship","To put a ship into a dock out of the water for repairs","Department that plans voyages, coordinates port calls and links ship and shore"]
 };
 const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4, SEED_M1, SEED_M2, SEED_M3, SEED_M4];
@@ -1831,8 +1822,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.14';
+const APP_VERSION = '1.5.15';
 const CHANGELOG = [
+  ['1.5.15', 'Englisch – Class Test: die 9 Vergleichs-Ausdrücke (Im Vergleich zu, Anders als, Im Gegensatz zu, Während, Ähnlich wie, Genauso wie, vergleichbar mit, Gemeinsamkeit, Beim Vergleich) entfernt'],
   ['1.5.14', 'Anonyme Nutzungszählung: jedes Gerät meldet höchstens alle 20 Minuten eine Zufallsnummer, die App-Version und die Zahl der heute gelernten Karten – keine Namen, keine Karteninhalte, der Sync-Code nur verschlüsselt (Hash)'],
   ['1.5.13', 'Sync: „Anderen Code verwenden“ in den Einstellungen – beim Verbinden mit einem Code wird der Fortschritt jetzt zusammengeführt statt ersetzt (z. B. um zwei Codes von Handy und Laptop zu einem zu machen)'],
   ['1.5.12', 'Kartenquiz: Karten zeigen jetzt viel mehr Land drumherum – weiter herauszoomen (zwei Finger, − oder ⤢) zeigt Nachbarländer, Nordafrika, Skandinavien usw.; am Anfang wie gewohnt der passende Ausschnitt'],
