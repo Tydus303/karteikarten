@@ -1831,8 +1831,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.13';
+const APP_VERSION = '1.5.14';
 const CHANGELOG = [
+  ['1.5.14', 'Anonyme Nutzungszählung: jedes Gerät meldet höchstens alle 20 Minuten eine Zufallsnummer, die App-Version und die Zahl der heute gelernten Karten – keine Namen, keine Karteninhalte, der Sync-Code nur verschlüsselt (Hash)'],
   ['1.5.13', 'Sync: „Anderen Code verwenden“ in den Einstellungen – beim Verbinden mit einem Code wird der Fortschritt jetzt zusammengeführt statt ersetzt (z. B. um zwei Codes von Handy und Laptop zu einem zu machen)'],
   ['1.5.12', 'Kartenquiz: Karten zeigen jetzt viel mehr Land drumherum – weiter herauszoomen (zwei Finger, − oder ⤢) zeigt Nachbarländer, Nordafrika, Skandinavien usw.; am Anfang wie gewohnt der passende Ausschnitt'],
   ['1.5.11', 'Neu: Deutschland-Karte mit Flüssen und Kanälen aus „Topographie Deutschland“ – Donau, Elbe, Ems, Main, Oder, Rhein, Weser, Mittellandkanal, Elbe-Seitenkanal, Nord-Ostsee-Kanal, Main-Donau-Kanal · im Kartenquiz und als Stapel „Geo-Karte – Deutschland“'],
@@ -1900,6 +1901,7 @@ function viewSettings() {
       <li>Wieder fällig: Fach 1 täglich · Fach 2 nach 2 Tagen · Fach 3 nach 4 Tagen · Fach 4 nach 1 Woche · Fach 5 nach 2 Wochen.</li>
       <li><b>Schwierig</b> = schon mal falsch und aktuell in Fach 1 oder 2.</li></ul></div>
     <div class="panel"><div class="panel-title">Version ${APP_VERSION}</div>
+      <p class="muted small" style="margin:0 0 8px">Die App zählt anonym, wie viele Geräte sie nutzen (Zufallsnummer, keine Namen oder Inhalte).</p>
       <details><summary class="small">Was ist neu?</summary><ul class="info small">${CHANGELOG.map(([v, t]) => `<li><b>${v}</b> – ${esc(t)}</li>`).join('')}</ul></details></div>`;
 }
 
@@ -2601,13 +2603,29 @@ function applyUpdate() {
   if (ui.view === 'learn' || sheetEl) return; // nicht mitten in einer Lernrunde neu laden
   location.reload();
 }
+/* Anonyme Nutzungszählung: Zufalls-ID pro Gerät, Sync-Code nur als Hash (Konto), keine persönlichen Daten */
+async function usagePing() {
+  try {
+    if (!navigator.onLine) return;
+    const st = db.settings; st.devId ||= [...crypto.getRandomValues(new Uint8Array(12))].map(x => x.toString(16).padStart(2, '0')).join('');
+    const day = dayKey(), n = dayEntry(day).n || 0;
+    if (st.pingDay === day && st.pingN === n && st.pingV === APP_VERSION) return;
+    if (st.pingDay === day && Date.now() - (st.pingAt || 0) < 20 * 60 * 1000) return;
+    let acc = null;
+    if (st.syncCode) { const h = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('usage:' + st.syncCode)); acc = [...new Uint8Array(h)].map(x => x.toString(16).padStart(2, '0')).join('').slice(0, 32); }
+    await rpc('usage_ping', { p_device: st.devId, p_account: acc, p_cards: n, p_version: APP_VERSION });
+    Object.assign(st, { pingDay: day, pingN: n, pingV: APP_VERSION, pingAt: Date.now() }); syncApplying = true; save(); syncApplying = false;
+  } catch (e) { /* Zählung ist unwichtig – Fehler ignorieren */ }
+}
 checkForUpdate();
 syncPull();
+setTimeout(usagePing, 3000);
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') syncPull();
   else if (db.settings.syncDirty) { clearTimeout(syncTimer); syncPush(); }
 });
 setInterval(() => { if (document.visibilityState === 'visible') syncPull(); }, 60 * 1000);
+setInterval(() => { if (document.visibilityState === 'visible') usagePing(); }, 5 * 60 * 1000);
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && Date.now() - lastCheck > 15000) checkForUpdate();
 });
