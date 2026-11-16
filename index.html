@@ -445,6 +445,82 @@ const SEED_EN2 = { name: 'Englisch – Class Test 17.11.', cards: [
  ["Ein Chemietanker nutzt eine Schleuse.", "A chemical tanker uses a lock.", ""],
  ["ein RoRo-Schiff im Hafen manövrieren", "to maneuver a RoRo vessel in the port", ""]
 ]};
+const SEED_EN4 = { name: 'Englisch – Fachvokabeln DE→EN', cards: [
+ ["Aufbauten", "superstructure", "bridge + accommodation"],
+ ["Brücke (Kommandobrücke)", "(navigation) bridge", ""],
+ ["Brückennock", "bridge wing", ""],
+ ["Wohnbereich der Crew", "accommodation", ""],
+ ["Schornstein", "funnel", ""],
+ ["Rumpf", "hull", ""],
+ ["Hauptdeck", "main deck", ""],
+ ["Bug", "bow", ""],
+ ["Heck", "stern", ""],
+ ["Mittschiffs", "amidships", ""],
+ ["Breite (des Schiffs)", "beam / breadth", ""],
+ ["Länge über alles", "length overall (LOA)", ""],
+ ["Tiefgang", "draught (AE: draft)", ""],
+ ["Freibord", "freeboard", ""],
+ ["Höhe über der Wasserlinie (für Brückendurchfahrt)", "air draft", ""],
+ ["Völligkeitsgrad", "block coefficient", "container ship: small · bulker: high"],
+ ["Wulstbug", "bulbous bow", "pointed (container ship) / blunt (bulker)"],
+ ["Laderaum", "cargo hold", ""],
+ ["Schott (Trennwand zwischen Laderäumen)", "bulkhead", ""],
+ ["Zwischendeck", "tween deck", "removable tween decks on MPPs"],
+ ["Luke / Lukendeckel", "hatch / hatch cover", ""],
+ ["Lukensüll", "hatch coaming", ""],
+ ["Doppelboden", "double bottom", ""],
+ ["Doppelhülle", "double hull", ""],
+ ["Ballasttanks", "ballast tanks", ""],
+ ["Zellgerüste / Führungsschienen für Container", "cell guides", ""],
+ ["Laschbrücken", "lashing bridges", ""],
+ ["Laschstangen und Twistlocks", "lashing bars and twistlocks", ""],
+ ["bordeigenes Ladegeschirr / Kräne", "(cargo) gear / own cargo cranes", ""],
+ ["ohne eigenes Ladegeschirr", "gearless", ""],
+ ["Hauptmaschine", "main engine", ""],
+ ["Hilfsdiesel / Hilfsmaschinen", "auxiliary engines (auxiliaries)", ""],
+ ["Wellengenerator", "shaft generator", ""],
+ ["Maschinenraum", "engine room", ""],
+ ["Propeller / Schraube", "propeller", ""],
+ ["Ruder", "rudder", ""],
+ ["Bugstrahlruder", "bow thruster", ""],
+ ["Anker", "anchor", ""],
+ ["Freifall-Rettungsboot", "free-fall lifeboat", ""],
+ ["Laufsteg (auf Tankern)", "catwalk", ""],
+ ["Rohrverteiler / Anschlussstation (Tanker)", "manifold (station)", ""],
+ ["Ventile", "valves", ""],
+ ["Lüfterköpfe", "ventilation heads (vent heads)", ""],
+ ["Rampe", "ramp", ""],
+ ["Kai", "quay", ""],
+ ["Liegeplatz", "berth", ""],
+ ["Schleuse", "lock", ""],
+ ["festmachen", "to moor", ""],
+ ["Knoten (Geschwindigkeit)", "knot", ""],
+ ["Liegezeit im Hafen (Lade-/Löschzeit)", "turn-round time", ""],
+ ["Containerschiff / Vollcontainerschiff", "(full) container vessel", ""],
+ ["Zubringerschiff", "feeder (vessel)", ""],
+ ["Mehrzweckschiff", "multipurpose vessel (MPP)", ""],
+ ["Schwergutschiff", "heavy-lift vessel", ""],
+ ["Halbtaucher(-Schiff)", "semi-submersible", "float-on / float-off"],
+ ["Massengutfrachter", "bulk carrier (bulker)", ""],
+ ["Erzfrachter", "ore carrier", ""],
+ ["Küstenmotorschiff", "coaster", ""],
+ ["Rohöltanker", "crude (oil) carrier", ""],
+ ["Produktentanker", "product tanker", ""],
+ ["Chemietanker", "chemical tanker", ""],
+ ["Flüssiggastanker", "LNG carrier", "liquefied natural gas"],
+ ["Autotransporter", "PCTC / PCC", "Pure Car (and Truck) Carrier"],
+ ["Kühlschiff", "reefer vessel", ""],
+ ["Viehtransporter", "livestock carrier / cattle carrier", ""],
+ ["Schlepper", "tug (boat)", ""],
+ ["Liegezeit (vertraglich)", "laytime", "clearing agent"],
+ ["Zeitprotokoll im Hafen", "Statement of Facts (SoF)", ""],
+ ["Wartung und Reparatur", "maintenance and repair (M+R)", ""],
+ ["Managementgebühr", "management fee", "ship management company"],
+ ["Zollabfertigung", "customs clearance", ""],
+ ["Rohstoffbeschaffung", "procurement of raw materials", ""],
+ ["einen Chartervertrag abschließen", "to fix a charter party", "after fixing → operating (post-fix)"],
+ ["Vertreter / Vermittler", "intermediary", "the liner agent acts as intermediary"],
+]};
 const IMG_HOLDS = 'img/cargo-holds.svg';
 const SEED_EN3 = { name: 'Englisch – Ship Parts & Terms (EN)', cards: [
  ["Where are the cargo holds of a ship – and what are they?", "cargo holds", "Large compartments below the main deck, between bow and engine room – used for storing cargo.", IMG_HOLDS],
@@ -1134,7 +1210,7 @@ const SEED_M4 = { name: "Geo-Karte – Deutschland (Flüsse, Kanäle)", cards: [
  ["Welcher Kanal ist markiert?", "Nord-Ostsee-Kanal", "Brunsbüttel – Kiel, verbindet Nord- und Ostsee", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-nord-ostsee-kanal.svg"]],
  ["Welcher Kanal ist markiert?", "Main-Donau-Kanal", "Bamberg – Kelheim, verbindet Main und Donau (Nordsee ↔ Schwarzes Meer)", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-main-donau-kanal.svg"]]
 ]};
-const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4, SEED_M1, SEED_M2, SEED_M3, SEED_M4];
+const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_EN4, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4, SEED_M1, SEED_M2, SEED_M3, SEED_M4];
 function freshDb() {
   return { decks: SEEDS_ALL().map(sd => { const x = seedDeck(sd); return Object.assign(makeDeck(x.name, x.cards), x.archived ? { archived: true } : {}); }), settings: { theme: 'auto', dir: 'normal' }, log: {} };
 }
@@ -1170,7 +1246,7 @@ const DUP_REMOVED = {
   [SEED_EN2.name]: ["Im Vergleich zu …","Anders als …","Im Gegensatz zu …","Während … (Gegensatz)","Ähnlich wie …","Genauso wie …","… ist vergleichbar mit …","Eine Gemeinsamkeit von X und Y ist …","Beim Vergleich von X mit Y fällt auf, dass …","Containerschiff","Vollcontainerschiff","Mehrzweckschiff","Schwergutschiff","Massengutfrachter","Rohöltanker","Flüssiggastanker","Chemietanker","RoRo-Schiff","Tiefgang","Breite (eines Schiffs)","Bug / Heck","Propeller / Schiffsschraube","Ruder","Hauptmaschine","Hilfsdiesel / Hilfsmaschine","Laderaum","Zellgerüst / Führungsschienen für Container","Zwischendeck","Schott","Lukendeckel","Laschstangen und Twistlocks","Brücke","Brückennock","Wohnbereich der Besatzung","Doppelboden","Ballasttanks","Anker","Bugstrahlruder","Aufbauten","ohne eigenes Ladegeschirr","Freifall-Rettungsboot","Kai"],
   [SEED_EN3.name]: ["Provides marketing and sales, canvasses and books cargo, maintains contact with shippers, consignees and forwarders","Arranges berthing, bunkering, repairs, crew changes, ship's stores and spare parts for a vessel in port","Mediates between ship owners and charterers","Brokers the sale and purchase of ships","Manages vessels (crew, technical matters) on behalf of the owner","The company who really owns the ship, with the help of financers (banks) or own money","A company that offers transport services for cargo with own or chartered vessels","Any person or organisation paying for its cargo to be shipped from one place to another","The person or company that receives the cargo at the destination","The party that hires a vessel from the ship owner","Umbrella term for all contracts for the carriage of goods by sea","Liner contract between carrier and shipper; freight paid per container/unit","A vessel is hired for one voyage; freight is paid per ton of cargo","A vessel is hired for a period of time; the charterer pays hire per day","The daily payment for a vessel under a time charter","Document of title and receipt for the cargo shipped","Internationally standardised delivery terms in a sales contract","Taking on fuel for the ship","To put a ship into a dock out of the water for repairs","Department that plans voyages, coordinates port calls and links ship and shore"]
 };
-const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4, SEED_M1, SEED_M2, SEED_M3, SEED_M4];
+const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_EN4, SEED_X1, SEED_X1B, SEED_X2, SEED_X3, SEED_X4, SEED_M1, SEED_M2, SEED_M3, SEED_M4];
 const SEED_HASH = hashStr(JSON.stringify(SEEDS));
 if (db.settings.seedHash !== SEED_HASH) {
   syncApplying = true; // kein „neuerer Stand“ – sonst gewinnt das Gerät, das zuerst das Update bekommt
@@ -1822,8 +1898,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.15';
+const APP_VERSION = '1.5.16';
 const CHANGELOG = [
+  ['1.5.16', 'Neuer Stapel „Englisch – Fachvokabeln DE→EN“ (74 Karten aus OneNote: Schiffsteile, Schiffstypen, Hafen- und Vertragsbegriffe auf Deutsch → Englisch)'],
   ['1.5.15', 'Englisch – Class Test: die 9 Vergleichs-Ausdrücke (Im Vergleich zu, Anders als, Im Gegensatz zu, Während, Ähnlich wie, Genauso wie, vergleichbar mit, Gemeinsamkeit, Beim Vergleich) entfernt'],
   ['1.5.14', 'Anonyme Nutzungszählung: jedes Gerät meldet höchstens alle 20 Minuten eine Zufallsnummer, die App-Version und die Zahl der heute gelernten Karten – keine Namen, keine Karteninhalte, der Sync-Code nur verschlüsselt (Hash)'],
   ['1.5.13', 'Sync: „Anderen Code verwenden“ in den Einstellungen – beim Verbinden mit einem Code wird der Fortschritt jetzt zusammengeführt statt ersetzt (z. B. um zwei Codes von Handy und Laptop zu einem zu machen)'],
