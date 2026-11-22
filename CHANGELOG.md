@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.17** – Zwei neue Stapel für die WUG-Arbeit am 23.11.: Fachwörter (77 Karten) und Regeln & Fälle (123 Karten), am aktuellen Gesetz geprüft
 - **1.5.16** – Neuer Stapel „Englisch – Fachvokabeln DE→EN“ (74 Karten aus OneNote: Schiffsteile, Schiffstypen, Hafen- und Vertragsbegriffe auf Deutsch → Englisch)
 - **1.5.15** – Englisch – Class Test: die 9 Vergleichs-Ausdrücke (Im Vergleich zu, Anders als, Im Gegensatz zu, Während, Ähnlich wie, Genauso wie, vergleichbar mit, Gemeinsamkeit, Beim Vergleich) entfernt
 - **1.5.14** – Anonyme Nutzungszählung: jedes Gerät meldet höchstens alle 20 Minuten eine Zufallsnummer, die App-Version und die Zahl der heute gelernten Karten – keine Namen, keine Karteninhalte, der Sync-Code nur verschlüsselt (Hash)
