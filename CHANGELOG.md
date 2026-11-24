@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.19** – Neuer Stapel „LF2 – Ladungsmenge & Probeklausur“ (132 Karten aus OneNote): Kompetenzcheckliste LS 3 und alle Themen der Probeklausur – Trag-/Ladefähigkeit, Freibord, Staufaktor, Rechenwege, Verträge, Schiffsteile, Abteilungen, Treibstoffe
 - **1.5.18** – WUG-Arbeit gekürzt: neuer Stapel „Das Wichtigste“ mit 40 Karten – die beiden großen Stapel (200 Karten) liegen mit Fortschritt im Archiv
 - **1.5.17** – Zwei neue Stapel für die WUG-Arbeit am 23.11.: Fachwörter (77 Karten) und Regeln & Fälle (123 Karten), am aktuellen Gesetz geprüft
 - **1.5.16** – Neuer Stapel „Englisch – Fachvokabeln DE→EN“ (74 Karten aus OneNote: Schiffsteile, Schiffstypen, Hafen- und Vertragsbegriffe auf Deutsch → Englisch)
