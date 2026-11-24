@@ -300,7 +300,7 @@ const today0 = () => { const d = new Date(); d.setHours(0,0,0,0); return d.getTi
 const dateStr = () => new Date().toISOString().slice(0,10);
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
-const SEED = { name: 'LF1 – Rechtsgrundlagen', cards: [
+const SEED = { name: 'LF1 – Rechtsgrundlagen', archived: true, cards: [
  ['Jemand, der Rechte und Pflichten haben kann','Rechtssubjekt','Ein Mensch oder eine GmbH'],
  ['Die Sache oder das Recht, um das es geht','Rechtsobjekt','Ein Schiff (Sache) oder eine Forderung (Recht)'],
  ['Ein Mensch im rechtlichen Sinn','natürliche Person','Jeder Mensch, egal welchen Alters'],
@@ -372,7 +372,7 @@ const SEED = { name: 'LF1 – Rechtsgrundlagen', cards: [
  ["Geschäftsfähigkeit ab 18 Jahren", "voll geschäftsfähig", ""],
 ]};
 
-const SEED_EN = { name: 'Englisch – 1.1.0 Lexis', cards: [
+const SEED_EN = { name: 'Englisch – 1.1.0 Lexis', archived: true, cards: [
  ['einen internationalen Kaufvertrag schließen','to fix an international sales contract',''],
  ['sich auf Lieferbedingungen einigen','to agree on delivery terms',''],
  ['Vertragsinhalte verhandeln','to negotiate the terms of a contract',''],
@@ -445,7 +445,7 @@ const SEED_EN2 = { name: 'Englisch – Class Test 17.11.', archived: true, cards
  ["Ein Chemietanker nutzt eine Schleuse.", "A chemical tanker uses a lock.", ""],
  ["ein RoRo-Schiff im Hafen manövrieren", "to maneuver a RoRo vessel in the port", ""]
 ]};
-const SEED_EN4 = { name: 'Englisch – Fachvokabeln DE→EN', cards: [
+const SEED_EN4 = { name: 'Englisch – Fachvokabeln DE→EN', archived: true, cards: [
  ["Aufbauten", "superstructure", "bridge + accommodation"],
  ["Brücke (Kommandobrücke)", "(navigation) bridge", ""],
  ["Brückennock", "bridge wing", ""],
@@ -522,7 +522,7 @@ const SEED_EN4 = { name: 'Englisch – Fachvokabeln DE→EN', cards: [
  ["Vertreter / Vermittler", "intermediary", "the liner agent acts as intermediary"],
 ]};
 const IMG_HOLDS = 'img/cargo-holds.svg';
-const SEED_EN3 = { name: 'Englisch – Ship Parts & Terms (EN)', cards: [
+const SEED_EN3 = { name: 'Englisch – Ship Parts & Terms (EN)', archived: true, cards: [
  ["Where are the cargo holds of a ship – and what are they?", "cargo holds", "Large compartments below the main deck, between bow and engine room – used for storing cargo.", IMG_HOLDS],
  ["The area in a ship that is used for stowing goods", "cargo hold", "Look at the picture: holds No 1 – No 5 (orange).", IMG_HOLDS],
  ["The very front part of a ship", "bow", "", 'img/bow.svg'],
@@ -1389,9 +1389,12 @@ const MOVED_CARDS = [{ from: SEED_X1.name, to: SEED_X1B.name, backs: GEZEITEN }]
 const AUTO_ARCHIVED = ["WUG 23.11. – Fachwörter", "WUG 23.11. – Regeln & Fälle"];
 // Geschriebene Arbeiten (1.5.20): einmalig archivieren; danach selbst zurückgeholte Stapel (t > ARCH2_T) bleiben sichtbar
 const ARCH2_T = Date.UTC(2026, 10, 24, 12), AUTO_ARCHIVED2 = ["Englisch – Class Test 17.11.", "Geo – Arbeit 16.11.", "WUG – Arbeit 23.11.", "WUG 23.11. – Das Wichtigste"];
+// Erledigte Stapel (1.5.21): Kartenquiz bleibt, nur die Karten-Stapel ins Archiv
+const ARCH3_T = Date.UTC(2026, 10, 24, 20, 10), AUTO_ARCHIVED3 = ["LF1 – Rechtsgrundlagen", "Englisch – 1.1.0 Lexis", "Englisch – Ship Parts & Terms (EN)", "Englisch – Fachvokabeln DE→EN", "Geo-Karte – Europa (Flüsse, Meere, Gebirge)", "Geo-Karte – Traditionelle Seehäfen", "Geo-Karte – Deutschland (Flüsse, Kanäle)"];
 function applyMoves() {
   db.decks.forEach(d => { if (!d.t && AUTO_ARCHIVED.includes(d.name)) { d.archived = true; d.t = 1; } });
   db.decks.forEach(d => { if ((d.t || 0) < ARCH2_T && AUTO_ARCHIVED2.includes(d.name)) { d.archived = true; d.t = ARCH2_T; } });
+  db.decks.forEach(d => { if ((d.t || 0) < ARCH3_T && AUTO_ARCHIVED3.includes(d.name)) { d.archived = true; d.t = ARCH3_T; } });
   const key = c => (c.front + '|' + c.back).toLowerCase().replace(/\s+/g, ' ').trim();
   MOVED_CARDS.forEach(mv => {
     const src = db.decks.find(d => d.name === mv.from); if (!src) return;
@@ -1507,7 +1510,7 @@ function makeCard(o) {
 }
 function makeDeck(name, cards) { return { id: uid(), name: name.trim(), cards: cards.map(makeCard) }; }
 // Stumme Karten zum Eintragen (Ebenen: Meer, Land, Markierung – erzeugt mit tools/stumme-karten.py)
-const SEED_M1 = { name: "Geo-Karte – Europa (Flüsse, Meere, Gebirge)", cards: [
+const SEED_M1 = { name: "Geo-Karte – Europa (Flüsse, Meere, Gebirge)", archived: true, cards: [
  ["Welcher Fluss ist markiert?", "Donau", "mündet ins Schwarze Meer", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-donau.svg"]],
  ["Welcher Fluss ist markiert?", "Elbe", "mündet bei Cuxhaven in die Nordsee", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-elbe.svg"]],
  ["Welcher Fluss ist markiert?", "Guadalquivir", "Südspanien, mündet in den Atlantik (Sevilla)", null, null, ["img/karte-europa-meer.svg", "img/karte-europa.svg", "img/karte-europa-o-guadalquivir.svg"]],
@@ -1576,14 +1579,14 @@ const SEED_M2 = { name: "Geo-Karte – Nordrange (Häfen, Wasserwege)", cards: [
  ["Welcher Wasserweg ist markiert?", "Ärmelkanal", "", null, null, ["img/karte-nordrange-u-aermelkanal.svg", "img/karte-nordrange.svg"]],
  ["Welcher Wasserweg ist markiert?", "Straße von Dover", "engste Stelle des Ärmelkanals", null, null, ["img/karte-nordrange-meer.svg", "img/karte-nordrange.svg", "img/karte-nordrange-o-strasse-von-dover.svg"]]
 ]};
-const SEED_M3 = { name: "Geo-Karte – Traditionelle Seehäfen", cards: [
+const SEED_M3 = { name: "Geo-Karte – Traditionelle Seehäfen", archived: true, cards: [
  ["Welcher Hafen ist markiert?", "London", "an der Themse", null, null, ["img/karte-traditionell-meer.svg", "img/karte-traditionell.svg", "img/karte-traditionell-o-london.svg"]],
  ["Welcher Hafen ist markiert?", "Hamburg", "an der Elbe", null, null, ["img/karte-traditionell-meer.svg", "img/karte-traditionell.svg", "img/karte-traditionell-o-hamburg.svg"]],
  ["Welcher Hafen ist markiert?", "Bremen", "an der Weser", null, null, ["img/karte-traditionell-meer.svg", "img/karte-traditionell.svg", "img/karte-traditionell-o-bremen.svg"]],
  ["Welcher Hafen ist markiert?", "Rotterdam", "an der Maas", null, null, ["img/karte-traditionell-meer.svg", "img/karte-traditionell.svg", "img/karte-traditionell-o-rotterdam.svg"]],
  ["Welcher Hafen ist markiert?", "Antwerpen", "an der Schelde", null, null, ["img/karte-traditionell-meer.svg", "img/karte-traditionell.svg", "img/karte-traditionell-o-antwerpen.svg"]]
 ]};
-const SEED_M4 = { name: "Geo-Karte – Deutschland (Flüsse, Kanäle)", cards: [
+const SEED_M4 = { name: "Geo-Karte – Deutschland (Flüsse, Kanäle)", archived: true, cards: [
  ["Welcher Fluss ist markiert?", "Donau", "fließt nach Osten ins Schwarze Meer, Südgrenze der Mittelgebirgszone", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-donau.svg"]],
  ["Welcher Fluss ist markiert?", "Elbe", "Hamburg, mündet bei Cuxhaven in die Nordsee", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-elbe.svg"]],
  ["Welcher Fluss ist markiert?", "Ems", "Emden, mündet in die Nordsee", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-ems.svg"]],
@@ -2284,8 +2287,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.20';
+const APP_VERSION = '1.5.21';
 const CHANGELOG = [
+  ['1.5.21', 'Erledigte Stapel ins Archiv: LF1 – Rechtsgrundlagen, Englisch Lexis, Ship Parts & Terms, Fachvokabeln sowie Geo-Karte Europa, Traditionelle Seehäfen und Deutschland (Kartenquiz bleibt unverändert)'],
   ['1.5.20', 'Geschriebene Arbeiten ins Archiv: Englisch Class Test 17.11., Geo – Arbeit 16.11., WUG – Arbeit 23.11. und WUG – Das Wichtigste (Fortschritt bleibt, über ⋯ zurückholbar)'],
   ['1.5.19', 'Neuer Stapel „LF2 – Ladungsmenge & Probeklausur“ (132 Karten aus OneNote): Kompetenzcheckliste LS 3 und alle Themen der Probeklausur – Trag-/Ladefähigkeit, Freibord, Staufaktor, Rechenwege, Verträge, Schiffsteile, Abteilungen, Treibstoffe'],
   ['1.5.18', 'WUG-Arbeit gekürzt: neuer Stapel „Das Wichtigste“ mit 40 Karten – die beiden großen Stapel (200 Karten) liegen mit Fortschritt im Archiv'],
