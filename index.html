@@ -1186,6 +1186,46 @@ const SEED_X8 = { name: "LF2 – Ladungsmenge & Probeklausur", cards: [
  ["MARPOL Anlage VI", "Internationales Übereinkommen gegen Meeresverschmutzung durch Schiffe – Anlage VI regelt die Luftverschmutzung (Schwefelgrenzen, ECA, Bunker Delivery Note)", "Von der IMO"],
  ["IMO", "International Maritime Organization – Seeschifffahrtsorganisation der UN", "Von ihr: MARPOL, SOLAS, Freibord- und Vermessungs-Übereinkommen"]
 ]};
+const SEED_X9 = { name: "LF2 – Einfache Version", cards: [
+ ["Stückgutfrachtvertrag – Merkmale","Kleinere Partien (oft Container) auf festen Routen nach Fahrplan; viele Befrachter pro Schiff. „Die Ladung folgt dem Schiff“ (wie ein Bus)","Vertragsparteien: Verfrachter (Carrier) und Befrachter (Shipper)"],
+ ["Reisecharter – Merkmale","Schiff für eine bestimmte Reise, meist ganze Schiffsladung Massengut. „Das Schiff folgt der Ladung“ (wie ein Taxi)","Vertragsparteien: Owner und Charterer"],
+ ["Zeitcharter – Merkmale","Schiff für einen bestimmten Zeitraum; der Charterer bekommt das kommerzielle Weisungsrecht (Häfen, Route, Beschäftigung)","Nur ein Befrachter für die Dauer der T/C"],
+ ["Wer trägt welche Kosten bei der Zeitcharter?","Owner: Betriebskosten (Crew, Versicherung, Instandhaltung) · Charterer: Reisekosten (Bunker, Hafen-, Kanalgebühren)","Bei der Reisecharter trägt der Reeder beide"],
+ ["Welche zwei Fragen prüft man bei der Ladungsmengenberechnung?","1. Kann das Schiff die Ladung vom Gewicht her tragen (mt), ohne überladen zu sein? 2. Passt die Ladung vom Volumen her komplett in die Laderäume (cbm)?","LS 3, 2.1"],
+ ["Tragfähigkeit (DWAT / TDWAT)","Maximale Gesamtlast, die ein Schiff zusätzlich zu seinem Eigengewicht unter Einhaltung von Tiefgangs-, Stabilitäts- und Festigkeitsgrenzen sicher tragen darf","Deadweight all told · feste Größe je Freibordzone"],
+ ["Ladefähigkeit (TDWCC / DWCC)","Der wirtschaftlich für Ladung nutzbare Teil der Tragfähigkeit","Tragfähigkeit = technische Obergrenze, Ladefähigkeit = operative Maximallast"],
+ ["Rechenschema: Von der Tragfähigkeit zur Ladefähigkeit","TDWAT − Bunkerverbrauch der Reise − Bunkerreserve − Vorräte/Proviant/Equipment − Frischwasser − ggf. Ballastwasser = TDWCC","LS 3, 2.2"],
+ ["Wie berechnet man den Bunkerverbrauch einer Reise?","Reisedauer × Tagesverbrauch. Reisedauer = Distanz (sm) ÷ Geschwindigkeit (kn) = Stunden, ÷ 24 = Tage","Bsp.: 658 sm ÷ 14 kn = 47 h = 1,96 Tage × 19,5 t = 38,22 t"],
+ ["Bunkerreserve","Zusätzlich mitgeführter Treibstoff als Sicherheit, in Tagessätzen angegeben; wird von der Tragfähigkeit abgezogen","z. B. 3 Tagessätze = 3 × Tagesverbrauch"],
+ ["Freibord","Senkrechter Abstand zwischen der Wasserlinie und dem ersten durchlaufenden Deck (Hauptdeck), außen als Decksstrich erkennbar","Gemessen auf halber Schiffslänge"],
+ ["Mindestfreibord","Freibord, den ein Schiff auf einer Seereise mindestens einhalten muss","Sichert Reserveauftrieb, Stabilität und Schutz vor Decküberflutung und verhindert Überladung"],
+ ["Wofür stehen TF, F, T, S, W und WNA?","TF = Tropen-Frischwasser, F = Frischwasser, T = Tropen, S = Sommer, W = Winter, WNA = Winter Nordatlantik","Von oben nach unten auf der Lademarke"],
+ ["Welche Lademarke liegt am höchsten, welche am tiefsten (T, S, W)?","T am höchsten (kleinster Freibord, größte Tragfähigkeit), dann S, W am tiefsten (größter Freibord, kleinste Tragfähigkeit)","Louise Auerbach: Freibord T 2,85 / S 3,02 / W 3,19 m"],
+ ["Freibordzeugnis","International Load Line Certificate – bescheinigt die korrekte Berechnung und Anbringung der Freibordmarke und legt die höchstzulässige Abladetiefe fest","Grundlage: LLC 66"],
+ ["Freibordzonen (International Load Line Zones)","Einteilung der Seegebiete, aus der sich der einzuhaltende Mindestfreibord und damit die Tragfähigkeit ergibt","Abzulesen in der Karte im Lloyd's Maritime Atlas"],
+ ["Reise durch mehrere Freibordzonen: Wie rechnest du die TDWCC?","Für jede Zone: DWAT der Zone − Bunker ab Zoneneintritt bis zum Ziel − Reserve − Constants. Der kleinste Wert ist die TDWCC","Bunker, die vorher verbraucht werden, dürfen zusätzlich an Bord sein"],
+ ["Grain Space (Kornraum)","Theoretisch maximales Ladevolumen, als würde man rieselfähiges Schüttgut einladen, das sich bis in alle Ecken und zwischen die Spanten verteilt","Ab Innenkante Außenhaut gemessen · für Schüttgut"],
+ ["Bale Space (Ballenraum)","Praktisch nutzbares Volumen für Stückgut – Hohlräume (z. B. zwischen den Spanten) sind nicht nutzbar","Ab Seitenwegerung gemessen · z. B. Ballen, Big Bags, Kisten, Coils"],
+ ["Welchen Raum nimmst du für Schüttgut, welchen für Stückgut?","Schüttgut (bulk) → Grain Space · Stückgut (Ballen, Säcke, Coils) → Bale Space",""],
+ ["Staufaktor (SF, Stowage Factor)","Wie viel Raum (cbm oder cbft) eine metrische Tonne Ladung im Schiff einnimmt","Einheit: cbm/mt oder cbft/mt"],
+ ["Staufaktor unter 1 – was für eine Ladung?","Wiegende (schwere) Ladung – z. B. Eisenerz 0,42 cbm/mt","Das Schiff wird eher „down“"],
+ ["Staufaktor über 1 – was für eine Ladung?","Messende (voluminöse) Ladung – z. B. Baumwollballen 1,92 cbm/mt","Das Schiff wird eher „full“"],
+ ["Wie viel Volumen braucht eine Ladung?","Tonnen × Staufaktor = cbm","6.200 t × 3,5 cbm/t = 21.700 cbm"],
+ ["Wie viele Tonnen passen vom Raum her ins Schiff?","Grain/Bale Space ÷ Staufaktor = mt","20.898 cbm ÷ 3,5 = 5.970 mt"],
+ ["Wie findest du die maximale Ladungsmenge?","Ladefähigkeit (TDWCC) mit dem raumbedingten Ladungsgewicht (Raum ÷ SF) vergleichen – der kleinere Wert gilt","Lösungsschema der Übungen"],
+ ["full but not down","Laderaum voll, Ladefähigkeit (mt) nicht ausgeschöpft – der Raum ist die Grenze","Raumbedingtes Gewicht < TDWCC"],
+ ["down but not full","Gewichtsmäßig voll abgeladen, Laderaum nicht voll – die Ladefähigkeit ist die Grenze","Raumbedingtes Gewicht > TDWCC"],
+ ["Probeklausur St. Pauli: Wie hoch ist der Tagesverbrauch und die Reserve?","20 t ULSFO (M/E) + 2 t Gasöl (A/E) = 22 t pro Seetag · Reserve 4 × 22 = 88 t","Dakar → Hamburg, 3.300 sm, 12 kn"],
+ ["Probeklausur St. Pauli: TDWCC je Zone (T 1.000 / S 800 / W 1.500 sm; feste Bestände 150 t)","T: 19.290 − 252,08 − 88 − 150 = 18.799,92 · S: 19.160 − 175,69 − 88 − 150 = 18.746,31 · W: 18.940 − 114,58 − 88 − 150 = 18.587,42 → TDWCC 18.587,42 mt","Bunker jeweils ab Zoneneintritt bis Hamburg"],
+ ["Probeklausur St. Pauli: Erdnüsse in Säcken SF 4, Raum 34.200 cbm – maximale Menge, full oder down, ungenutzt?","34.200 ÷ 4 = 8.550 mt (34.200 cbm) → full but not down · Ungenutzte Ladefähigkeit 18.587,42 − 8.550 = 10.037,42 mt, Laderaum voll",""],
+ ["5 Aufgaben der Operations-Abteilung (Trampreederei)","Direkter Kontakt zu Schiff/Kapitän · Kapitän über die Reise unterweisen · Hafenanläufe koordinieren, Hafenagenten benennen · Schiffsposition an den Charterer melden · Trockendock mit M&R koordinieren · ggf. Bunker kaufen (bei Reisecharter)","LS 1, 2.6.1"],
+ ["3 Aufgaben der Technischen Inspektion (Trampreederei)","Kümmert sich um die Schiffe · organisiert Trockendockings · Klassebesichtigungen · alle Pflichtzertifikate · nautische Ausrüstung (Radar, Seekarten, AIS)","LS 1, 2.6.1 – Nautische und Technische Inspektion, M&R"],
+ ["Aufgaben der Chartering-Abteilung (Trampreederei)","Ladung suchen, Positionslisten senden, Flottenplan aktuell halten, intensiver Kundenkontakt, Charterverträge verhandeln","LS 1, 2.6.1"],
+ ["Funktion: Schott (Bulkhead)","Senkrechte Trennwand, die das Schiff in wasserdichte Abschnitte teilt – trennt Ladungspartien und verhindert bei Kollision die Flutung des ganzen Schiffes","Bulker-Bauteil"],
+ ["Schwefelgrenzwerte für Schiffstreibstoff","Weltweit max. 0,50 % (seit 2020) · in ECA-Zonen max. 0,10 %","MARPOL Anlage VI, Regel 14"],
+ ["ECA-Zone","Seegebiet mit strengeren Abgasgrenzwerten (IMO, MARPOL Anlage VI): Treibstoff max. 0,10 % Schwefel","u. a. Nord- und Ostsee, Ärmelkanal, Nordamerika, seit Mai 2025 Mittelmeer"],
+ ["Welche Angaben brauchst du für die maximale Ladekapazität? (mind. 4)","DWAT (Tragfähigkeit) · Grain/Bale Space · Speed & Consumption (für die Bunker) · Freibord bzw. DWAT je Zone","Probeklausur, Schiffsbeschreibung"]
+]};
 const SEED_X4 = { name: "LF4 – Arbeit 04.12.", cards: [
  ["Schriftlicher Nachweis für einen Geschäftsvorfall", "Beleg", "Keine Buchung ohne Beleg"],
  ["Selbst geschriebener Beleg, wenn ein Originalbeleg fehlt", "Eigenbeleg", ""],
@@ -1599,7 +1639,7 @@ const SEED_M4 = { name: "Geo-Karte – Deutschland (Flüsse, Kanäle)", archived
  ["Welcher Kanal ist markiert?", "Nord-Ostsee-Kanal", "Brunsbüttel – Kiel, verbindet Nord- und Ostsee", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-nord-ostsee-kanal.svg"]],
  ["Welcher Kanal ist markiert?", "Main-Donau-Kanal", "Bamberg – Kelheim, verbindet Main und Donau (Nordsee ↔ Schwarzes Meer)", null, null, ["img/karte-deutschland-meer.svg", "img/karte-deutschland.svg", "img/karte-deutschland-o-main-donau-kanal.svg"]]
 ]};
-const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_EN4, SEED_X1, SEED_X1B, SEED_X2, SEED_X7, SEED_X5, SEED_X6, SEED_X3, SEED_X8, SEED_X4, SEED_M1, SEED_M2, SEED_M3, SEED_M4];
+const SEEDS_ALL = () => [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_EN4, SEED_X1, SEED_X1B, SEED_X2, SEED_X7, SEED_X5, SEED_X6, SEED_X3, SEED_X8, SEED_X9, SEED_X4, SEED_M1, SEED_M2, SEED_M3, SEED_M4];
 function freshDb() {
   return { decks: SEEDS_ALL().map(sd => { const x = seedDeck(sd); return Object.assign(makeDeck(x.name, x.cards), x.archived ? { archived: true } : {}); }), settings: { theme: 'auto', dir: 'normal' }, log: {} };
 }
@@ -1635,7 +1675,7 @@ const DUP_REMOVED = {
   [SEED_EN2.name]: ["Im Vergleich zu …","Anders als …","Im Gegensatz zu …","Während … (Gegensatz)","Ähnlich wie …","Genauso wie …","… ist vergleichbar mit …","Eine Gemeinsamkeit von X und Y ist …","Beim Vergleich von X mit Y fällt auf, dass …","Containerschiff","Vollcontainerschiff","Mehrzweckschiff","Schwergutschiff","Massengutfrachter","Rohöltanker","Flüssiggastanker","Chemietanker","RoRo-Schiff","Tiefgang","Breite (eines Schiffs)","Bug / Heck","Propeller / Schiffsschraube","Ruder","Hauptmaschine","Hilfsdiesel / Hilfsmaschine","Laderaum","Zellgerüst / Führungsschienen für Container","Zwischendeck","Schott","Lukendeckel","Laschstangen und Twistlocks","Brücke","Brückennock","Wohnbereich der Besatzung","Doppelboden","Ballasttanks","Anker","Bugstrahlruder","Aufbauten","ohne eigenes Ladegeschirr","Freifall-Rettungsboot","Kai"],
   [SEED_EN3.name]: ["Provides marketing and sales, canvasses and books cargo, maintains contact with shippers, consignees and forwarders","Arranges berthing, bunkering, repairs, crew changes, ship's stores and spare parts for a vessel in port","Mediates between ship owners and charterers","Brokers the sale and purchase of ships","Manages vessels (crew, technical matters) on behalf of the owner","The company who really owns the ship, with the help of financers (banks) or own money","A company that offers transport services for cargo with own or chartered vessels","Any person or organisation paying for its cargo to be shipped from one place to another","The person or company that receives the cargo at the destination","The party that hires a vessel from the ship owner","Umbrella term for all contracts for the carriage of goods by sea","Liner contract between carrier and shipper; freight paid per container/unit","A vessel is hired for one voyage; freight is paid per ton of cargo","A vessel is hired for a period of time; the charterer pays hire per day","The daily payment for a vessel under a time charter","Document of title and receipt for the cargo shipped","Internationally standardised delivery terms in a sales contract","Taking on fuel for the ship","To put a ship into a dock out of the water for repairs","Department that plans voyages, coordinates port calls and links ship and shore"]
 };
-const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_EN4, SEED_X1, SEED_X1B, SEED_X2, SEED_X7, SEED_X5, SEED_X6, SEED_X3, SEED_X8, SEED_X4, SEED_M1, SEED_M2, SEED_M3, SEED_M4];
+const SEEDS = [SEED, SEED_EN, SEED_EN2, SEED_EN3, SEED_EN4, SEED_X1, SEED_X1B, SEED_X2, SEED_X7, SEED_X5, SEED_X6, SEED_X3, SEED_X8, SEED_X9, SEED_X4, SEED_M1, SEED_M2, SEED_M3, SEED_M4];
 const SEED_HASH = hashStr(JSON.stringify(SEEDS));
 if (db.settings.seedHash !== SEED_HASH) {
   syncApplying = true; // kein „neuerer Stand“ – sonst gewinnt das Gerät, das zuerst das Update bekommt
@@ -2287,8 +2327,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.21';
+const APP_VERSION = '1.5.22';
 const CHANGELOG = [
+  ['1.5.22', 'Neuer Stapel „LF2 – Einfache Version“: nur das Wichtigste in 38 Karten – Verträge, Trag-/Ladefähigkeit, Freibord, Staufaktor, full/down, Probeklausur'],
   ['1.5.21', 'Erledigte Stapel ins Archiv: LF1 – Rechtsgrundlagen, Englisch Lexis, Ship Parts & Terms, Fachvokabeln sowie Geo-Karte Europa, Traditionelle Seehäfen und Deutschland (Kartenquiz bleibt unverändert)'],
   ['1.5.20', 'Geschriebene Arbeiten ins Archiv: Englisch Class Test 17.11., Geo – Arbeit 16.11., WUG – Arbeit 23.11. und WUG – Das Wichtigste (Fortschritt bleibt, über ⋯ zurückholbar)'],
   ['1.5.19', 'Neuer Stapel „LF2 – Ladungsmenge & Probeklausur“ (132 Karten aus OneNote): Kompetenzcheckliste LS 3 und alle Themen der Probeklausur – Trag-/Ladefähigkeit, Freibord, Staufaktor, Rechenwege, Verträge, Schiffsteile, Abteilungen, Treibstoffe'],

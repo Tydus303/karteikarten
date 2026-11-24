@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.22** – Neuer Stapel „LF2 – Einfache Version“: nur das Wichtigste in 38 Karten – Verträge, Trag-/Ladefähigkeit, Freibord, Staufaktor, full/down, Probeklausur
 - **1.5.21** – Erledigte Stapel ins Archiv: LF1 – Rechtsgrundlagen, Englisch Lexis, Ship Parts & Terms, Fachvokabeln sowie Geo-Karte Europa, Traditionelle Seehäfen und Deutschland (Kartenquiz bleibt unverändert)
 - **1.5.20** – Geschriebene Arbeiten ins Archiv: Englisch Class Test 17.11., Geo – Arbeit 16.11., WUG – Arbeit 23.11. und WUG – Das Wichtigste (Fortschritt bleibt, über ⋯ zurückholbar)
 - **1.5.19** – Neuer Stapel „LF2 – Ladungsmenge & Probeklausur“ (132 Karten aus OneNote): Kompetenzcheckliste LS 3 und alle Themen der Probeklausur – Trag-/Ladefähigkeit, Freibord, Staufaktor, Rechenwege, Verträge, Schiffsteile, Abteilungen, Treibstoffe
