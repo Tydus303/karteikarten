@@ -392,7 +392,7 @@ const SEED_EN = { name: 'Englisch – 1.1.0 Lexis', cards: [
  ['Vor der Ausbildung habe ich Abitur gemacht.','Before the apprenticeship I did my A-levels.','UK; US: I graduated from high school.'],
  ['Nach dem mittleren Schulabschluss habe ich direkt die Ausbildung angefangen.','After year 11 at secondary school I started the apprenticeship straight away.',''],
 ]};
-const SEED_EN2 = { name: 'Englisch – Class Test 17.11.', cards: [
+const SEED_EN2 = { name: 'Englisch – Class Test 17.11.', archived: true, cards: [
  ["Unterschied zwischen Reederei- und Agenturgeschäft", "the difference between owner and agency business", ""],
  ["Befrachtungsmakler", "chartering broker", "brings shipowners and charterers together (mediates)"],
  ["Der Befrachtungsmakler vermittelt.", "The chartering broker mediates.", ""],
@@ -599,7 +599,7 @@ const SEED_EN3 = { name: 'Englisch – Ship Parts & Terms (EN)', cards: [
  ["A ship carrying live animals", "livestock carrier", "also: cattle carrier"],
  ["A small powerful boat that pulls or pushes ships in port", "tug (boat)", ""],
 ]};
-const SEED_X1 = { name: "Geo – Arbeit 16.11.", cards: [
+const SEED_X1 = { name: "Geo – Arbeit 16.11.", archived: true, cards: [
  ["Ein vollständiges Auf und Ab des Wassers (12 h 25 min)", "Tide", "Von niederdeutsch „Tid“ = Zeit"],
  ["Das Wasser steigt vom Niedrigwasser bis zum Hochwasser („läuft auf“)", "Flut", ""],
  ["Das Wasser fällt vom Hochwasser bis zum Niedrigwasser („läuft ab“)", "Ebbe", ""],
@@ -657,7 +657,7 @@ const SEED_X1 = { name: "Geo – Arbeit 16.11.", cards: [
  ["Kanal zwischen Nord- und Ostsee", "Nord-Ostsee-Kanal", ""],
  ["Kanal, der Main und Donau verbindet", "Main-Donau-Kanal", ""]
 ]};
-const SEED_X2 = { name: "WUG – Arbeit 23.11.", cards: [
+const SEED_X2 = { name: "WUG – Arbeit 23.11.", archived: true, cards: [
  ["Gesetz, das die betriebliche Berufsausbildung in Deutschland regelt", "Berufsbildungsgesetz (BBiG)", ""],
  ["Ausbildung an zwei Lernorten: Berufsschule und Ausbildungsbetrieb", "duales System", ""],
  ["Zusammenarbeit von Berufsschule und Betrieb", "Lernortkooperation", ""],
@@ -707,7 +707,7 @@ const SEED_X2 = { name: "WUG – Arbeit 23.11.", cards: [
  ["Verkürzung der Ausbildung mit Abitur", "max. 12 Monate", "Mittlerer Abschluss: max. 6 Monate"],
  ["Vorzeitige Zulassung zur Prüfung", "um 6 Monate bei überdurchschnittlichen Leistungen (besser als 2,49)", "Betrieb und Berufsschule müssen zustimmen"]
 ]};
-const SEED_X7 = { name: "WUG 23.11. – Das Wichtigste", cards: [
+const SEED_X7 = { name: "WUG 23.11. – Das Wichtigste", archived: true, cards: [
  ["Was ist das duale System?", "Ausbildung an zwei Lernorten: Betrieb (Praxis) und Berufsschule (Theorie)", "Ihre Zusammenarbeit heißt Lernortkooperation"],
  ["Nenne zwei Vorteile des dualen Systems.", "Theorie plus Praxis; eigenes Geld schon in der Ausbildung", "Außerdem: anerkannter Abschluss, Übernahmechance"],
  ["Nenne zwei Nachteile des dualen Systems.", "Doppelbelastung; Qualität hängt stark vom Betrieb ab", "Doppelbelastung durch Betrieb und Schule"],
@@ -1387,8 +1387,11 @@ const MOVED_CARDS = [{ from: SEED_X1.name, to: SEED_X1B.name, backs: GEZEITEN }]
 // Verschobene Karten mitsamt Fortschritt umziehen (auch nach dem Sync, falls ein anderes Gerät sie noch im alten Stapel hat)
 // Einmal archivieren; t = 1 gewinnt beim Sync gegen den alten Stand, selbst zurückgeholte Stapel (t > 1) bleiben sichtbar
 const AUTO_ARCHIVED = ["WUG 23.11. – Fachwörter", "WUG 23.11. – Regeln & Fälle"];
+// Geschriebene Arbeiten (1.5.20): einmalig archivieren; danach selbst zurückgeholte Stapel (t > ARCH2_T) bleiben sichtbar
+const ARCH2_T = Date.UTC(2026, 10, 24, 12), AUTO_ARCHIVED2 = ["Englisch – Class Test 17.11.", "Geo – Arbeit 16.11.", "WUG – Arbeit 23.11.", "WUG 23.11. – Das Wichtigste"];
 function applyMoves() {
   db.decks.forEach(d => { if (!d.t && AUTO_ARCHIVED.includes(d.name)) { d.archived = true; d.t = 1; } });
+  db.decks.forEach(d => { if ((d.t || 0) < ARCH2_T && AUTO_ARCHIVED2.includes(d.name)) { d.archived = true; d.t = ARCH2_T; } });
   const key = c => (c.front + '|' + c.back).toLowerCase().replace(/\s+/g, ' ').trim();
   MOVED_CARDS.forEach(mv => {
     const src = db.decks.find(d => d.name === mv.from); if (!src) return;
@@ -2281,8 +2284,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.19';
+const APP_VERSION = '1.5.20';
 const CHANGELOG = [
+  ['1.5.20', 'Geschriebene Arbeiten ins Archiv: Englisch Class Test 17.11., Geo – Arbeit 16.11., WUG – Arbeit 23.11. und WUG – Das Wichtigste (Fortschritt bleibt, über ⋯ zurückholbar)'],
   ['1.5.19', 'Neuer Stapel „LF2 – Ladungsmenge & Probeklausur“ (132 Karten aus OneNote): Kompetenzcheckliste LS 3 und alle Themen der Probeklausur – Trag-/Ladefähigkeit, Freibord, Staufaktor, Rechenwege, Verträge, Schiffsteile, Abteilungen, Treibstoffe'],
   ['1.5.18', 'WUG-Arbeit gekürzt: neuer Stapel „Das Wichtigste“ mit 40 Karten – die beiden großen Stapel (200 Karten) liegen mit Fortschritt im Archiv'],
   ['1.5.17', 'Zwei neue Stapel für die WUG-Arbeit am 23.11.: Fachwörter (77 Karten) und Regeln & Fälle (123 Karten), am aktuellen Gesetz geprüft'],

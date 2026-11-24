@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.20** – Geschriebene Arbeiten ins Archiv: Englisch Class Test 17.11., Geo – Arbeit 16.11., WUG – Arbeit 23.11. und WUG – Das Wichtigste (Fortschritt bleibt, über ⋯ zurückholbar)
 - **1.5.19** – Neuer Stapel „LF2 – Ladungsmenge & Probeklausur“ (132 Karten aus OneNote): Kompetenzcheckliste LS 3 und alle Themen der Probeklausur – Trag-/Ladefähigkeit, Freibord, Staufaktor, Rechenwege, Verträge, Schiffsteile, Abteilungen, Treibstoffe
 - **1.5.18** – WUG-Arbeit gekürzt: neuer Stapel „Das Wichtigste“ mit 40 Karten – die beiden großen Stapel (200 Karten) liegen mit Fortschritt im Archiv
 - **1.5.17** – Zwei neue Stapel für die WUG-Arbeit am 23.11.: Fachwörter (77 Karten) und Regeln & Fälle (123 Karten), am aktuellen Gesetz geprüft
