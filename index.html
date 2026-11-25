@@ -1879,7 +1879,11 @@ const syncPayload = () => ({ v: 2, savedAt: db.settings.localSavedAt || Date.now
 /* Gelöschtes merken, damit es beim Zusammenführen nicht vom anderen Gerät zurückkommt */
 const cardKey = c => (c.front + '|' + c.back).toLowerCase().replace(/\s+/g, ' ').trim();
 function tombs() { if (!db.tomb || typeof db.tomb !== 'object') db.tomb = {}; db.tomb.decks ||= {}; db.tomb.cards ||= {}; return db.tomb; }
-function tombCard(c) { tombs().cards[cardKey(c)] = Date.now(); }
+// Gelöschte Karten pro Stapel merken (Stapel-ID und -Name) – gleiche Karten in anderen Stapeln bleiben erhalten.
+// Ältere Einträge ohne Stapel (nur „Vorderseite|Rückseite“) gelten weiter für alle Stapel.
+const tombKeys = (d, c) => { const k = cardKey(c); return [k, 'i:' + d.id + '|' + k, 'n:' + d.name.toLowerCase() + '|' + k]; };
+function tombCard(c, d) { const t = tombs(), [, i, n] = tombKeys(d, c); t.cards[i] = t.cards[n] = Date.now(); }
+const tombTime = (T, d, c) => Math.max(...tombKeys(d, c).map(k => T.cards[k] || 0));
 function tombDeck(d) { const t = tombs(); t.decks[d.id] = t.decks['n:' + d.name.toLowerCase()] = Date.now(); }
 const normDecks = list => (list || []).map(dk => ({ ...dk, id: dk.id || uid(), cards: (dk.cards || []).map(c => Object.assign(makeCard(c), c.id ? { id: c.id } : {})) }));
 function applyRemote(r) {
@@ -1923,7 +1927,7 @@ function mergeRemote(r) {
   rd.forEach(R => { if (!used.has(R)) out.push(R); });
   const cur = deck(), curName = cur && cur.name;
   db.decks = out.filter(d => Math.max(T.decks[d.id] || 0, T.decks['n:' + d.name.toLowerCase()] || 0) <= (d.t || 0))
-    .map(d => ({ ...d, cards: d.cards.filter(c => (T.cards[cardKey(c)] || 0) <= (c.t || 0)) }));
+    .map(d => ({ ...d, cards: d.cards.filter(c => tombTime(T, d, c) <= (c.t || 0)) }));
   if (curName && !deck()) { const d = db.decks.find(x => x.name === curName); if (d) ui.deckId = d.id; }
   if (rNewer) { if (Array.isArray(r.exams)) db.exams = r.exams; if (r.examColors) db.settings.examColors = r.examColors; if (r.dailyGoal) db.settings.dailyGoal = r.dailyGoal; }
   db.log = mergeLog(db.log, r.log);
@@ -2357,8 +2361,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.24';
+const APP_VERSION = '1.5.25';
 const CHANGELOG = [
+  ['1.5.25', 'Karte löschen gilt jetzt nur für ihren Stapel – gleiche Karten in anderen Stapeln (z. B. „LF2 – Einfache Version“ und der große LF2-Stapel) bleiben beim Sync erhalten'],
   ['1.5.24', 'Tagesstatistik beim Sync: Abfragen werden jetzt pro Gerät gezählt und addiert – wer am selben Tag auf Handy und Laptop lernt, verliert keine Antworten mehr für Tagesziel und Serie'],
   ['1.5.23', 'Sync-Fehler behoben: Vor dem Hochladen wird jetzt erst der Stand vom Server geholt und zusammengeführt – ein Gerät mit altem Stand überschreibt den Lernfortschritt der anderen Geräte nicht mehr'],
   ['1.5.22', 'Neuer Stapel „LF2 – Einfache Version“: nur das Wichtigste in 38 Karten – Verträge, Trag-/Ladefähigkeit, Freibord, Staufaktor, full/down, Probeklausur'],
@@ -2736,7 +2741,7 @@ function editCard(d, card) {
     async (a, bg) => {
       if (a === 'del') {
         if (await askConfirm('Karte löschen?', `„${card.back}“ wird endgültig gelöscht.`, 'Löschen', true)) {
-          d.cards = d.cards.filter(c => c !== card); tombCard(card); save(); render(); toast('Karte gelöscht');
+          d.cards = d.cards.filter(c => c !== card); tombCard(card, d); save(); render(); toast('Karte gelöscht');
         }
         return;
       }
