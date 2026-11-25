@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.23** – Sync-Fehler behoben: Vor dem Hochladen wird jetzt erst der Stand vom Server geholt und zusammengeführt – ein Gerät mit altem Stand überschreibt den Lernfortschritt der anderen Geräte nicht mehr
 - **1.5.22** – Neuer Stapel „LF2 – Einfache Version“: nur das Wichtigste in 38 Karten – Verträge, Trag-/Ladefähigkeit, Freibord, Staufaktor, full/down, Probeklausur
 - **1.5.21** – Erledigte Stapel ins Archiv: LF1 – Rechtsgrundlagen, Englisch Lexis, Ship Parts & Terms, Fachvokabeln sowie Geo-Karte Europa, Traditionelle Seehäfen und Deutschland (Kartenquiz bleibt unverändert)
 - **1.5.20** – Geschriebene Arbeiten ins Archiv: Englisch Class Test 17.11., Geo – Arbeit 16.11., WUG – Arbeit 23.11. und WUG – Das Wichtigste (Fortschritt bleibt, über ⋯ zurückholbar)

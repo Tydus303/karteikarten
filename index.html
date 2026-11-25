@@ -1932,12 +1932,31 @@ function mergeRemote(r) {
 }
 const syncCore = p => JSON.stringify([p.decks, p.exams, p.log, p.tomb || {}]);
 let pushing = false, pushAgain = false, syncErr = '';
-async function syncPush() {
+// merged = true: der Server-Stand wurde gerade eben schon zusammengeführt (nach Pull/Verbinden)
+async function syncPush(merged) {
   const code = db.settings.syncCode; if (!code || !navigator.onLine) return;
   if (pushing) { pushAgain = true; return; }
   pushing = true; pushAgain = false;
-  const at = db.settings.localSavedAt, body = { p_code: code, p_data: syncPayload() };
   try {
+    // Erst den Server-Stand holen und zusammenführen – sonst überschreibt ein Gerät mit altem Stand den Fortschritt der anderen Geräte
+    let payload;
+    const got = merged === true ? null : await rpc('sync_get', { p_code: code });
+    const r = got && got.data;
+    if (r && (ui.view === 'learn' || sheetEl)) {
+      // Mitten in der Lernrunde die Karten nicht austauschen: nur eine Kopie zusammenführen und hochladen
+      const real = db, dId = ui.deckId;
+      db = JSON.parse(JSON.stringify(real));
+      try { mergeRemote(r); payload = syncPayload(); } finally { db = real; ui.deckId = dId; }
+    } else {
+      if (r) {
+        const before = syncCore(syncPayload());
+        syncApplying = true;
+        try { mergeRemote(r); save(); } finally { syncApplying = false; }
+        if (syncCore(syncPayload()) !== before) render();
+      }
+      payload = syncPayload();
+    }
+    const at = db.settings.localSavedAt, body = { p_code: code, p_data: payload };
     // keepalive (Senden beim Schließen der App) erlaubt nur ~64 KB – größere Stände normal senden
     await rpc('sync_put', body, JSON.stringify(body).length < 60000);
     db.settings.syncDirty = db.settings.localSavedAt !== at; db.settings.lastSync = Date.now(); syncErr = '';
@@ -1954,7 +1973,7 @@ async function syncPull() {
   try {
     const got = await rpc('sync_get', { p_code: code });
     const r = got && got.data;
-    if (!r) { await syncPush(); return; }
+    if (!r) { await syncPush(true); return; }
     if (ui.view === 'learn' || sheetEl) return;
     const before = syncCore(syncPayload());
     syncApplying = true;
@@ -1962,7 +1981,7 @@ async function syncPull() {
     const after = syncCore(syncPayload());
     syncErr = '';
     if (after !== before) render();
-    if (after !== syncCore(r) || db.settings.syncDirty) { db.settings.syncDirty = true; await syncPush(); }
+    if (after !== syncCore(r) || db.settings.syncDirty) { db.settings.syncDirty = true; await syncPush(true); }
     else if (ui.view === 'settings') render();
   } catch (e) { console.warn('Sync', e); syncErr = String(e.message || e); }
   finally { pulling = false; }
@@ -1996,7 +2015,7 @@ function syncConnect() {
         // Zusammenführen statt ersetzen: pro Karte gewinnt der neueste Lernstand, danach den gemeinsamen Stand hochladen
         syncApplying = true;
         try { mergeRemote(got.data); db.settings.syncCode = code; db.settings.lastSync = Date.now(); save(); } finally { syncApplying = false; }
-        db.settings.syncDirty = true; await syncPush();
+        db.settings.syncDirty = true; await syncPush(true);
         ui.view = 'home'; render(); toast('Zusammengeführt – Sync läuft jetzt über diesen Code');
       } catch (e) { toast('Keine Verbindung zum Server'); }
     }, bg => bg.querySelector('#code-in').focus());
@@ -2327,8 +2346,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.22';
+const APP_VERSION = '1.5.23';
 const CHANGELOG = [
+  ['1.5.23', 'Sync-Fehler behoben: Vor dem Hochladen wird jetzt erst der Stand vom Server geholt und zusammengeführt – ein Gerät mit altem Stand überschreibt den Lernfortschritt der anderen Geräte nicht mehr'],
   ['1.5.22', 'Neuer Stapel „LF2 – Einfache Version“: nur das Wichtigste in 38 Karten – Verträge, Trag-/Ladefähigkeit, Freibord, Staufaktor, full/down, Probeklausur'],
   ['1.5.21', 'Erledigte Stapel ins Archiv: LF1 – Rechtsgrundlagen, Englisch Lexis, Ship Parts & Terms, Fachvokabeln sowie Geo-Karte Europa, Traditionelle Seehäfen und Deutschland (Kartenquiz bleibt unverändert)'],
   ['1.5.20', 'Geschriebene Arbeiten ins Archiv: Englisch Class Test 17.11., Geo – Arbeit 16.11., WUG – Arbeit 23.11. und WUG – Das Wichtigste (Fortschritt bleibt, über ⋯ zurückholbar)'],
