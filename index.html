@@ -2189,18 +2189,29 @@ const goal = () => db.settings.dailyGoal || 20;
 const dayKey = (t = new Date()) => ymd(t);
 const dayEntry = k => db.log[k] || { n: 0, r: 0 };
 const hit = k => { const e = db.log[k]; return !!e && e.n >= (e.g || goal()); };
+/* Tageszählung pro Gerät (d: { Geräte-ID: [Abfragen, richtig] }), damit Lernen auf mehreren Geräten am selben Tag addiert wird.
+   Einträge ohne d (ältere Versionen) zählen als ein gemeinsamer Teil „_“. */
+const myDev = () => (db.settings.devId ||= [...crypto.getRandomValues(new Uint8Array(12))].map(x => x.toString(16).padStart(2, '0')).join(''));
+const logParts = e => (e.d && typeof e.d === 'object') ? e.d : { _: [e.n || 0, e.r || 0] };
+function logSum(e) { let n = 0, r = 0; for (const [a, b] of Object.values(e.d)) { n += a; r += b; } e.n = n; e.r = r; return e; }
 function mergeLog(a, b) {
   const out = Object.assign({}, a || {});
   if (b && typeof b === 'object') for (const [k, v] of Object.entries(b)) {
     if (!v || typeof v.n !== 'number') continue;
-    const x = out[k]; out[k] = !x || v.n > x.n ? v : x;
+    const x = out[k]; if (!x) { out[k] = v; continue; }
+    const d = {}, A = logParts(x), B = logParts(v);
+    for (const [id, p] of Object.entries(A)) d[id] = p.slice();
+    for (const [id, p] of Object.entries(B)) if (!d[id] || p[0] > d[id][0]) d[id] = p.slice();
+    out[k] = logSum({ ...(x.g || v.g ? { g: x.g || v.g } : {}), d });
   }
   return out;
 }
 function logAnswer(known) {
   const k = dayKey(), e = db.log[k] || (db.log[k] = { n: 0, r: 0 });
   const before = hit(k);
-  e.n++; if (known) e.r++;
+  e.d = logParts(e); const p = (e.d[myDev()] ||= [0, 0]);
+  p[0]++; if (known) p[1]++;
+  logSum(e);
   if (!e.g) e.g = goal();
   return !before && hit(k);
 }
@@ -2346,8 +2357,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.23';
+const APP_VERSION = '1.5.24';
 const CHANGELOG = [
+  ['1.5.24', 'Tagesstatistik beim Sync: Abfragen werden jetzt pro Gerät gezählt und addiert – wer am selben Tag auf Handy und Laptop lernt, verliert keine Antworten mehr für Tagesziel und Serie'],
   ['1.5.23', 'Sync-Fehler behoben: Vor dem Hochladen wird jetzt erst der Stand vom Server geholt und zusammengeführt – ein Gerät mit altem Stand überschreibt den Lernfortschritt der anderen Geräte nicht mehr'],
   ['1.5.22', 'Neuer Stapel „LF2 – Einfache Version“: nur das Wichtigste in 38 Karten – Verträge, Trag-/Ladefähigkeit, Freibord, Staufaktor, full/down, Probeklausur'],
   ['1.5.21', 'Erledigte Stapel ins Archiv: LF1 – Rechtsgrundlagen, Englisch Lexis, Ship Parts & Terms, Fachvokabeln sowie Geo-Karte Europa, Traditionelle Seehäfen und Deutschland (Kartenquiz bleibt unverändert)'],
@@ -2924,7 +2936,7 @@ function rate(known) {
   if (!S || S.busy || !S.revealed) return;
   S.busy = true;
   const c = S.current, first = !S.first.has(c.id);
-  (S.hist ||= []).push({ id: c.id, box: c.box, due: c.due, wrong: c.wrong, queue: S.queue.slice(), first: new Map(S.first), done: S.done, day: dayKey(), log: db.log[dayKey()] ? { ...db.log[dayKey()] } : null });
+  (S.hist ||= []).push({ id: c.id, box: c.box, due: c.due, wrong: c.wrong, queue: S.queue.slice(), first: new Map(S.first), done: S.done, day: dayKey(), log: db.log[dayKey()] ? JSON.parse(JSON.stringify(db.log[dayKey()])) : null });
   if (S.hist.length > 30) S.hist.shift();
   if (first) { S.first.set(c.id, known); if (logAnswer(known)) setTimeout(() => toast(`Tagesziel geschafft! 🔥 ${streakNow()} ${streakNow() === 1 ? 'Tag' : 'Tage'} am Stück`), 350); }
   S.queue.shift();
