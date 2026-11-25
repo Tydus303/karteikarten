@@ -135,6 +135,24 @@ p{margin:0 0 12px}
 .li-front{font-size:15px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .li-back{font-weight:650;margin-top:2px}
 .boxdot{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff}
+.cr-given{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0;font-size:15px}
+.cr-given dt{color:var(--muted)}
+.cr-given dd{margin:0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.cr-step{display:block;border-left:3px solid var(--border);padding:6px 0 6px 12px;margin-bottom:10px}
+.cr-step.ok{border-color:var(--good)}
+.cr-step.bad{border-color:var(--bad)}
+.cr-step.cur{border-color:var(--accent)}
+.cr-step.later{opacity:.45}
+.cr-step.ok>div:first-of-type{color:var(--good)}
+.cr-step.bad>div:first-of-type{color:var(--bad)}
+.cr-l{display:block;font-weight:700;margin-bottom:6px}
+label.cr-l{font-size:17px;color:var(--text);margin:0 0 6px}
+.cr-row{display:flex;gap:8px}
+.cr-row input{flex:1;min-width:0}
+.cr-choices{display:grid;gap:8px}
+.cr-tip{background:none;border:0;color:var(--accent);font:inherit;font-size:14px;padding:8px 0 0;cursor:pointer}
+.cr-tiptext{padding-top:6px}
+.cr-end{text-align:center;margin:6px 0 12px}
 .empty{text-align:center;padding:40px 16px;color:var(--muted)}
 input:not([type=checkbox]),textarea{width:100%;font:inherit;font-size:17px;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);outline:none;resize:vertical}
 input:focus,textarea:focus{border-color:var(--accent)}
@@ -1812,6 +1830,7 @@ const ICONS = {
   kbd: '<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M8 14h8"/>',
   map: '<path d="M9 4L3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>',
   chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  calc: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11.5h.01M12 11.5h.01M16 11.5h.01M8 15h.01M12 15h.01M16 15h.01M8 18h.01M12 18h.01M16 18h.01"/>',
   more: '<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/>',
 };
 const ic = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
@@ -2282,6 +2301,7 @@ function viewHome() {
     ${!isStandalone() && (!db.settings.hideInstall || (isIOS() && Date.now() - (db.settings.hideInstallAt || 0) > 3 * DAY)) ? `<div class="panel install-banner"><div class="grow"><b>Als App installieren</b><div class="muted small">${isIOS() ? '<b style="color:var(--bad)">Wichtig:</b> Im Safari-Tab kann dein iPhone deinen Fortschritt nach 7 Tagen ohne Nutzung löschen. Als App auf dem Home-Bildschirm passiert das nicht.' : 'Kurzes Video: so kommt die App auf deinen Home-Bildschirm.'}</div></div>
       <button class="btn sm primary" data-act="show-install">Ansehen</button><button class="icon-btn" data-act="hide-install" aria-label="Hinweis ausblenden">${ic('close')}</button></div>` : ''}
     ${items || '<div class="empty">Noch keine Stapel.<br>Leg einen an oder importiere einen.</div>'}
+    <button class="btn block" data-act="calc" style="margin-bottom:10px">${ic('calc')} Rechentrainer LF2 – Ladungsmenge</button>
     <button class="btn block" data-act="new-deck">${ic('plus')} Neuer Stapel</button>
     ${nArch ? `<button class="btn block" data-act="archive" style="margin-top:10px">${ic('archive')} Archiv (${nArch})</button>` : ''}
     <p class="disclaimer">Die Karten sind sorgfältig aus den Unterrichtsunterlagen erstellt, teils mit KI zusammengefasst und ergänzt. Fehler sind möglich – im Zweifel gilt, was im Unterricht gesagt wurde. Falsche Karte entdeckt? Bitte melden.</p>`;
@@ -2361,8 +2381,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.25';
+const APP_VERSION = '1.5.26';
 const CHANGELOG = [
+  ['1.5.26', 'Neu: Rechentrainer LF2 (Knopf auf der Startseite) – zufällige Aufgaben zur maximalen Ladungsmenge mit einer oder mehreren Freibordzonen, Schritt für Schritt mit Prüfung, Tipp und Rechenweg'],
   ['1.5.25', 'Karte löschen gilt jetzt nur für ihren Stapel – gleiche Karten in anderen Stapeln (z. B. „LF2 – Einfache Version“ und der große LF2-Stapel) bleiben beim Sync erhalten'],
   ['1.5.24', 'Tagesstatistik beim Sync: Abfragen werden jetzt pro Gerät gezählt und addiert – wer am selben Tag auf Handy und Laptop lernt, verliert keine Antworten mehr für Tagesziel und Serie'],
   ['1.5.23', 'Sync-Fehler behoben: Vor dem Hochladen wird jetzt erst der Stand vom Server geholt und zusammengeführt – ein Gerät mit altem Stand überschreibt den Lernfortschritt der anderen Geräte nicht mehr'],
@@ -2714,14 +2735,120 @@ function gqGo() {
   render();
 }
 
+/* ---------- Rechentrainer LF2 (Ladungsmengenberechnung, LS 3) ---------- */
+// Staufaktoren aus LS 3 und den Übungen; 1 = Schüttgut (Grain Space), 0 = Stückgut (Bale Space)
+const CR_CARGO = [['Eisenerz', 0.42, 1], ['Kohle', 1.30, 1], ['Getreide', 1.84, 1], ['Bauxit', 0.85, 1], ['Wood Chips', 3.5, 1],
+  ['Papierrollen', 2.60, 0], ['Reis in Säcken', 1.50, 0], ['Baumwollballen', 1.92, 0], ['Erdnüsse in Säcken', 4, 0], ['Papierballen', 2, 0]];
+const CR_ZONE = { T: 'Tropen', S: 'Sommer', W: 'Winter' };
+const crRnd = (a, b, step = 1) => Math.round((a + Math.random() * (b - a)) / step) * step;
+const crPick = a => a[Math.floor(Math.random() * a.length)];
+const crFmt = (v, d = 2) => Number(v).toLocaleString('de-DE', { maximumFractionDigits: d });
+// „18.587,42“, „18587.42“, „1.500“ (Tausender) und „1,96“ verstehen
+function crParse(s) {
+  s = String(s).replace(/[^\d.,-]/g, '');
+  if (!s) return NaN;
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  else if (/^-?\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+  return parseFloat(s);
+}
+function crTask(mode) {
+  const [cargo, sf, bulk] = crPick(CR_CARGO);
+  const kn = crRnd(11, 16, 0.5), res = crRnd(2, 4), konst = crRnd(100, 400, 10);
+  const t = { mode, cargo, sf, bulk, kn, res, konst, steps: [] };
+  const step = (label, val, o) => t.steps.push({ label, val, ...o });
+  let tdwcc;
+  if (mode === 1) {
+    t.dwat = crRnd(8000, 25000, 10); t.dist = crRnd(600, 4000, 10); t.cons = crRnd(15, 35, 0.5);
+    const days = t.dist / kn / 24, bunk = days * t.cons, rsv = res * t.cons;
+    tdwcc = t.dwat - bunk - rsv - konst;
+    step('Reisedauer in Tagen', days, { unit: 'Tage', tol: 0.02, tip: 'Distanz (sm) ÷ Geschwindigkeit (kn) = Stunden, ÷ 24 = Tage', how: `${crFmt(t.dist, 0)} sm ÷ ${crFmt(kn, 1)} kn ÷ 24 = ${crFmt(days)} Tage` });
+    step('Bunkerverbrauch der Reise', bunk, { unit: 'mt', tip: 'Reisedauer (Tage) × Tagesverbrauch', how: `${crFmt(days)} Tage × ${crFmt(t.cons, 1)} t = ${crFmt(bunk)} mt` });
+    step('Bunkerreserve', rsv, { unit: 'mt', tip: 'Reservetage × Tagesverbrauch', how: `${res} × ${crFmt(t.cons, 1)} t = ${crFmt(rsv)} mt` });
+    step('Ladefähigkeit (TDWCC)', tdwcc, { unit: 'mt', tip: 'TDWAT − Bunker der Reise − Reserve − Konstanten', how: `${crFmt(t.dwat, 0)} − ${crFmt(bunk)} − ${crFmt(rsv)} − ${crFmt(konst, 0)} = ${crFmt(tdwcc)} mt` });
+  } else {
+    const order = crPick([['T', 'S', 'W'], ['W', 'S', 'T'], ['T', 'S'], ['S', 'T'], ['S', 'W'], ['W', 'S']]);
+    const s = crRnd(12000, 25000, 10), dw = { S: s, T: Math.round(s * 1.0205 / 10) * 10, W: Math.round(s * 0.979 / 10) * 10 };
+    t.me = crRnd(14, 28, 0.5); t.ae = crRnd(1, 3, 0.5); t.cons = t.me + t.ae;
+    t.zones = order.map(z => ({ z, dwat: dw[z], dist: crRnd(300, 1500, 10) }));
+    const rsv = res * t.cons, vals = [];
+    step('Tagesverbrauch auf See', t.cons, { unit: 't/Tag', tol: 0.01, tip: 'Hauptmaschine (M/E) + Hilfsdiesel (A/E)', how: `${crFmt(t.me, 1)} t + ${crFmt(t.ae, 1)} t = ${crFmt(t.cons, 1)} t pro Seetag` });
+    step('Bunkerreserve', rsv, { unit: 'mt', tip: 'Reservetage × Tagesverbrauch', how: `${res} × ${crFmt(t.cons, 1)} t = ${crFmt(rsv)} mt` });
+    t.zones.forEach((zn, i) => {
+      const rest = t.zones.slice(i).reduce((a, x) => a + x.dist, 0), bunk = rest / kn / 24 * t.cons, v = zn.dwat - bunk - rsv - konst;
+      vals.push(v);
+      step(`Bunker ab Eintritt in die ${CR_ZONE[zn.z]}zone bis zum Ziel`, bunk, { unit: 'mt', tip: 'Restliche Distanz ab Zoneneintritt ÷ kn ÷ 24 × Tagesverbrauch', how: `${crFmt(rest, 0)} sm ÷ ${crFmt(kn, 1)} kn ÷ 24 × ${crFmt(t.cons, 1)} t = ${crFmt(bunk)} mt` });
+      step(`TDWCC ${CR_ZONE[zn.z]}zone`, v, { unit: 'mt', tip: 'DWAT der Zone − Bunker ab Zoneneintritt − Reserve − Konstanten', how: `${crFmt(zn.dwat, 0)} − ${crFmt(bunk)} − ${crFmt(rsv)} − ${crFmt(konst, 0)} = ${crFmt(v)} mt` });
+    });
+    tdwcc = Math.min(...vals);
+    step('Ladefähigkeit der Reise (TDWCC)', tdwcc, { unit: 'mt', tip: 'Von allen Zonen gilt der kleinste Wert', how: `Kleinster Wert: ${crFmt(tdwcc)} mt` });
+  }
+  // Laderaum so wählen, dass mal der Raum, mal das Gewicht die Grenze ist
+  const used = Math.round(tdwcc * (0.6 + Math.random() * 0.8) * sf / 100) * 100, f = crRnd(0.9, 0.96, 0.01);
+  t.grain = bulk ? used : Math.round(used / f / 100) * 100;
+  t.bale = bulk ? Math.round(used * f / 100) * 100 : used;
+  const room = bulk ? t.grain : t.bale, rt = room / sf, max = Math.min(rt, tdwcc), full = rt < tdwcc;
+  step(`Menge nach Raum`, rt, { unit: 'mt', tip: 'Laderaum ÷ Staufaktor – Schüttgut: Grain Space, Stückgut: Bale Space', how: `${bulk ? 'Schüttgut → Grain' : 'Stückgut → Bale'} Space: ${crFmt(room, 0)} cbm ÷ ${crFmt(sf)} = ${crFmt(rt)} mt` });
+  step('Maximale Ladungsmenge', max, { unit: 'mt', tip: 'TDWCC und Menge nach Raum vergleichen – der kleinere Wert gilt', how: `Kleinerer Wert aus ${crFmt(tdwcc)} (TDWCC) und ${crFmt(rt)} (Raum) = ${crFmt(max)} mt` });
+  step('Wie ist das Schiff beladen?', full ? 0 : 1, { choice: ['full but not down', 'down but not full'], tip: 'Was ist die Grenze – der Raum oder die Ladefähigkeit?', how: full ? 'Der Raum ist die Grenze → full but not down' : 'Die Ladefähigkeit ist die Grenze → down but not full' });
+  if (full) step('Ungenutzte Ladefähigkeit', tdwcc - rt, { unit: 'mt', tip: 'TDWCC − geladene Menge', how: `${crFmt(tdwcc)} − ${crFmt(rt)} = ${crFmt(tdwcc - rt)} mt` });
+  else step('Ungenutzter Laderaum', room - tdwcc * sf, { unit: 'cbm', tip: 'Laderaum − geladene Menge × Staufaktor', how: `${crFmt(room, 0)} cbm − ${crFmt(tdwcc)} mt × ${crFmt(sf)} = ${crFmt(room - tdwcc * sf)} cbm` });
+  return t;
+}
+let CR = null;
+function crGiven(t) {
+  const row = (k, v) => `<dt>${k}</dt><dd>${v}</dd>`;
+  const ship = t.mode === 1
+    ? row('TDWAT', `${crFmt(t.dwat, 0)} mt`) + row('Reise', `${crFmt(t.dist, 0)} sm mit ${crFmt(t.kn, 1)} kn`) + row('Verbrauch', `${crFmt(t.cons, 1)} t pro Seetag`)
+    : row('Route', t.zones.map(z => `${CR_ZONE[z.z]} ${crFmt(z.dist, 0)} sm`).join(' → ')) + row('TDWAT', t.zones.map(z => `${z.z} ${crFmt(z.dwat, 0)}`).join(' · ') + ' mt')
+      + row('Geschw.', `${crFmt(t.kn, 1)} kn`) + row('Verbrauch', `M/E ${crFmt(t.me, 1)} t + A/E ${crFmt(t.ae, 1)} t pro Seetag`);
+  return `<dl class="cr-given">${ship}${row('Reserve', `${t.res} Tagessätze`)}${row('Konstanten', `${crFmt(t.konst, 0)} mt (Vorräte, Frischwasser …)`)}
+    ${row('Ladung', `${esc(t.cargo)}, SF ${crFmt(t.sf)} cbm/mt`)}${row('Laderaum', `Grain ${crFmt(t.grain, 0)} cbm · Bale ${crFmt(t.bale, 0)} cbm`)}</dl>`;
+}
+function viewCalc() {
+  const mode = ui.crMode || 1;
+  if (!CR || CR.mode !== mode) CR = { mode, task: crTask(mode), i: 0, ans: [] };
+  const t = CR.task, n = t.steps.length, done = CR.i >= n, right = CR.ans.filter(a => a.ok).length;
+  const seg = (v, l) => `<button class="${mode === v ? 'on' : ''}" data-act="cr-mode" data-v="${v}">${l}</button>`;
+  const steps = t.steps.map((s, j) => {
+    if (j < CR.i) { const a = CR.ans[j];
+      return `<div class="cr-step ${a.ok ? 'ok' : 'bad'}"><span class="cr-l">${esc(s.label)}</span>
+        <div>${a.ok ? '✓' : '✗'} ${esc(a.shown)}${a.ok ? '' : ` · richtig: <b>${s.choice ? s.choice[s.val] : crFmt(s.val) + ' ' + s.unit}</b>`}</div>
+        <div class="muted small">${esc(s.how)}</div></div>`; }
+    if (j > CR.i) return `<div class="cr-step later"><span class="cr-l">${esc(s.label)}</span></div>`;
+    const tip = CR.tip ? `<div class="muted small cr-tiptext">${esc(s.tip)}</div>` : `<button type="button" class="cr-tip" data-act="cr-tip">Tipp</button>`;
+    if (s.choice) return `<div class="cr-step cur"><span class="cr-l">${esc(s.label)}</span>
+      <div class="cr-choices">${s.choice.map((c, k) => `<button class="btn" data-act="cr-choice" data-v="${k}">${c}</button>`).join('')}</div>${tip}</div>`;
+    return `<form id="cr-form" class="cr-step cur"><label class="cr-l" for="cr-in">${esc(s.label)}</label>
+      <div class="cr-row"><input id="cr-in" inputmode="decimal" autocomplete="off" placeholder="in ${s.unit}"><button class="btn primary sm">Prüfen</button></div>${tip}</form>`;
+  }).join('');
+  return `<div class="topbar"><button class="icon-btn" data-act="home" aria-label="Zurück">${ic('back')}</button><h2>Rechentrainer LF2</h2></div>
+    <div class="seg">${seg(1, 'Eine Zone')}${seg(2, 'Mehrere Zonen')}</div>
+    <div class="panel"><div class="panel-title">Aufgabe – maximale Ladungsmenge</div>${crGiven(t)}</div>
+    <div class="panel">${steps}
+      ${done ? `<div class="cr-end"><b>${right} von ${n} Schritten richtig</b>${right === n ? ' 🎉' : ''}</div>` : ''}
+      <button class="btn block ${done ? 'primary' : ''}" data-act="cr-new">Neue Aufgabe</button></div>
+    <p class="disclaimer">Rechenweg und Staufaktoren aus LS 3 und den Übungen. Gerundete Zwischenergebnisse werden akzeptiert.</p>`;
+}
+function crCheck(v) {
+  const s = CR && CR.task.steps[CR.i]; if (!s) return;
+  let ok, shown;
+  if (s.choice) { ok = v === s.val; shown = s.choice[v]; }
+  else {
+    const x = crParse(v); if (isNaN(x)) { toast('Bitte eine Zahl eingeben'); return; }
+    ok = Math.abs(x - s.val) <= (s.tol ?? Math.max(1.5, Math.abs(s.val) * 0.001)); shown = crFmt(x) + ' ' + s.unit;
+  }
+  CR.ans.push({ ok, shown }); CR.i++; CR.tip = false; CR.focus = true; render();
+}
+
 function render() {
   if (typeof updatePending !== 'undefined' && updatePending && ui.view !== 'learn' && !sheetEl) { setTimeout(applyUpdate, 0); }
-  const views = { quiz: viewQuiz, stats: viewStats, calendar: viewCalendar, archive: viewArchive, home: viewHome, deck: viewDeck, learn: viewLearn, summary: viewSummary, settings: viewSettings };
+  const views = { calc: viewCalc, quiz: viewQuiz, stats: viewStats, calendar: viewCalendar, archive: viewArchive, home: viewHome, deck: viewDeck, learn: viewLearn, summary: viewSummary, settings: viewSettings };
   $('#app').innerHTML = views[ui.view]();
   document.body.classList.toggle('learning', ui.view === 'learn');
   if (ui.view !== lastView) { window.scrollTo(0, 0); lastView = ui.view; }
   if (ui.view === 'learn') bindCard();
   if (ui.view === 'quiz') bindQuiz();
+  if (ui.view === 'calc' && CR && CR.focus) { CR.focus = false; const f = $('#cr-in') || $('.cr-step.cur') || $('.cr-end'); if (f) { f.scrollIntoView({ block: 'center' }); if (f.id === 'cr-in') f.focus({ preventScroll: true }); } }
   if (ui.view === 'settings') showPersist();
 }
 
@@ -3045,6 +3172,11 @@ const actions = {
   'mc-next'() { if (S && S.checked) rate(S.verdict); },
   stats() { ui.view = 'stats'; render(); },
   quiz() { GQ.run = null; ui.view = 'quiz'; render(); },
+  calc() { ui.view = 'calc'; render(); },
+  'cr-mode'(el) { ui.crMode = +el.dataset.v; CR = null; render(); },
+  'cr-new'() { CR = null; render(); },
+  'cr-tip'() { if (CR) { CR.tip = true; render(); } },
+  'cr-choice'(el) { crCheck(+el.dataset.v); },
   'gq-map'(el) { gqSet().map = el.dataset.v; gqSet().cat = ''; save(); render(); },
   'gq-cat'(el) { gqSet().cat = el.dataset.v; save(); render(); },
   'gq-n'(el) { gqSet().n = +el.dataset.v; save(); render(); },
@@ -3096,7 +3228,7 @@ $('#app').addEventListener('input', e => {
   if (e.target.id === 'ans' && e.target.tagName === 'TEXTAREA') { e.target.style.height = ''; e.target.style.height = Math.min(e.target.scrollHeight + 2, 150) + 'px'; }
   if (e.target.id === 'search') { ui.search = e.target.value; const d = deck(); if (d) $('#card-list').innerHTML = cardListHtml(d); }
 });
-$('#app').addEventListener('submit', e => { e.preventDefault(); if (e.target.id === 'gq-form') gqCheck(); else checkAnswer(); });
+$('#app').addEventListener('submit', e => { e.preventDefault(); if (e.target.id === 'gq-form') gqCheck(); else if (e.target.id === 'cr-form') crCheck($('#cr-in').value); else checkAnswer(); });
 $('#app').addEventListener('change', async e => {
   if (e.target.id === 'file' && e.target.files[0]) {
     const text = await e.target.files[0].text(); e.target.value = '';
