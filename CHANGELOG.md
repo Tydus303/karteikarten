@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.28** – Abkürzungen werden klein unter der Lösung erklärt (z. B. cbm = Kubikmeter, TDWCC = Total Deadweight Cargo Capacity) – auf den Karteikarten und im Rechentrainer
 - **1.5.27** – Gezielte Fragen zur Probeklausur entfernt (St. Pauli, Fälle zu den Vertragsarten, Fragen zur Malcolm) – „LF2 – Ladungsmenge & Probeklausur“ hat jetzt 121, „LF2 – Einfache Version“ 34 Karten
 - **1.5.26** – Neu: Rechentrainer LF2 (Knopf auf der Startseite) – zufällige Aufgaben zur maximalen Ladungsmenge mit einer oder mehreren Freibordzonen, Schritt für Schritt mit Prüfung, Tipp und Rechenweg
 - **1.5.25** – Karte löschen gilt jetzt nur für ihren Stapel – gleiche Karten in anderen Stapeln (z. B. „LF2 – Einfache Version“ und der große LF2-Stapel) bleiben beim Sync erhalten

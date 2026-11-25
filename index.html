@@ -153,6 +153,9 @@ label.cr-l{font-size:17px;color:var(--text);margin:0 0 6px}
 .cr-tip{background:none;border:0;color:var(--accent);font:inherit;font-size:14px;padding:8px 0 0;cursor:pointer}
 .cr-tiptext{padding-top:6px}
 .cr-end{text-align:center;margin:6px 0 12px}
+.abbr{margin-top:14px;font-size:12.5px;line-height:1.45;color:var(--muted);text-align:center}
+.abbr b{font-weight:700}
+.cr-step .abbr{margin-top:4px;text-align:left}
 .empty{text-align:center;padding:40px 16px;color:var(--muted)}
 input:not([type=checkbox]),textarea{width:100%;font:inherit;font-size:17px;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);outline:none;resize:vertical}
 input:focus,textarea:focus{border-color:var(--accent)}
@@ -2369,8 +2372,9 @@ function viewSummary() {
     <button class="btn block" data-act="back-deck">Zurück zum Stapel</button>`;
 }
 
-const APP_VERSION = '1.5.27';
+const APP_VERSION = '1.5.28';
 const CHANGELOG = [
+  ['1.5.28', 'Abkürzungen werden klein unter der Lösung erklärt (z. B. cbm = Kubikmeter, TDWCC = Total Deadweight Cargo Capacity) – auf den Karteikarten und im Rechentrainer'],
   ['1.5.27', 'Gezielte Fragen zur Probeklausur entfernt (St. Pauli, Fälle zu den Vertragsarten, Fragen zur Malcolm) – „LF2 – Ladungsmenge & Probeklausur“ hat jetzt 121, „LF2 – Einfache Version“ 34 Karten'],
   ['1.5.26', 'Neu: Rechentrainer LF2 (Knopf auf der Startseite) – zufällige Aufgaben zur maximalen Ladungsmenge mit einer oder mehreren Freibordzonen, Schritt für Schritt mit Prüfung, Tipp und Rechenweg'],
   ['1.5.25', 'Karte löschen gilt jetzt nur für ihren Stapel – gleiche Karten in anderen Stapeln (z. B. „LF2 – Einfache Version“ und der große LF2-Stapel) bleiben beim Sync erhalten'],
@@ -2724,6 +2728,24 @@ function gqGo() {
   render();
 }
 
+/* ---------- Abkürzungen klein unter der Lösung erklären ---------- */
+const ABBR = [['cbm', 'Kubikmeter'], ['cbft', 'Kubikfuß (cubic feet)'], ['mt', 'metrische Tonne (1.000 kg)'], ['sm', 'Seemeile (1.852 m)'], ['kn', 'Knoten (Seemeilen pro Stunde)'],
+  ['TDWAT', 'Total Deadweight All Told (Tragfähigkeit)'], ['DWAT', 'Deadweight All Told (Tragfähigkeit)'], ['TDWCC', 'Total Deadweight Cargo Capacity (Ladefähigkeit)'], ['DWCC', 'Deadweight Cargo Capacity (Ladefähigkeit)'],
+  ['dwt', 'Deadweight Tonnage (Tragfähigkeit)'], ['tdw', 'Tragfähigkeit in Tonnen (Deadweight)'], ['SF', 'Stowage Factor (Staufaktor)'], ['BRZ', 'Bruttoraumzahl'], ['NRZ', 'Nettoraumzahl'], ['GT', 'Gross Tonnage (Bruttoraumzahl)'], ['NT', 'Net Tonnage (Nettoraumzahl)'],
+  ['TEU', 'Twenty-foot Equivalent Unit (20-Fuß-Container)'], ['CEU', 'Car Equivalent Unit (Pkw-Stellplatz)'], ['M/E', 'Main Engine (Hauptmaschine)'], ['A/E', 'Auxiliary Engine (Hilfsdiesel)'],
+  ['HFO', 'Heavy Fuel Oil (Schweröl)'], ['HSFO', 'High Sulphur Fuel Oil'], ['VLSFO', 'Very Low Sulphur Fuel Oil'], ['ULSFO', 'Ultra Low Sulphur Fuel Oil'], ['MGO', 'Marine Gas Oil'], ['MDO', 'Marine Diesel Oil'], ['LNG', 'Liquefied Natural Gas (Flüssigerdgas)'],
+  ['ECA', 'Emission Control Area'], ['EEDI', 'Energy Efficiency Design Index'], ['IMO', 'International Maritime Organization'], ['MARPOL', 'Marine Pollution (Übereinkommen gegen Meeresverschmutzung)'], ['SOLAS', 'Safety of Life at Sea'],
+  ['ICLL', 'International Convention on Load Lines'], ['LLC', 'Load Line Convention (Freibord-Übereinkommen)'], ['ITC', 'International Tonnage Convention (Schiffsvermessung)'], ['BSH', 'Bundesamt für Seeschifffahrt und Hydrographie'],
+  ['RO', 'Recognized Organization (anerkannte Organisation)'], ['LR', "Lloyd's Register"], ['TF', 'Tropen-Frischwasser'], ['WNA', 'Winter Nordatlantik'],
+  ['T/C', 'Time Charter (Zeitcharter)'], ['V/C', 'Voyage Charter (Reisecharter)'], ['c/p', 'Charter Party (Charterpartie)'], ['B/L', 'Bill of Lading (Konnossement)'], ['NVOC', 'Non-Vessel Operating Carrier'],
+  ['S&P', 'Sale & Purchase (An- und Verkauf)'], ['M&R', 'Maintenance & Repair (Instandhaltung)'], ['loa', 'length over all (Länge über alles)'], ['lpp', 'length between perpendiculars (Länge zwischen den Loten)'],
+  ['SWL', 'Safe Working Load (zulässige Last)'], ['GJ', 'Gigajoule'], ['USD', 'US-Dollar'], ['AIS', 'Automatic Identification System'], ['VLCC', 'Very Large Crude Carrier'], ['ULCC', 'Ultra Large Crude Carrier'], ['MR', 'Mid Range']]
+  .map(([k, v]) => [k, v, new RegExp('(^|[^A-Za-z0-9_ÄÖÜäöüß/&])' + k + '(?![A-Za-z0-9_ÄÖÜäöüß/&])')]);
+function abbrHtml(text) {
+  const low = text.toLowerCase();
+  const hits = ABBR.filter(([k, v, re]) => re.test(text) && !low.includes(v.split(' (')[0].toLowerCase()));
+  return hits.length ? `<div class="abbr">${hits.map(([k, v]) => `<b>${esc(k)}</b> = ${esc(v)}`).join(' · ')}</div>` : '';
+}
 /* ---------- Rechentrainer LF2 (Ladungsmengenberechnung, LS 3) ---------- */
 // Staufaktoren aus LS 3 und den Übungen; 1 = Schüttgut (Grain Space), 0 = Stückgut (Bale Space)
 const CR_CARGO = [['Eisenerz', 0.42, 1], ['Kohle', 1.30, 1], ['Getreide', 1.84, 1], ['Bauxit', 0.85, 1], ['Wood Chips', 3.5, 1],
@@ -2802,7 +2824,7 @@ function viewCalc() {
     if (j < CR.i) { const a = CR.ans[j];
       return `<div class="cr-step ${a.ok ? 'ok' : 'bad'}"><span class="cr-l">${esc(s.label)}</span>
         <div>${a.ok ? '✓' : '✗'} ${esc(a.shown)}${a.ok ? '' : ` · richtig: <b>${s.choice ? s.choice[s.val] : crFmt(s.val) + ' ' + s.unit}</b>`}</div>
-        <div class="muted small">${esc(s.how)}</div></div>`; }
+        <div class="muted small">${esc(s.how)}</div>${abbrHtml(s.label + ' | ' + s.how + ' ' + (s.unit || ''))}</div>`; }
     if (j > CR.i) return `<div class="cr-step later"><span class="cr-l">${esc(s.label)}</span></div>`;
     const tip = CR.tip ? `<div class="muted small cr-tiptext">${esc(s.tip)}</div>` : `<button type="button" class="cr-tip" data-act="cr-tip">Tipp</button>`;
     if (s.choice) return `<div class="cr-step cur"><span class="cr-l">${esc(s.label)}</span>
@@ -2924,7 +2946,7 @@ function showNext() {
   const mapH = c.map ? mapStack(c.map) : '';
   $('#cf').innerHTML = S.dir === 'normal' ? desc + mapH : term;
   const pic = c.img ? `<img class="card-img" src="${esc(c.img)}" alt="Bild zur Lösung" draggable="false"><div class="img-hint">🔍 Bild antippen zum Vergrößern</div>` : '';
-  $('#cb').innerHTML = (S.dir === 'normal' ? term : desc) + enLine + pic + (mapH ? mapH + '<div class="img-hint">🔍 Karte antippen zum Vergrößern</div>' : '') + ex;
+  $('#cb').innerHTML = (S.dir === 'normal' ? term : desc) + enLine + pic + (mapH ? mapH + '<div class="img-hint">🔍 Karte antippen zum Vergrößern</div>' : '') + ex + abbrHtml([F, B, E || ''].join(' | '));
   const again = S.first.has(c.id);
   const tag = `<span class="dot b${c.box}"></span>Fach ${c.box}${again ? ' · Wiederholung' : ''}`;
   $('#tag-f').innerHTML = tag; $('#tag-b').innerHTML = tag;
