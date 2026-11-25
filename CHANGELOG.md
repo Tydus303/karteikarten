@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.30** – LF2: Rechenkarten zur Übungsklausur (St. Pauli) entfernt
 - **1.5.29** – LF2 aufgeräumt: Karten ohne Bezug zu Kompetenzcheckliste/Probeklausur entfernt, Klausur-Aufgabentypen wieder drin
 - **1.5.28** – Abkürzungen werden klein unter der Lösung erklärt (z. B. cbm = Kubikmeter, TDWCC = Total Deadweight Cargo Capacity) – auf den Karteikarten und im Rechentrainer
 - **1.5.27** – Gezielte Fragen zur Probeklausur entfernt (St. Pauli, Fälle zu den Vertragsarten, Fragen zur Malcolm) – „LF2 – Ladungsmenge & Probeklausur“ hat jetzt 121, „LF2 – Einfache Version“ 34 Karten
