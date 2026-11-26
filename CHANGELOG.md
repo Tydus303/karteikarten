@@ -1,5 +1,6 @@
 # Änderungen
 
+- **1.5.31** – LF2: Antworten einfacher formuliert, mit Beispiel und Formel; Lernstand bleibt erhalten
 - **1.5.30** – LF2: Rechenkarten zur Übungsklausur (St. Pauli) entfernt
 - **1.5.29** – LF2 aufgeräumt: Karten ohne Bezug zu Kompetenzcheckliste/Probeklausur entfernt, Klausur-Aufgabentypen wieder drin
 - **1.5.28** – Abkürzungen werden klein unter der Lösung erklärt (z. B. cbm = Kubikmeter, TDWCC = Total Deadweight Cargo Capacity) – auf den Karteikarten und im Rechentrainer
